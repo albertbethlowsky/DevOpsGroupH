@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
   char query[256];
   const char *data = "Callback function called";
 
-  rc = sqlite3_open("/tmp/minitwit.db", &db);
+  rc = sqlite3_open("tmp/minitwit.db", &db);
   if (rc) {
     fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
     return (0);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
   if (argc == 2 && strcmp(argv[1], "-i") == 0) {
     strcpy(query, "SELECT * FROM message");
     /* Execute SQL statement */
-    rc = sqlite3_exec(db, query, callback, (void *)data, &zErrMsg);
+    rc = sqlite3_exec(db, query, callback, (void *)data, &zErrMsg); //error is here
     if (rc != SQLITE_OK) {
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
