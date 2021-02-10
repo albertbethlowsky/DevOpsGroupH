@@ -20,6 +20,10 @@ namespace mvc_minitwit.Models
                     Console.WriteLine("the db is not empty!") ;   // DB has been seeded
                     foreach(var m in context.Message){
                         Console.WriteLine(m.text);
+                    }foreach(var m in context.User){
+                        Console.WriteLine(m.username);
+                    }foreach(var m in context.Follower){
+                        Console.WriteLine(m.who_id);
                     }
                     
                     return;
