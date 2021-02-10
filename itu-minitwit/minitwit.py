@@ -18,6 +18,7 @@ from contextlib import closing
 from flask import Flask, request, session, url_for, redirect, render_template, abort, g, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
+print("I RUN")
 
 # configuration
 DATABASE = 'tmp/minitwit.db'
@@ -73,6 +74,7 @@ def before_request():
     """Make sure we are connected to the database each request and look
     up the current user so that we know he's there.
     """
+    print("BEFORE")
     g.db = connect_db()
     g.user = None
     if 'user_id' in session:
@@ -82,6 +84,8 @@ def before_request():
 
 @app.after_request
 def after_request(response):
+    print("AFTER")
+
     """Closes the database again at the end of the request."""
     g.db.close()
     return response

@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   const char *data = "Callback function called";
 
   rc = sqlite3_open("tmp/minitwit.db", &db);
-  //make exception that catches if the path is wrong. 
+  //make exception that catches if the path is wrong.
   if (rc) {
     fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
     return (0);

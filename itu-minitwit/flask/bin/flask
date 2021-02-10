@@ -1,4 +1,4 @@
-#!/home/frvo/Desktop/DevOpsGroupH/itu-minitwit/flask/bin/python
+#!/mnt/c/Users/alext/Documents/CS/2.semester/DevOpsGroupH/itu-minitwit/flask/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
