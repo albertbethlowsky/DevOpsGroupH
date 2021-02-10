@@ -7,10 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using mvc_minitwit.Models;
 
+
 namespace mvc_minitwit.Controllers
 {
     public class HomeController : Controller
+    
     {
+        
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger)
@@ -18,9 +21,10 @@ namespace mvc_minitwit.Controllers
             _logger = logger;
         }
 
-        public IActionResult Timeline()
+        
+        public async Task<IActionResult> Timeline([Bind("message_id,author_id,text,pub_date,flagged")] Message m)
         {
-            return View();
+            return View(m);
         }
 
         public IActionResult MyTimeline()

@@ -18,10 +18,6 @@ namespace mvc_minitwit.Models
                 if (context.Message.Any())
                 {
                     Console.WriteLine("the db is not empty!") ;   // DB has been seeded
-                    foreach(var m in context.Message){
-                        Console.WriteLine(m.text);
-                    }
-                    
                     return;
                 } else {
                     Console.WriteLine("db it not found/or empty");
@@ -32,4 +28,6 @@ namespace mvc_minitwit.Models
             }
         }
     }
+
+    
 }
