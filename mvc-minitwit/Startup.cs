@@ -50,7 +50,7 @@ namespace mvc_minitwit
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Timeline}/{id?}");
             });
         }
     }

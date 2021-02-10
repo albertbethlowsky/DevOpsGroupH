@@ -18,12 +18,22 @@ namespace mvc_minitwit.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Timeline()
         {
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult MyTimeline()
+        {
+            return View();
+        }
+
+        public IActionResult SignUp()
+        {
+            return View();
+        }
+
+        public IActionResult SignIn()
         {
             return View();
         }
