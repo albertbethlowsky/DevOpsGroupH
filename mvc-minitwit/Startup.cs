@@ -27,8 +27,9 @@ namespace mvc_minitwit
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<MessageContext>(options =>
-            options.UseSqlite(Configuration.GetConnectionString("MessageContext"))); //database context for message
+            services.AddDbContext<MvcDbContext>(options =>
+            options.UseSqlite(
+                Configuration.GetConnectionString("DefaultConnection"))); //database context 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

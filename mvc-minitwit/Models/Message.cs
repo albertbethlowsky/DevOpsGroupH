@@ -4,11 +4,12 @@ using System.ComponentModel.DataAnnotations;
 namespace mvc_minitwit.Models{
     public class Message {
         //[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         public int message_id {get; set;} //autoincremet
         public int author_id {get;set;}
         public string text {get; set;}
         public int pub_date {get;set;}
-        public int falgged {get;set;}
+        public int flagged {get;set;}
     }
 
     // public class Follower {
