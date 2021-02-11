@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using mvc_minitwit.Models;
 using mvc_minitwit.Data;
+using mvc_minitwit.HelperClasses;
 
 
 namespace mvc_minitwit.Controllers
@@ -47,13 +48,61 @@ namespace mvc_minitwit.Controllers
             return View();
         }
 
+        
         public IActionResult SignUp()
         {
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SignUp(User _user)
+        {
+            if(ModelState.IsValid)
+            {
+                var check = _context.user.FirstOrDefault(t => t.email == _user.email);
+                if(check == null)
+                {
+                    GravatarImage newHash = new GravatarImage();
+                    _user.pw_hash = newHash.hashBuilder(_user.pw_hash);
+                    _context.user.Add(_user);
+                    _context.SaveChanges();
+                    return RedirectToAction("Timeline");
+                }
+                else
+                {
+                    ViewBag.error = "Email already exist";
+                    return View();
+                }
+            }
+            return View();
+        }
+
         public IActionResult SignIn()
         {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SignIn(User _user)
+        {
+            if(ModelState.IsValid)
+            {
+                GravatarImage newHash = new GravatarImage();
+                var f_password = newHash.hashBuilder(_user.pw_hash);
+                var data = _context.user.Where(u => u.email.Equals(_user.email) && u.pw_hash.Equals(f_password)).ToList();
+                
+                if(data.Count() > 0)
+                {
+                    return RedirectToAction("Timeline");
+                }
+                else
+                {
+                    ViewBag.error = "Login failed";
+                    return RedirectToAction("Timeline");
+                }
+            }
             return View();
         }
 

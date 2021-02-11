@@ -14,7 +14,7 @@ namespace mvc_minitwit.HelperClasses
 
             public TimeConverters(){}
         
-        public String formatIntToDate(int date) 
+        public string formatIntToDate(int date) 
         {
             DateTime newDate = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             newDate = newDate.AddSeconds(date);

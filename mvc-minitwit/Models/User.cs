@@ -15,5 +15,10 @@ namespace mvc_minitwit.Models {
         public string email { get; set; }
         [Required]
         public string pw_hash { get; set; }
+        [Required]
+        [NotMapped]
+        [System.ComponentModel.DataAnnotations.Compare("pw_hash")]
+
+        public string pw_hash2 { get; set; }
     }
 }
