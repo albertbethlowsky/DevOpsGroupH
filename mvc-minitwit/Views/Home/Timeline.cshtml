@@ -1,22 +1,19 @@
-﻿@model IEnumerable<mvc_minitwit.Models.Message>
+﻿@model IEnumerable<mvc_minitwit.Models.TimelineData>
 @{
 //TODO: We need to rebuild our server logic so that we can use it in our CSHTML FILES
 
     ViewData["Title"] = "Public Timeline";
+    var newDate = new mvc_minitwit.HelperClasses.TimeConverters();
+    var gravatar = new mvc_minitwit.HelperClasses.GravatarImage();
 }
 
-<ul class=flashes> 
-    <body>
+<ul class=messages> 
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.message_id)
-                </td>
-                <td>
+            <li><img src=@gravatar.emailToGravatar(item.email)><p>
+                <strong><a asp-controller="Home" asp-action="UserTimeline"> @Html.DisplayFor(modelItem => item.username) </a></strong>
                     @Html.DisplayFor(modelItem => item.text)
-                </td>
-            </tr>
-        }
-    </body>  
+                    <small>&mdash; @newDate.formatIntToDate(item.pub_date) </small>
+            </li>
+        } 
 </ul> 

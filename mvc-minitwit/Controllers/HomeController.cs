@@ -27,7 +27,19 @@ namespace mvc_minitwit.Controllers
 
         public async Task<IActionResult> Timeline(int? id)
         {         
-            return View(await _context.message.OrderByDescending(t => t.message_id).Take(50).ToListAsync());
+            //List<Message> messages = _context.message.OrderByDescending(t => t.message_id).Take(50).ToList();
+            //List<User> users = _context.user.ToList();
+            var joinedtable = (from m in _context.message
+                              join u in _context.user on m.author_id equals u.user_id
+                              select 
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date}).OrderByDescending(t => t.message_id).Take(50).ToList();
+
+            return View(joinedtable);
+        }
+
+        public IActionResult UserTimeline()
+        {
+            return View();
         }
 
         public IActionResult MyTimeline()
