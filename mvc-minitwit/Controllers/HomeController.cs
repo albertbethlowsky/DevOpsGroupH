@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using mvc_minitwit.Models;
+using mvc_minitwit.Data;
 
 
 namespace mvc_minitwit.Controllers
@@ -15,16 +17,17 @@ namespace mvc_minitwit.Controllers
     {
         
         private readonly ILogger<HomeController> _logger;
+        private readonly MvcDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, MvcDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        
-        public async Task<IActionResult> Timeline([Bind("message_id,author_id,text,pub_date,flagged")] Message m)
-        {
-            return View(m);
+        public async Task<IActionResult> Timeline(int? id)
+        {         
+            return View(await _context.message.OrderByDescending(t => t.message_id).Take(50).ToListAsync());
         }
 
         public IActionResult MyTimeline()

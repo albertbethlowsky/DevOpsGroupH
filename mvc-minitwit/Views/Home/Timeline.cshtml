@@ -1,22 +1,22 @@
-﻿@model mvc_minitwit.Models.Message
+﻿@model IEnumerable<mvc_minitwit.Models.Message>
 @{
 //TODO: We need to rebuild our server logic so that we can use it in our CSHTML FILES
 
     ViewData["Title"] = "Public Timeline";
 }
 
-@Html.DisplayNameFor(model => model.text)
-
-<ul class=flashes>
+<ul class=flashes> 
     <body>
-        @foreach (var item in model.text)
+        @foreach (var item in Model)
         {
             <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.message_id)
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.text)
                 </td>
             </tr>
         }
-    </body>
-    
+    </body>  
 </ul> 

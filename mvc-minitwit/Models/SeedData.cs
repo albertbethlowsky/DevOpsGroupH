@@ -14,18 +14,18 @@ namespace mvc_minitwit.Models
                 serviceProvider.GetRequiredService<
                     DbContextOptions<MvcDbContext>>()))
             {
-                // Look for any movies.
-                if (context.Message.Any())
+                // Look for any messages.
+                if (context.message.Any())
                 {
                     Console.WriteLine("the db is not empty!") ;   // DB has been seeded
-                   foreach(var m in context.Message){
+                   foreach(var m in context.message){
                        Console.WriteLine(m.text);
                     }
-                    foreach(var m in context.User){
+                    foreach(var m in context.user){
                         Console.WriteLine(m.username);
                     }
 
-                    foreach(var m in context.Follower){
+                    foreach(var m in context.follower){
                         Console.WriteLine(m.who_id);
                     }
                     
