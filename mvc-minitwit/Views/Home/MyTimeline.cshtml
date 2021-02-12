@@ -2,7 +2,7 @@
     ViewData["Title"] = "My Timeline";
 }
 
-<h2></h2>
+<h2>@ViewData["Title"]</h2>
 <div class=followstatus>
     <a class=unfollow href="{{ url_for('unfollow_user', username=profile_user.username)}}">Unfollow user</a>.
     <a class=follow href="{{ url_for('follow_user', username=profile_user.username)}}">Follow user</a>.

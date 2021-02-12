@@ -14,13 +14,13 @@
 @if(login.checkLogin())
 {
     <div class=navigation>  
-        <a asp-controller="Home" asp-action="Timeline" asp-route-id="mtimeline">my timeline</a> |
-        <a asp-controller="Home" asp-action="Timeline" asp-route-id="ptimeline">public timeline</a> |
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="My Timeline">my timeline</a> |
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="Public Timeline">public timeline</a> |
         <a asp-controller="Home" asp-action="Sign_Out">sign out</a> |
     </div>
 } else {
     <div class=navigation>  
-        <a asp-controller="Home" asp-action="Timeline" asp-route-id="ptimeline">public timeline</a> |
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="Public Timeline">public timeline</a> |
         <a asp-controller="Home" asp-action="SignIn">sign in</a> |
         <a asp-controller="Home" asp-action="SignUp">sign up</a> |
     </div> 

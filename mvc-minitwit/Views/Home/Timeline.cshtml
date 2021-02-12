@@ -1,9 +1,29 @@
 ﻿@model IEnumerable<mvc_minitwit.Models.TimelineData>
 @{
-
-    //ViewData["Title"] = "Public Timeline";
     var newDate = new mvc_minitwit.HelperClasses.TimeConverters();
     var gravatar = new mvc_minitwit.HelperClasses.GravatarImage();
+    var username = new mvc_minitwit.HelperClasses.LoginHelper();
+    var titlename = username.getUsername() + "'s Timeline";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if(ViewData["Title"] == "Public Timeline")
+{
+
+} else if(ViewData["Title"] == titlename) {
+    <div class=twitbox>
+    <h3>What's on your mind @username.getUsername()</h3>
+    <form action="{{ url_for('add_message') }}" method=post>
+        <p><input type=text name=text size=60>
+            <!----><input type=submit value="Share">
+    </form>
+</div>
+} else {
+<div class=followstatus>
+    <a class=unfollow href="{{ url_for('unfollow_user', username=profile_user.username)}}">Unfollow user</a>.
+    <a class=follow href="{{ url_for('follow_user', username=profile_user.username)}}">Follow user</a>.
+</div>
 }
 
 <ul class=messages> 

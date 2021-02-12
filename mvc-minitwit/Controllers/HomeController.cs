@@ -31,7 +31,7 @@ namespace mvc_minitwit.Controllers
 
         public async Task<IActionResult> Timeline(string? id)
         {    
-            if(id == "mtimeline") {
+            if(id == "My Timeline") {
                 LoginHelper lh = new LoginHelper();
 
                 ViewData["Title"] = lh.getUsername() + "'s Timeline";
@@ -43,7 +43,7 @@ namespace mvc_minitwit.Controllers
 
                 return View(joinedtable);
 
-            } else if(id == "ptimeline") {
+            } else if(id == "Public Timeline") {
 
                 ViewData["Title"] = "Public Timeline";
                 var joinedtable = (from m in _context.message
