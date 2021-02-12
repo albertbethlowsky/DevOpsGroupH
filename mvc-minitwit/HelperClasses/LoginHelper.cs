@@ -28,5 +28,21 @@ namespace mvc_minitwit.HelperClasses
                     return false;
                 }
             }
+
+            public string getUsername()
+            {
+                HttpContextAccessor accessor = new HttpContextAccessor();
+                var username = accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Username")?.Value;
+
+                return username;
+            }
+
+            public string getUserID()
+            {
+                HttpContextAccessor accessor = new HttpContextAccessor();
+                var userid = accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserID")?.Value;
+
+                return userid;
+            }
         }
 }

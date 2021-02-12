@@ -29,26 +29,41 @@ namespace mvc_minitwit.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Timeline()
+        public async Task<IActionResult> Timeline(string? id)
         {    
-            var joinedtable = (from m in _context.message
-                              join u in _context.user on m.author_id equals u.user_id
-                              select 
+            if(id == "mtimeline") {
+                LoginHelper lh = new LoginHelper();
+
+                ViewData["Title"] = lh.getUsername() + "'s Timeline";
+                var joinedtable = (from m in _context.message
+                                join u in _context.user on m.author_id equals u.user_id
+                                join f in _context.follower on u.user_id equals f.who_id
+                                select
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, who_id = f.who_id}).Where(u => u.who_id == Int32.Parse(lh.getUserID())).OrderByDescending(t => t.message_id).Take(50).ToList();
+
+                return View(joinedtable);
+
+            } else if(id == "ptimeline") {
+
+                ViewData["Title"] = "Public Timeline";
+                var joinedtable = (from m in _context.message
+                                join u in _context.user on m.author_id equals u.user_id
+                                select 
                                 new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date}).OrderByDescending(t => t.message_id).Take(50).ToList();
 
-            return View(joinedtable);
-        }
+                return View(joinedtable);
 
-        public IActionResult UserTimeline()
-        {
-            return View();
-        }
+            } else {
 
-        public IActionResult MyTimeline()
-        {
-            return View();
-        }
+                ViewData["Title"] = id + "'s Timeline";
+                var joinedtable = (from m in _context.message
+                                join u in _context.user on m.author_id equals u.user_id
+                                select
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date}).Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
 
+                return View(joinedtable);
+            }
+        }
         
         public IActionResult SignUp()
         {
@@ -100,8 +115,9 @@ namespace mvc_minitwit.Controllers
                     {
                         var claims = new List<Claim>
                         {
-                            new Claim(ClaimTypes.Name, user.email),
-                            new Claim("Username", user.username)
+                            new Claim("UserEmail", user.email),
+                            new Claim("Username", user.username),
+                            new Claim("UserID", user.user_id.ToString())
                         };
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

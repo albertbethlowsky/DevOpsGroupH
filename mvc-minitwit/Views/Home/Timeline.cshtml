@@ -1,8 +1,7 @@
 ﻿@model IEnumerable<mvc_minitwit.Models.TimelineData>
 @{
-//TODO: We need to rebuild our server logic so that we can use it in our CSHTML FILES
 
-    ViewData["Title"] = "Public Timeline";
+    //ViewData["Title"] = "Public Timeline";
     var newDate = new mvc_minitwit.HelperClasses.TimeConverters();
     var gravatar = new mvc_minitwit.HelperClasses.GravatarImage();
 }
@@ -11,7 +10,7 @@
         @foreach (var item in Model)
         {
             <li><img src=@gravatar.emailToGravatar(item.email)><p>
-                <strong><a asp-controller="Home" asp-action="UserTimeline"> @Html.DisplayFor(modelItem => item.username) </a></strong>
+                <strong><a asp-controller="Home" asp-action="Timeline" asp-route-id=@item.username> @Html.DisplayFor(modelItem => item.username) </a></strong>
                     @Html.DisplayFor(modelItem => item.text)
                     <small>&mdash; @newDate.formatIntToDate(item.pub_date) </small>
             </li>

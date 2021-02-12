@@ -19,6 +19,7 @@ namespace mvc_minitwit.Models{
         public string email { get; set; }
         [Required]
         public string pw_hash { get; set; }
+        public int who_id { get; set; }
     }
 
  }
