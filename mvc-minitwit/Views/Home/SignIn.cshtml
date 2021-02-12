@@ -19,6 +19,10 @@
             </div>
             
             <div class="form-group">
-            <input type="submit" name="submit" class="btn btn-primary" value="SignIn"/>
+              <input type="submit" name="submit" class="btn btn-primary" value="SignIn"/>
             </div>
+            @if (ViewBag.error != null)
+            {
+              <span class="badge badge-danger">@ViewBag.error</span>
+            }
          }

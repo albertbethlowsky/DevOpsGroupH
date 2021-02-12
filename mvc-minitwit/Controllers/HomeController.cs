@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using mvc_minitwit.Models;
@@ -26,10 +29,8 @@ namespace mvc_minitwit.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Timeline(int? id)
-        {         
-            //List<Message> messages = _context.message.OrderByDescending(t => t.message_id).Take(50).ToList();
-            //List<User> users = _context.user.ToList();
+        public async Task<IActionResult> Timeline()
+        {    
             var joinedtable = (from m in _context.message
                               join u in _context.user on m.author_id equals u.user_id
                               select 
@@ -60,14 +61,14 @@ namespace mvc_minitwit.Controllers
         {
             if(ModelState.IsValid)
             {
-                var check = _context.user.FirstOrDefault(t => t.email == _user.email);
+                var check = _context.user.FirstOrDefault(u => u.email == _user.email);
                 if(check == null)
                 {
                     GravatarImage newHash = new GravatarImage();
                     _user.pw_hash = newHash.hashBuilder(_user.pw_hash);
                     _context.user.Add(_user);
                     _context.SaveChanges();
-                    return RedirectToAction("Timeline");
+                    return RedirectToAction("SignIn");
                 }
                 else
                 {
@@ -85,25 +86,45 @@ namespace mvc_minitwit.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SignIn(User _user)
+        public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
             if(ModelState.IsValid)
             {
                 GravatarImage newHash = new GravatarImage();
-                var f_password = newHash.hashBuilder(_user.pw_hash);
-                var data = _context.user.Where(u => u.email.Equals(_user.email) && u.pw_hash.Equals(f_password)).ToList();
-                
+                var f_password = newHash.hashBuilder(pw_hash);
+                var data = _context.user.Where(u => u.email.Equals(email) && u.pw_hash.Equals(f_password)).ToList();
                 if(data.Count() > 0)
                 {
-                    return RedirectToAction("Timeline");
+                    User user = await _context.user.FirstOrDefaultAsync(u => u.email.Equals(email) && u.pw_hash.Equals(f_password));
+                    if(user != null)
+                    {
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, user.email),
+                            new Claim("Username", user.username)
+                        };
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                        return RedirectToAction("Timeline");
+                    
+                    }
                 }
                 else
                 {
                     ViewBag.error = "Login failed";
-                    return RedirectToAction("Timeline");
+                    return RedirectToAction("SignIn");
                 }
             }
+            ViewBag.error = "Login failed";
             return View();
+        }
+
+        public async Task<IActionResult> Sign_Out()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Timeline");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,4 +1,8 @@
-﻿<html>
+﻿@{
+    var login = new mvc_minitwit.HelperClasses.LoginHelper();
+}
+
+<html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>@ViewData["Title"] - mvc_minitwit</title>
@@ -7,14 +11,20 @@
     
 <div class=page>
 <h1>MiniTwit</h1>
-<div class=navigation>
-    <a asp-controller="Home" asp-action="MyTimeline">my timeline</a> |
-    <a asp-controller="Home" asp-action="Timeline">public timeline</a> |
-    <a asp-controller="Home" asp-action="SignIn">sign in</a> |
-    <a asp-controller="Home" asp-action="SignUp">sign up</a> |
-    <a asp-controller="Home" asp-action="MyTimeline">sign out</a> |
-</div>
-
+@if(login.checkLogin())
+{
+    <div class=navigation>  
+        <a asp-controller="Home" asp-action="MyTimeline">my timeline</a> |
+        <a asp-controller="Home" asp-action="Timeline">public timeline</a> |
+        <a asp-controller="Home" asp-action="MyTimeline">sign out</a> |
+    </div>
+} else {
+    <div class=navigation>  
+        <a asp-controller="Home" asp-action="Timeline">public timeline</a> |
+        <a asp-controller="Home" asp-action="SignIn">sign in</a> |
+        <a asp-controller="Home" asp-action="SignUp">sign up</a> |
+    </div> 
+}
 
 <div class=body>
     <div class="container">

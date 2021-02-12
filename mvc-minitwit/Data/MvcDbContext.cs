@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using mvc_minitwit.Models;
 
 namespace mvc_minitwit.Data
@@ -17,7 +18,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
                 .Entity<Follower>(eb =>
                 {
                     eb.HasNoKey();
-                });
+                });          
         }
 
 
