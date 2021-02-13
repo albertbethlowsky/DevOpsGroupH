@@ -20,6 +20,9 @@ namespace mvc_minitwit.Models{
         [Required]
         public string pw_hash { get; set; }
         public int who_id { get; set; }
+
+        [NotMapped]
+        public bool isFollowed { get; set; }
     }
 
  }

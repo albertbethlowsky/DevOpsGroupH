@@ -31,10 +31,11 @@ namespace mvc_minitwit.Controllers
 
         public async Task<IActionResult> Timeline(string? id)
         {    
+            LoginHelper lh = new LoginHelper();
             if(id == "My Timeline") {
-                LoginHelper lh = new LoginHelper();
+                
 
-                ViewData["Title"] = lh.getUsername() + "'s Timeline";
+                ViewData["Title"] = "My Timeline";
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
                                 join f in _context.follower on u.user_id equals f.who_id
@@ -43,7 +44,7 @@ namespace mvc_minitwit.Controllers
 
                 return View(joinedtable);
 
-            } else if(id == "Public Timeline") {
+            } else if(id == "Public Timeline" || id == null) {
 
                 ViewData["Title"] = "Public Timeline";
                 var joinedtable = (from m in _context.message
@@ -56,13 +57,66 @@ namespace mvc_minitwit.Controllers
             } else {
 
                 ViewData["Title"] = id + "'s Timeline";
+
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
                                 select
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date}).Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
+                                new TimelineData {message_id = m.message_id, author_id = m.author_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, isFollowed = false}).Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
+                if(lh.checkLogin())
+                {
+                    var checkfollow = (from f in _context.follower
+                                    join u in _context.user on f.whom_id equals u.user_id
+                                    where u.username == id && f.who_id == Int32.Parse(lh.getUserID())
+                                    select 
+                                    new Follower {who_id = f.who_id, whom_id = f.whom_id}).ToList();
+
+                    if(checkfollow.Any()) {
+                        joinedtable[0].isFollowed = true;
+                    }
+                }
 
                 return View(joinedtable);
             }
+        }
+        [HttpPost]
+        public IActionResult Message(string text)
+        {
+            Message message = new Message();
+            LoginHelper lh = new LoginHelper();
+            Console.WriteLine(text);
+            message.author_id = Int32.Parse(lh.getUserID());
+            message.text = text;
+            message.pub_date = (Int32)(DateTimeOffset.Now.ToUnixTimeSeconds());
+            message.flagged = 0;
+
+            _context.message.Add(message);
+            _context.SaveChanges();
+
+            return RedirectToAction("Timeline");
+        }
+
+        public IActionResult Follow(Int32 author_id)
+        {
+            LoginHelper lh = new LoginHelper();
+            Follower follower = new Follower();
+            follower.who_id = Int32.Parse(lh.getUserID());
+            follower.whom_id = author_id;
+            _context.follower.Add(follower);
+            _context.SaveChanges();
+
+            return RedirectToAction("Timeline");
+        }
+        
+        public IActionResult Unfollow(Int32 author_id)
+        {
+            LoginHelper lh = new LoginHelper();
+            Follower follower = new Follower();
+            follower.who_id = Int32.Parse(lh.getUserID());
+            follower.whom_id = author_id;
+            _context.follower.Remove(follower);
+            _context.SaveChanges();
+
+            return RedirectToAction("Timeline");
         }
         
         public IActionResult SignUp()

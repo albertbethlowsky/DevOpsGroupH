@@ -19,6 +19,6 @@ namespace mvc_minitwit.HelperClasses
             DateTime newDate = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             newDate = newDate.AddSeconds(date);
             return newDate.ToString("yyyy-MM-dd" + " @ " + "HH:mm");
-        } 
+        }
     }
 }

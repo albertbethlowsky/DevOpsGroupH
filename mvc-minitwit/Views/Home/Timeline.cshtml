@@ -1,9 +1,9 @@
-﻿@model IEnumerable<mvc_minitwit.Models.TimelineData>
+﻿@model List<mvc_minitwit.Models.TimelineData>
 @{
-    var newDate = new mvc_minitwit.HelperClasses.TimeConverters();
+    var timeConverter = new mvc_minitwit.HelperClasses.TimeConverters();
     var gravatar = new mvc_minitwit.HelperClasses.GravatarImage();
-    var username = new mvc_minitwit.HelperClasses.LoginHelper();
-    var titlename = username.getUsername() + "'s Timeline";
+    var loginHelper = new mvc_minitwit.HelperClasses.LoginHelper();
+    var titlename = loginHelper.getUsername() + "'s Timeline";
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -11,19 +11,37 @@
 @if(ViewData["Title"] == "Public Timeline")
 {
 
-} else if(ViewData["Title"] == titlename) {
+} else if(ViewData["Title"] == "My Timeline") {
     <div class=twitbox>
-    <h3>What's on your mind @username.getUsername()</h3>
-    <form action="{{ url_for('add_message') }}" method=post>
-        <p><input type=text name=text size=60>
-            <!----><input type=submit value="Share">
-    </form>
-</div>
+    @using (Html.BeginForm("Message", "Home", FormMethod.Post))
+        {
+            <div class="form-group">
+            <h3>What's on your mind @loginHelper.getUsername()?</h3>
+            <input type=text name=text size=60/>
+            </div>
+            <div class="form-group">
+                <input type="submit" name="submit" class="btn btn-danger" value="Share"/>
+            </div>
+
+        }
+    </div>
 } else {
-<div class=followstatus>
-    <a class=unfollow href="{{ url_for('unfollow_user', username=profile_user.username)}}">Unfollow user</a>.
-    <a class=follow href="{{ url_for('follow_user', username=profile_user.username)}}">Follow user</a>.
-</div>
+    @if(Model[0].isFollowed == true) {
+
+        <div class=followstatus>
+        @Html.ActionLink("Unfollow", "Unfollow", @Model[0].author_id)
+        </div>
+
+    } else {
+        @if(loginHelper.checkLogin())
+        {
+        <div class=followstatus>
+        @Html.ActionLink("Follow", "Follow", @Model[0].author_id)
+        </div>
+        }
+
+    }
+    
 }
 
 <ul class=messages> 
@@ -32,7 +50,7 @@
             <li><img src=@gravatar.emailToGravatar(item.email)><p>
                 <strong><a asp-controller="Home" asp-action="Timeline" asp-route-id=@item.username> @Html.DisplayFor(modelItem => item.username) </a></strong>
                     @Html.DisplayFor(modelItem => item.text)
-                    <small>&mdash; @newDate.formatIntToDate(item.pub_date) </small>
+                    <small>&mdash; @timeConverter.formatIntToDate(item.pub_date) </small>
             </li>
         } 
 </ul> 
