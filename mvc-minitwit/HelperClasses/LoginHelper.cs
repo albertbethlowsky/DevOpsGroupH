@@ -37,10 +37,10 @@ namespace mvc_minitwit.HelperClasses
                 return username;
             }
 
-            public string getUserID()
+            public int getUserID()
             {
                 HttpContextAccessor accessor = new HttpContextAccessor();
-                var userid = accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserID")?.Value;
+                var userid = Int32.Parse(accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserID")?.Value);
 
                 return userid;
             }

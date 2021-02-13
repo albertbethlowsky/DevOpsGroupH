@@ -17,7 +17,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
             modelBuilder
                 .Entity<Follower>(eb =>
                 {
-                    eb.HasNoKey();
+                    eb.HasKey(m => new { m.who_id, m.whom_id });
                 });          
         }
 

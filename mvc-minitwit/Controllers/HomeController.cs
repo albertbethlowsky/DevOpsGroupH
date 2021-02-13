@@ -32,15 +32,18 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> Timeline(string? id)
         {    
             LoginHelper lh = new LoginHelper();
+            if(id == lh.getUsername()) id = "My Timeline";
             if(id == "My Timeline") {
                 
 
                 ViewData["Title"] = "My Timeline";
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
-                                join f in _context.follower on u.user_id equals f.who_id
+                                join f in _context.follower on u.user_id equals f.whom_id
+                                where m.author_id == lh.getUserID() || (m.author_id == f.whom_id && f.who_id == lh.getUserID())
                                 select
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, who_id = f.who_id}).Where(u => u.who_id == Int32.Parse(lh.getUserID())).OrderByDescending(t => t.message_id).Take(50).ToList();
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, whom_id = f.whom_id})
+                                                .Distinct().OrderByDescending(t => t.message_id).Take(50).ToList();
 
                 return View(joinedtable);
 
@@ -50,7 +53,8 @@ namespace mvc_minitwit.Controllers
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
                                 select 
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date}).OrderByDescending(t => t.message_id).Take(50).ToList();
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date})
+                                                .OrderByDescending(t => t.message_id).Take(50).ToList();
 
                 return View(joinedtable);
 
@@ -61,18 +65,22 @@ namespace mvc_minitwit.Controllers
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
                                 select
-                                new TimelineData {message_id = m.message_id, author_id = m.author_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, isFollowed = false}).Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
+                                new TimelineData {message_id = m.message_id, author_id = m.author_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, isFollowed = false})
+                                                .Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
                 if(lh.checkLogin())
                 {
                     var checkfollow = (from f in _context.follower
                                     join u in _context.user on f.whom_id equals u.user_id
-                                    where u.username == id && f.who_id == Int32.Parse(lh.getUserID())
                                     select 
-                                    new Follower {who_id = f.who_id, whom_id = f.whom_id}).ToList();
-
-                    if(checkfollow.Any()) {
-                        joinedtable[0].isFollowed = true;
+                                    new Follower {who_id = f.who_id, whom_id = f.whom_id, whom_name = u.username}).Where(i => i.who_id == lh.getUserID()).ToList();
+                    
+                    foreach (var item in checkfollow)
+                    {   
+                        if(item.whom_name == id) {
+                            joinedtable[0].isFollowed = true;
+                        }
                     }
+                    
                 }
 
                 return View(joinedtable);
@@ -84,7 +92,7 @@ namespace mvc_minitwit.Controllers
             Message message = new Message();
             LoginHelper lh = new LoginHelper();
             Console.WriteLine(text);
-            message.author_id = Int32.Parse(lh.getUserID());
+            message.author_id = lh.getUserID();
             message.text = text;
             message.pub_date = (Int32)(DateTimeOffset.Now.ToUnixTimeSeconds());
             message.flagged = 0;
@@ -95,25 +103,23 @@ namespace mvc_minitwit.Controllers
             return RedirectToAction("Timeline");
         }
 
-        public IActionResult Follow(Int32 author_id)
-        {
-            LoginHelper lh = new LoginHelper();
+        public IActionResult Follow(List<Int32> values)
+        {   
             Follower follower = new Follower();
-            follower.who_id = Int32.Parse(lh.getUserID());
-            follower.whom_id = author_id;
-            _context.follower.Add(follower);
+            follower.who_id = values[1];
+            follower.whom_id = values[0];
+            _context.Add(follower);
             _context.SaveChanges();
 
             return RedirectToAction("Timeline");
         }
         
-        public IActionResult Unfollow(Int32 author_id)
+        public IActionResult Unfollow(List<Int32> values)
         {
-            LoginHelper lh = new LoginHelper();
             Follower follower = new Follower();
-            follower.who_id = Int32.Parse(lh.getUserID());
-            follower.whom_id = author_id;
-            _context.follower.Remove(follower);
+            follower.who_id = values[1];
+            follower.whom_id = values[0];
+            _context.Remove(follower);
             _context.SaveChanges();
 
             return RedirectToAction("Timeline");
