@@ -1,5 +1,61 @@
-﻿@{
-    ViewData["Title"] = "Public Timeline";
+﻿@model List<mvc_minitwit.Models.TimelineData>
+@{
+    var timeConverter = new mvc_minitwit.HelperClasses.TimeConverters();
+    var gravatar = new mvc_minitwit.HelperClasses.GravatarImage();
+    var loginHelper = new mvc_minitwit.HelperClasses.LoginHelper();
+    var titlename = loginHelper.getUsername() + "'s Timeline";
+        List<Int32> values = new List<Int32>();
+        if(@Model.Any()) {
+            values.Add(@Model[0].author_id);
+            values.Add(loginHelper.getUserID());
+        }
 }
 
+<h2>@ViewData["Title"]</h2>
 
+@if(ViewData["Title"] == "Public Timeline")
+{
+
+} else if(ViewData["Title"] == "My Timeline") {
+    <div class=twitbox>
+    @using (Html.BeginForm("Message", "Home", FormMethod.Post))
+        {
+            <div class="form-group">
+            <h3>What's on your mind @loginHelper.getUsername()?</h3>
+            <input type=text name=text size=60/>
+            </div>
+            <div class="form-group">
+                <input type="submit" name="submit" class="btn btn-danger" value="Share"/>
+            </div>
+
+        }
+    </div>
+} else {
+    @if(Model[0].isFollowed == true) {
+
+        <div class=followstatus>
+        @Html.ActionLink("Unfollow", "Unfollow", "Home", new {values}, null)
+        </div>
+
+    } else {
+        @if(loginHelper.checkLogin())
+        {
+        <div class=followstatus>
+        @Html.ActionLink("Follow", "Follow", "Home",new {values}, null)
+        </div>
+        }
+
+    }
+    
+}
+
+<ul class=messages> 
+        @foreach (var item in Model)
+        {
+            <li><img src=@gravatar.emailToGravatar(item.email)><p>
+                <strong><a asp-controller="Home" asp-action="Timeline" asp-route-id=@item.username> @Html.DisplayFor(modelItem => item.username) </a></strong>
+                    @Html.DisplayFor(modelItem => item.text)
+                    <small>&mdash; @timeConverter.formatIntToDate(item.pub_date) </small>
+            </li>
+        } 
+</ul> 

@@ -1,4 +1,8 @@
-﻿<html>
+﻿@{
+    var login = new mvc_minitwit.HelperClasses.LoginHelper();
+}
+
+<html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>@ViewData["Title"] - mvc_minitwit</title>
@@ -7,16 +11,20 @@
     
 <div class=page>
 <h1>MiniTwit</h1>
-<div class=navigation>
-    <a asp-controller="Home" asp-action="MyTimeline">my timeline</a> |
-    <a asp-controller="Home" asp-action="Timeline">public timeline</a> |
-    <a asp-controller="Home" asp-action="SignIn">sign in</a> |
-    <a asp-controller="Home" asp-action="SignUp">sign up</a> |
-    <a asp-controller="Home" asp-action="MyTimeline">sign out</a> |
-</div>
-<ul class=flashes>
-    <li> insert messages here 
-</ul>
+@if(login.checkLogin())
+{
+    <div class=navigation>  
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="My Timeline">My Timeline</a> |
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="Public Timeline">Public Timeline</a> |
+        <a asp-controller="Home" asp-action="Sign_Out">Sign Out</a> |
+    </div>
+} else {
+    <div class=navigation>  
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="Public Timeline">Public Timeline</a> |
+        <a asp-controller="Home" asp-action="SignIn">Sign In</a> |
+        <a asp-controller="Home" asp-action="SignUp">Sign Up</a> |
+    </div> 
+}
 
 <div class=body>
     <div class="container">
