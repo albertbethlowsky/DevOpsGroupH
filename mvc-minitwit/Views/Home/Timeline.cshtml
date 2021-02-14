@@ -4,13 +4,11 @@
     var gravatar = new mvc_minitwit.HelperClasses.GravatarImage();
     var loginHelper = new mvc_minitwit.HelperClasses.LoginHelper();
     var titlename = loginHelper.getUsername() + "'s Timeline";
-    //if(ViewData["Title"] != "Public Timeline" && ViewData["Title"] != "My Timeline"){
         List<Int32> values = new List<Int32>();
         if(@Model.Any()) {
             values.Add(@Model[0].author_id);
             values.Add(loginHelper.getUserID());
         }
-    //}
 }
 
 <h2>@ViewData["Title"]</h2>

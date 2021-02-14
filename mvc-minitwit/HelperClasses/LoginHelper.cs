@@ -33,16 +33,22 @@ namespace mvc_minitwit.HelperClasses
             {
                 HttpContextAccessor accessor = new HttpContextAccessor();
                 var username = accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Username")?.Value;
-
+                if(username == null) username = "noUsernameDetected";
                 return username;
             }
 
             public int getUserID()
             {
-                HttpContextAccessor accessor = new HttpContextAccessor();
-                var userid = Int32.Parse(accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserID")?.Value);
+                try
+                {
+                    HttpContextAccessor accessor = new HttpContextAccessor();
+                    var userid = Int32.Parse(accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserID")?.Value);
 
                 return userid;
+                } catch {  
+                return -1;              
+                }
+                
             }
         }
 }

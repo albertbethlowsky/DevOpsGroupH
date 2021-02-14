@@ -32,6 +32,7 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> Timeline(string? id)
         {    
             LoginHelper lh = new LoginHelper();
+            
             if(id == lh.getUsername()) id = "My Timeline";
             if(id == "My Timeline") {
                 
