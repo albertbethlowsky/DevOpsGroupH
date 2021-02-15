@@ -22,21 +22,37 @@ namespace mvc_minitwit.Controllers
         
         private readonly ILogger<HomeController> _logger;
         private readonly MvcDbContext _context;
+        private readonly LoginHelper lh;
 
         public HomeController(ILogger<HomeController> logger, MvcDbContext context)
         {
             _logger = logger;
             _context = context;
+            lh = new LoginHelper();
+        }
+
+        public Boolean userExistDB(){
+
+             //if getUserid is in _context.user
+            var userExist = (
+                            from u in _context.user
+                            select
+                            new User {user_id = u.user_id, username = u.username, email = u.email, pw_hash = u.pw_hash, pw_hash2 = u.pw_hash2}
+                            ).Where(u => u.user_id == lh.getUserID()).Any();
+            if(userExist)
+                return true;
+            else
+                return false;
         }
 
         public async Task<IActionResult> Timeline(string? id)
         {    
-            LoginHelper lh = new LoginHelper();
+            if(!userExistDB()){
+                Sign_Out();
+            }
             
             if(id == lh.getUsername()) id = "My Timeline";
             if(id == "My Timeline") {
-                
-
                 ViewData["Title"] = "My Timeline";
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
@@ -68,6 +84,9 @@ namespace mvc_minitwit.Controllers
                                 select
                                 new TimelineData {message_id = m.message_id, author_id = m.author_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, isFollowed = false})
                                                 .Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
+                
+                
+
                 if(lh.checkLogin())
                 {
                     var checkfollow = (from f in _context.follower
@@ -164,7 +183,7 @@ namespace mvc_minitwit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
-            if(ModelState.IsValid)
+            if(ModelState.IsValid && userExistDB())
             {
                 GravatarImage newHash = new GravatarImage();
                 var f_password = newHash.hashBuilder(pw_hash);
