@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using mvc_minitwit.Data; //database context
 using mvc_minitwit.Models; //model context
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace mvc_minitwit
 {
@@ -35,6 +36,11 @@ namespace mvc_minitwit
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "minitwit-API", Version = "1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,6 +63,13 @@ namespace mvc_minitwit
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "minitwit-API V1");
+            });
 
             app.UseEndpoints(endpoints =>
             {

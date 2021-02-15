@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using mvc_minitwit.Models;
 
@@ -25,6 +25,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         public DbSet<Message> message { get; set; }
         public DbSet<Follower> follower { get; set; }
         public DbSet<User> user { get; set; }
+        public DbSet<mvc_minitwit.Models.TimelineData> TimelineData { get; set; }
     }
 
     
