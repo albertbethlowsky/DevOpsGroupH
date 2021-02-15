@@ -183,6 +183,9 @@ namespace mvc_minitwit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
+            if(!userExistDB()){
+                Sign_Out();
+            }
             if(ModelState.IsValid)
             {
                 GravatarImage newHash = new GravatarImage();
