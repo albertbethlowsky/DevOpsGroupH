@@ -50,7 +50,11 @@ namespace mvc_minitwit.Controllers
 
         [HttpGet("~/latest")]
         public ActionResult GetLatest() {
-            return Ok(LATEST);
+
+            ApiData returnlatest = new ApiData();
+            returnlatest.latest = LATEST;
+            var jsonreturn = JsonSerializer.Serialize(returnlatest);
+            return Ok(jsonreturn);
         }
 
         //This is working now the - /msgs?no=42
