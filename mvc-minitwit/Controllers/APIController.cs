@@ -11,8 +11,6 @@ using mvc_minitwit.HelperClasses;
 using mvc_minitwit.Models;
 
 
-// http://localhost:5001/API
-
 namespace mvc_minitwit.Controllers
 {
     [Route("msgs")]
@@ -44,20 +42,14 @@ namespace mvc_minitwit.Controllers
         
 
         private void UpdateLatest() {
-            //  using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
-            // {  
-            //     return await reader.ReadToEndAsync();
-            // }
-            var query = _accessor.HttpContext.Request.QueryString;
-            Console.WriteLine(query);
-
-
-            // //var httpContext = (HttpContextAccessor) Request.Properties["MS_HttpContext"];
-            // var latest = httpContext.Request.Form["latest"];
-            
+            var query1 = _accessor.HttpContext.Request.Query;
+            foreach (var item in query1)
+            {
+                if(item.Key == "latest") LATEST = Int32.Parse(item.Value);
+            }           
         }
 
-        [HttpGet("{latest}")]
+        [HttpGet("~/latest")]
         public ActionResult GetLatest() {
             return Ok(LATEST);
         }
