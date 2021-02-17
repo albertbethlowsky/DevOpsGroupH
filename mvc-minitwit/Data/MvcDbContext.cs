@@ -18,7 +18,9 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
                 .Entity<Follower>(eb =>
                 {
                     eb.HasKey(m => new { m.who_id, m.whom_id });
-                });          
+                });
+            modelBuilder
+                .Entity<User>().HasMany(x => x.messages).WithOne(x => x.author).HasForeignKey(x => x.author_id);
         }
 
 

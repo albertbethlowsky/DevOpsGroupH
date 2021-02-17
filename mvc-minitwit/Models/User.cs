@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +22,8 @@ namespace mvc_minitwit.Models {
         [System.ComponentModel.DataAnnotations.Compare("pw_hash")]
 
         public string pw_hash2 { get; set; }
+
+        public List<Message> messages { get; set; }
 
     }
 }

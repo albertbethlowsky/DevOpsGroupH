@@ -2,25 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using mvc_minitwit.Api;
 using mvc_minitwit.Data;
+using mvc_minitwit.HelperClasses;
 using mvc_minitwit.Models;
-using FromBodyAttribute = System.Web.Http.FromBodyAttribute;
-using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
-using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
-using RouteAttribute = System.Web.Http.RouteAttribute;
 
 
 // http://localhost:5001/API
 
 namespace mvc_minitwit.Controllers
 {
-    //[ApiController]
-    //[Route("[controller]")]
+    [Route("msgs")]
+    [ApiController]
     public class APIController : ControllerBase
     {
         private readonly MvcDbContext _context;
@@ -40,22 +36,53 @@ namespace mvc_minitwit.Controllers
             else return -1;
         }
 
-        [HttpGet] //https://localhost:5001/api/Getmessage
-        //[System.Web.Http.Route("GetMessage")]
-        public async Task<ActionResult<IEnumerable<Message>>> Getmessage()
+        //This is working now the - /msgs
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<dynamic>>> Getmessage(int no = 100)
         {
             return await _context.message.OrderByDescending(m => m.pub_date)
-                .Take(100)
+                .Include(x => x.author)
+                .Where(x => x.flagged == 0)
+                .OrderByDescending(x => x.pub_date)
+                .Select(x => new { content = x.text, pub_date = x.pub_date, user = x.author.username })
+                .Take(no)
                 .ToListAsync();
         }
 
-        // https://localhost:5001/api/Register?user=bo      with string user as param
-        //from uri: https://localhost:5001/api/Register?user_id=42&username=Bo&email=bo@bo.bo&pw_hash=123&pw_hash2=123
-        [HttpPost]
-        public ActionResult<User> Register([FromUri] User user)
+        //This is working now - /msgs/<username>
+        [HttpGet("{username}")]
+        public async Task<ActionResult<IEnumerable<dynamic>>> GetmessageByUser(string username, int no = 100)
+        {
+            return await _context.message.OrderByDescending(m => m.pub_date)
+                .Include(x => x.author)
+                .Where(x => x.flagged == 0)
+                .Where(x => x.author.username == username)
+                .OrderByDescending(x => x.pub_date)
+                .Select(x => new { content = x.text, pub_date = x.pub_date, user = x.author.username })
+                .Take(no)
+                .ToListAsync();
+        }
+
+        //This is working now - /msgs/<username>
+        [HttpPost("{username}")]
+        public async Task<ActionResult<IEnumerable<dynamic>>> CreatemessageByUser(string username, CreateMessage model)
+        {
+            Message message = new Message();
+            message.author_id = _context.user.Single(x => x.username == username).user_id;
+            message.text = model.Content;
+            message.pub_date = (Int32)(DateTimeOffset.Now.ToUnixTimeSeconds());
+            message.flagged = 0;
+
+            _context.message.Add(message);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("~/register")] //This syntax goes back to root and the /whaterver
+        public async Task<ActionResult<User>> Register([FromBody] User user)
         {
             string error = "";
-            //Console.WriteLine("User: " + user.user_id);
+            
             if (string.IsNullOrEmpty(user.username))
             {
                 error = "You have to enter a username";
@@ -75,7 +102,7 @@ namespace mvc_minitwit.Controllers
             else
             {
                 _context.user.Add(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             if (string.IsNullOrEmpty(error))
