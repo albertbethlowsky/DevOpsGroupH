@@ -59,26 +59,19 @@ namespace mvc_minitwit.Controllers
                                 join f in _context.follower on u.user_id equals f.whom_id
                                 where m.author_id == lh.getUserID() || (m.author_id == f.whom_id && f.who_id == lh.getUserID())
                                 select
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, whom_id = f.whom_id})
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, whom_id = f.whom_id, flagged = m.flagged})
                                                 .Distinct().Where(m => m.flagged == 0).OrderByDescending(t => t.message_id).Take(50).ToList();
-
                 return View(joinedtable);
-
             } else if(id == "Public Timeline" || id == null) {
-
                 ViewData["Title"] = "Public Timeline";
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
                                 select 
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date})
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, flagged = m.flagged})
                                                 .Where(m => m.flagged == 0).OrderByDescending(t => t.message_id).Take(50).ToList();
-
                 return View(joinedtable);
-
             } else {
-
                 ViewData["Title"] = id + "'s Timeline";
-
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
                                 where m.flagged == 0

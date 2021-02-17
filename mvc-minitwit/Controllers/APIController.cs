@@ -42,7 +42,7 @@ namespace mvc_minitwit.Controllers
             foreach (var item in query1)
             {
                 if(item.Key == "latest") LATEST = Int32.Parse(item.Value);
-            }    
+            }
         }
 
         [HttpGet("~/latest")]
@@ -98,7 +98,7 @@ namespace mvc_minitwit.Controllers
         public async Task<ActionResult<User>> Register([FromBody] User user)
         {
             string error = "";
-            
+
             if (string.IsNullOrEmpty(user.username))
             {
                 error = "You have to enter a username";
@@ -129,21 +129,30 @@ namespace mvc_minitwit.Controllers
             {
                 return Ok("User registered");
             }
-
         }
 
-        
+        [Route("~/fllws/{username}")]
+        [AcceptVerbs("POST", "GET")]
+        //@app.route("/fllws/<username>", methods=["GET", "POST"])
+        public IActionResult follow(string username, int no) {
 
-        
+            var verb = _accessor.HttpContext.Request.Method.ToString();
+            
+            UpdateLatest();
 
-        //MESSAGES API:
-        // GET: /Message????
-        // [HttpGet]
-        // [Route("/")]
-        // public async Task<ActionResult<IEnumerable<Message>>> Getmessage()
-        // {
-        //     return MessagesController.Getmessage(); //returns task
-        // }
+            if(GetUserId(username) == -1) return BadRequest("error");
+            
+            if (verb == "POST") {
+                Console.WriteLine("POST WORKS");
+
+                // _context.follower.Where(f => )
+            } else {
+                Console.WriteLine("Returns Something");
+            } 
+            return Ok();
+        
+        }
 
     }
 }
+
