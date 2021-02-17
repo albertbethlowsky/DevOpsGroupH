@@ -18,7 +18,7 @@ namespace mvc_minitwit.Controllers
     public class APIController : ControllerBase
     {
         private readonly MvcDbContext _context;
-        private static int LATEST = 0;
+        static int LATEST = 0;
 
         private HttpContextAccessor _accessor = new HttpContextAccessor();
 
@@ -42,7 +42,7 @@ namespace mvc_minitwit.Controllers
             foreach (var item in query1)
             {
                 if(item.Key == "latest") LATEST = Int32.Parse(item.Value);
-            }           
+            }    
         }
 
         [HttpGet("~/latest")]
