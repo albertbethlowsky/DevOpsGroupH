@@ -2,20 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using mvc_minitwit.Api;
 using mvc_minitwit.Data;
 using mvc_minitwit.Models;
+using FromBodyAttribute = System.Web.Http.FromBodyAttribute;
+using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
+using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
+using RouteAttribute = System.Web.Http.RouteAttribute;
 
 
 // http://localhost:5001/API
 
 namespace mvc_minitwit.Controllers
 {
+    //[ApiController]
     //[Route("[controller]")]
-    [ApiController]
     public class APIController : ControllerBase
     {
         private readonly MvcDbContext _context;
@@ -35,7 +40,8 @@ namespace mvc_minitwit.Controllers
             else return -1;
         }
 
-        [HttpGet("{msgs}")] //https://localhost:5001/msgs
+        [HttpGet] //https://localhost:5001/api/Getmessage
+        //[System.Web.Http.Route("GetMessage")]
         public async Task<ActionResult<IEnumerable<Message>>> Getmessage()
         {
             return await _context.message.OrderByDescending(m => m.pub_date)
@@ -43,10 +49,13 @@ namespace mvc_minitwit.Controllers
                 .ToListAsync();
         }
 
-        [HttpPost("{username}")]
-        public async Task<ActionResult<User>> Register(User user)
+        // https://localhost:5001/api/Register?user=bo      with string user as param
+        //from uri: https://localhost:5001/api/Register?user_id=42&username=Bo&email=bo@bo.bo&pw_hash=123&pw_hash2=123
+        [HttpPost]
+        public ActionResult<User> Register([FromUri] User user)
         {
             string error = "";
+            //Console.WriteLine("User: " + user.user_id);
             if (string.IsNullOrEmpty(user.username))
             {
                 error = "You have to enter a username";
@@ -75,7 +84,7 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                return Ok();
+                return Ok("User registered");
             }
 
         }
