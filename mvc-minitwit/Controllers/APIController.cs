@@ -11,6 +11,7 @@ using mvc_minitwit.HelperClasses;
 using mvc_minitwit.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net.Http;
 
 
 namespace mvc_minitwit.Controllers
@@ -135,63 +136,54 @@ namespace mvc_minitwit.Controllers
 
         [Route("~/fllws/{username}")]
         [AcceptVerbs("POST", "GET")]
-        //@app.route("/fllws/<username>", methods=["GET", "POST"])
         public IActionResult follow(string username, int no_followers = 100) {
-
             var verb = _accessor.HttpContext.Request.Method.ToString();
-            Console.WriteLine(_accessor.HttpContext.Request.ReadFromJsonAsync<ActionResult<User>>());
-            json = JsonSerializer.Deserialize(_accessor.HttpContext.Request.ReadFromJsonAsync<>());
+            var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiData>();
+            int userid = GetUserId(username);
             
             UpdateLatest();
 
-            if(GetUserId(username) == -1) return BadRequest("error");
+            if(userid == -1) return BadRequest("error");
             
-            if (verb == "POST" && json == "follow"){
+            if (verb == "POST" && json.Result.follow != null){
+                string follows_username = json.Result.follow;
+                int follows_user_id = GetUserId(follows_username);
+                if(follows_user_id == -1) return NotFound();
+
+                Follower follower = new Follower();
+                follower.who_id = userid;
+                follower.whom_id = follows_user_id;
+                _context.Add(follower);
+                _context.SaveChanges();
+
+            return Ok();
                 
-                // _context.follower.Where(f => )
+            } else if(verb == "POST" && json.Result.unfollow != null) {
+                string follows_username = json.Result.unfollow;
+                int follows_user_id = GetUserId(follows_username);
+                if(follows_user_id == -1) return NotFound();
+        
+                Follower follower = new Follower();
+                follower.who_id = userid;
+                follower.whom_id = follows_user_id;
+                _context.Remove(follower);
+                _context.SaveChanges();
 
-                //FROM PYTHON:
-                // follows_username = request.json["follow"]
-
-                // follows_user_id = get_user_id(follows_username)
-                // if not follows_user_id:
-                //     abort(404)
-
-                // query = """INSERT INTO follower (who_id, whom_id) VALUES (?, ?)"""
-                // g.db.execute(query, [user_id, follows_user_id])
-                // g.db.commit()
-
-                // return "", 204
-                
-            } else if(verb == "POST" && json=="unfollow") {
-                Console.WriteLine("Returns Something");
-                //FROM PYTHON:
-                // unfollows_username = request.json["unfollow"]
-                // unfollows_user_id = get_user_id(unfollows_username)
-                // if not unfollows_user_id:
-                //     abort(404)
-
-                // query = "DELETE FROM follower WHERE who_id=? and WHOM_ID=?"
-                // g.db.execute(query, [user_id, unfollows_user_id])
-                // g.db.commit()
-                //return "", 204
+                return Ok();
 
         
             } else if(verb == "GET"){
-                //FROM PYTHON:
-                // no_followers = request.args.get("no", type=int, default=100)
-                // query = """SELECT user.username FROM user
-                //         INNER JOIN follower ON follower.whom_id=user.user_id
-                //         WHERE follower.who_id=?
-                //         LIMIT ?"""
-                // followers = query_db(query, [user_id, no_followers])
-                // follower_names = [f["username"] for f in followers]
-                // followers_response = {"follows": follower_names}
+                var query = (from f in _context.follower
+                                    join u in _context.user on f.whom_id equals u.user_id
+                                    where f.who_id == userid
+                                    select 
+                                    new {follows = u.username})
+                                    .Take(no_followers).ToList();
+                var jsonreturn = JsonSerializer.Serialize(query);
 
-                // return jsonify(followers_response)
+                return Ok(jsonreturn);
             }
             return Ok();
-        
         }
 
     }
