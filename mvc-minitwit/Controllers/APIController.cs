@@ -20,6 +20,9 @@ namespace mvc_minitwit.Controllers
     public class APIController : ControllerBase
     {
         private readonly MvcDbContext _context;
+        private int LATEST = 0;
+
+        private HttpContextAccessor _accessor = new HttpContextAccessor();
 
         public APIController(MvcDbContext context)
         {
@@ -36,10 +39,35 @@ namespace mvc_minitwit.Controllers
             else return -1;
         }
 
-        //This is working now the - /msgs
+    
+        
+        
+
+        private void UpdateLatest() {
+            //  using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
+            // {  
+            //     return await reader.ReadToEndAsync();
+            // }
+            var query = _accessor.HttpContext.Request.QueryString;
+            Console.WriteLine(query);
+
+
+            // //var httpContext = (HttpContextAccessor) Request.Properties["MS_HttpContext"];
+            // var latest = httpContext.Request.Form["latest"];
+            
+        }
+
+        [HttpGet("{latest}")]
+        public ActionResult GetLatest() {
+            return Ok(LATEST);
+        }
+
+        //This is working now the - /msgs?no=42
         [HttpGet]
         public async Task<ActionResult<IEnumerable<dynamic>>> Getmessage(int no = 100)
         {
+            UpdateLatest();
+
             return await _context.message.OrderByDescending(m => m.pub_date)
                 .Include(x => x.author)
                 .Where(x => x.flagged == 0)
@@ -116,7 +144,9 @@ namespace mvc_minitwit.Controllers
 
         }
 
+        
 
+        
 
         //MESSAGES API:
         // GET: /Message????
