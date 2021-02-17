@@ -9,6 +9,8 @@ using mvc_minitwit.Api;
 using mvc_minitwit.Data;
 using mvc_minitwit.HelperClasses;
 using mvc_minitwit.Models;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 
 namespace mvc_minitwit.Controllers
@@ -134,21 +136,60 @@ namespace mvc_minitwit.Controllers
         [Route("~/fllws/{username}")]
         [AcceptVerbs("POST", "GET")]
         //@app.route("/fllws/<username>", methods=["GET", "POST"])
-        public IActionResult follow(string username, int no) {
+        public IActionResult follow(string username, int no_followers = 100) {
 
             var verb = _accessor.HttpContext.Request.Method.ToString();
+            Console.WriteLine(_accessor.HttpContext.Request.ReadFromJsonAsync<ActionResult<User>>());
+            json = JsonSerializer.Deserialize(_accessor.HttpContext.Request.ReadFromJsonAsync<>());
             
             UpdateLatest();
 
             if(GetUserId(username) == -1) return BadRequest("error");
             
-            if (verb == "POST") {
-                Console.WriteLine("POST WORKS");
-
+            if (verb == "POST" && json == "follow"){
+                
                 // _context.follower.Where(f => )
-            } else {
+
+                //FROM PYTHON:
+                // follows_username = request.json["follow"]
+
+                // follows_user_id = get_user_id(follows_username)
+                // if not follows_user_id:
+                //     abort(404)
+
+                // query = """INSERT INTO follower (who_id, whom_id) VALUES (?, ?)"""
+                // g.db.execute(query, [user_id, follows_user_id])
+                // g.db.commit()
+
+                // return "", 204
+                
+            } else if(verb == "POST" && json=="unfollow") {
                 Console.WriteLine("Returns Something");
-            } 
+                //FROM PYTHON:
+                // unfollows_username = request.json["unfollow"]
+                // unfollows_user_id = get_user_id(unfollows_username)
+                // if not unfollows_user_id:
+                //     abort(404)
+
+                // query = "DELETE FROM follower WHERE who_id=? and WHOM_ID=?"
+                // g.db.execute(query, [user_id, unfollows_user_id])
+                // g.db.commit()
+                //return "", 204
+
+        
+            } else if(verb == "GET"){
+                //FROM PYTHON:
+                // no_followers = request.args.get("no", type=int, default=100)
+                // query = """SELECT user.username FROM user
+                //         INNER JOIN follower ON follower.whom_id=user.user_id
+                //         WHERE follower.who_id=?
+                //         LIMIT ?"""
+                // followers = query_db(query, [user_id, no_followers])
+                // follower_names = [f["username"] for f in followers]
+                // followers_response = {"follows": follower_names}
+
+                // return jsonify(followers_response)
+            }
             return Ok();
         
         }
