@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,10 +55,20 @@ namespace mvc_minitwit.Controllers
             if(id == lh.getUsername()) id = "My Timeline";
             if(id == "My Timeline") {
                 ViewData["Title"] = "My Timeline";
+                var checkfollow = (from f in _context.follower
+                                    join u in _context.user on f.whom_id equals u.user_id
+                                    select 
+                                    new Follower {who_id = f.who_id, whom_id = f.whom_id, whom_name = u.username}).Where(i => i.who_id == lh.getUserID()).ToList();
+                List<Int32> followlist = new List<Int32>();
+                foreach (var item in checkfollow)
+                {
+                    followlist.Add(item.whom_id);
+                }
+                followlist.Add(lh.getUserID());
+
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
-                                join f in _context.follower on u.user_id equals f.whom_id
-                                where m.author_id == lh.getUserID() || (m.author_id == f.whom_id && f.who_id == lh.getUserID())
+                                where followlist.Contains(m.author_id)
                                 select
                                 new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, whom_id = f.whom_id, flagged = m.flagged})
                                                 .Distinct().Where(m => m.flagged == 0).OrderByDescending(t => t.message_id).Take(50).ToList();
