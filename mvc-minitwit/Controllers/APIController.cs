@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using mvc_minitwit.Api;
+
 using mvc_minitwit.Data;
 using mvc_minitwit.HelperClasses;
 using mvc_minitwit.Models;
@@ -176,7 +176,7 @@ namespace mvc_minitwit.Controllers
                 return Ok();
 
         
-            } else if(verb == "GET"){
+            } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
                 var query = (from f in _context.follower
                                     join u in _context.user on f.whom_id equals u.user_id
                                     where f.who_id == userid
