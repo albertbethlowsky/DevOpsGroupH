@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,52 +23,75 @@ namespace mvc_minitwit.Controllers
         
         private readonly ILogger<HomeController> _logger;
         private readonly MvcDbContext _context;
+        private readonly LoginHelper lh;
 
         public HomeController(ILogger<HomeController> logger, MvcDbContext context)
         {
             _logger = logger;
             _context = context;
+            lh = new LoginHelper();
+        }
+
+        public Boolean userExistDB(){
+
+             //if getUserid is in _context.user
+            var userExist = (
+                            from u in _context.user
+                            select
+                            new User {user_id = u.user_id, username = u.username, email = u.email, pw_hash = u.pw_hash, pw_hash2 = u.pw_hash2}
+                            ).Where(u => u.user_id == lh.getUserID()).Any();
+            if(userExist)
+                return true;
+            else
+                return false;
         }
 
         public async Task<IActionResult> Timeline(string? id)
         {    
-            LoginHelper lh = new LoginHelper();
+            if(!userExistDB()){
+                Sign_Out();
+            }
             
             if(id == lh.getUsername()) id = "My Timeline";
             if(id == "My Timeline") {
-                
-
                 ViewData["Title"] = "My Timeline";
+                var checkfollow = (from f in _context.follower
+                                    join u in _context.user on f.whom_id equals u.user_id
+                                    select 
+                                    new Follower {who_id = f.who_id, whom_id = f.whom_id, whom_name = u.username}).Where(i => i.who_id == lh.getUserID()).ToList();
+                List<Int32> followlist = new List<Int32>();
+                foreach (var item in checkfollow)
+                {
+                    followlist.Add(item.whom_id);
+                }
+                followlist.Add(lh.getUserID());
+
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
-                                join f in _context.follower on u.user_id equals f.whom_id
-                                where m.author_id == lh.getUserID() || (m.author_id == f.whom_id && f.who_id == lh.getUserID())
+                                where followlist.Contains(m.author_id)
                                 select
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, whom_id = f.whom_id})
-                                                .Distinct().OrderByDescending(t => t.message_id).Take(50).ToList();
-
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, flagged = m.flagged})
+                                                .Distinct().Where(m => m.flagged == 0).OrderByDescending(t => t.message_id).Take(50).ToList();
                 return View(joinedtable);
-
             } else if(id == "Public Timeline" || id == null) {
-
                 ViewData["Title"] = "Public Timeline";
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
                                 select 
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date})
-                                                .OrderByDescending(t => t.message_id).Take(50).ToList();
-
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, flagged = m.flagged})
+                                                .Where(m => m.flagged == 0).OrderByDescending(t => t.message_id).Take(50).ToList();
                 return View(joinedtable);
-
             } else {
-
                 ViewData["Title"] = id + "'s Timeline";
-
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
+                                where m.flagged == 0
                                 select
                                 new TimelineData {message_id = m.message_id, author_id = m.author_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, isFollowed = false})
                                                 .Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
+                
+                
+
                 if(lh.checkLogin())
                 {
                     var checkfollow = (from f in _context.follower
@@ -164,6 +188,9 @@ namespace mvc_minitwit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
+            if(!userExistDB()){
+                Sign_Out();
+            }
             if(ModelState.IsValid)
             {
                 GravatarImage newHash = new GravatarImage();

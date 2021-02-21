@@ -21,12 +21,15 @@ namespace mvc_minitwit.HelperClasses
             {
                 HttpContextAccessor accessor = new HttpContextAccessor();
                 var cookie = accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Username")?.Value;
+
                 if(cookie != null)
                 {
                     return true;
                 } else {
                     return false;
                 }
+
+
             }
 
             public string getUsername()

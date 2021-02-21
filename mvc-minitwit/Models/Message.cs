@@ -8,6 +8,7 @@ namespace mvc_minitwit.Models{
         public int message_id {get; set;} //autoincremet
         [Required]
         public int author_id {get;set;}
+        public User author { get; set; }
         [Required]
         public string text {get; set;}
         public int pub_date {get;set;}
