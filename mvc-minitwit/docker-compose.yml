@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  mvc-minitwit:
+    image: ${DOCKER_REGISTRY-}mvcminitwit
+    build:
+      context: .
+      dockerfile: Dockerfile
