@@ -70,7 +70,7 @@ namespace mvc_minitwit.Controllers
                                 join u in _context.user on m.author_id equals u.user_id
                                 where followlist.Contains(m.author_id)
                                 select
-                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, whom_id = f.whom_id, flagged = m.flagged})
+                                new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, flagged = m.flagged})
                                                 .Distinct().Where(m => m.flagged == 0).OrderByDescending(t => t.message_id).Take(50).ToList();
                 return View(joinedtable);
             } else if(id == "Public Timeline" || id == null) {
