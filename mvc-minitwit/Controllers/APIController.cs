@@ -123,7 +123,10 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                _context.user.Add(user);
+                //The user given in the json body from the request, 
+                //isn't added directly to  the context (that would insecure). But its attributes are used such that
+                //userId is generated automatically, and the pw is hashed into pw_hash
+                _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pw_hash)});
                 await _context.SaveChangesAsync();
             }
 
