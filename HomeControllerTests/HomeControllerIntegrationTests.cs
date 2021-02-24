@@ -41,6 +41,8 @@ namespace HomeControllerTests
         //    Assert.Contains(players, p => p.FirstName == "Mario");
         //}
 
+        //to see print: dotnet test --logger:"console;verbosity=detailed"
+
         private void responsePrint(HttpResponseMessage resp)
         {
             if (resp.StatusCode != HttpStatusCode.OK)
@@ -61,14 +63,17 @@ namespace HomeControllerTests
             var response = _client.PostAsJsonAsync("register", user).Result;
 
             responsePrint(response);
-
+            //output.WriteLine("statsu:" + response.StatusCode.ToString());
 
             var stringResponse = await response.Content.ReadAsStringAsync();
 
-            output.WriteLine("DES: " + stringResponse);
-            response.EnsureSuccessStatusCode();
+            //output.WriteLine("DES: " + stringResponse);
+            output.WriteLine("DES: " + response.Content.ReadAsStringAsync());
 
-
+            var res = response.EnsureSuccessStatusCode();
+            output.WriteLine("RES: " + res);
+            output.WriteLine(res.Content.ToString());
+            //Assert.Equal(0, );
         }
 
 
@@ -77,14 +82,7 @@ namespace HomeControllerTests
         {
             // The endpoint or route of the controller action.
             var response = await _client.GetAsync("/msgs");
-            //if (response.StatusCode != HttpStatusCode.OK)
-            //{
-            //    var result = response.Content.ReadAsStringAsync().Result;
-            //    output.WriteLine("Http operation unsuccessful");
-            //    output.WriteLine(string.Format("Status: '{0}'", response.StatusCode));
-            //    output.WriteLine(string.Format("Reason: '{0}'", response.ReasonPhrase));
-            //    output.WriteLine(result);
-            //}
+            
             responsePrint(response);
 
             // Must be successful.
