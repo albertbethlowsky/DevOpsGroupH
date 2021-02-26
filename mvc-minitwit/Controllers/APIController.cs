@@ -136,7 +136,8 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                return Ok("User registered");
+                var noUsers = _context.user.Count();
+                return Ok("User registered no: " +  noUsers);
             }
         }
 

@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,13 +17,21 @@ namespace HomeControllerTests
 {
     public class HomeControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory<Startup>>
     {
-        private readonly HttpClient _client;
+        private HttpClient _client;
+        private CustomWebApplicationFactory<Startup> factory;
         private readonly ITestOutputHelper output;
+        private User dummyUser = new User {
+            username = "Bo",
+            email = "bo@bo",
+            pw_hash = "very_secure",
+            pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
+        };   
 
         public HomeControllerIntegrationTests(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
         {
             this.output = output;
             _client = factory.CreateClient();
+            this.factory = factory;
         }
 
         //[Fact]
@@ -41,7 +50,8 @@ namespace HomeControllerTests
         //    Assert.Contains(players, p => p.FirstName == "Mario");
         //}
 
-        //to see print: dotnet test --logger:"console;verbosity=detailed"
+        //to see more print: dotnet test --logger:"console;verbosity=detailed"
+        //docs: https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
 
         private void responsePrint(HttpResponseMessage resp)
         {
@@ -56,29 +66,46 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task Register()
+        public async Task Register_Success()
         {
-            var user = new User { username = "Bo", email = "bo@bo", 
-                                    pw_hash = "very_secure", pw_hash2 = "very_secure"};   //pw_hash val will be hashed
-            var response = _client.PostAsJsonAsync("register", user).Result;
+            _client = factory.CreateClient();
+            var response = _client.PostAsJsonAsync("/register", dummyUser).Result;
 
             responsePrint(response);
             //output.WriteLine("statsu:" + response.StatusCode.ToString());
 
             var stringResponse = await response.Content.ReadAsStringAsync();
+            
+            response.EnsureSuccessStatusCode();
+            Assert.Equal("User registered", stringResponse);
+        }
 
-            //output.WriteLine("DES: " + stringResponse);
-            output.WriteLine("DES: " + response.Content.ReadAsStringAsync());
+        [Fact]      //make the tests for all other fail-cases:
+        public async Task Register_UsernameShouldAlreadyTakenError()
+        {
+            var initResp = await _client.PostAsJsonAsync("/register", dummyUser);
+            var initStrResp = await initResp.Content.ReadAsStringAsync();
+            output.WriteLine("INIT " + initStrResp);
 
-            var res = response.EnsureSuccessStatusCode();
-            output.WriteLine("RES: " + res);
-            output.WriteLine(res.Content.ToString());
-            //Assert.Equal(0, );
+            //_client.PostAsJsonAsync("/register", dummyUser).Result;
+            //_client.PostAsJsonAsync("/register", dummyUser).Result;
+            
+            //register same user again:
+
+            var response = _client.PostAsJsonAsync("/register", dummyUser).Result;
+            var strResponse = await response.Content.ReadAsStringAsync();
+            output.WriteLine("RESP: " + strResponse);
+
+            
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("The username is already taken", strResponse);
+            
         }
 
 
         [Fact]
-        public async Task CanGetPlayerById()
+        public async Task GetAllMessages()
         {
             // The endpoint or route of the controller action.
             var response = await _client.GetAsync("/msgs");
