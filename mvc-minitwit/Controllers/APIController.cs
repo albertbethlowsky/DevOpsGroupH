@@ -153,7 +153,7 @@ namespace mvc_minitwit.Controllers
 
         [Route("~/fllws/{username}")]
         [AcceptVerbs("POST", "GET")]
-        public IActionResult follow(string username, int no_followers = 100) {
+        public IActionResult Follow(string username, int no_followers = 100) {
             var verb = _accessor.HttpContext.Request.Method.ToString();
             var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiData>();
             int userid = GetUserId(username);

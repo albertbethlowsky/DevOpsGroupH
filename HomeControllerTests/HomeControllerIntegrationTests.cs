@@ -182,6 +182,46 @@ namespace HomeControllerTests
             
         }
 
+        //test_login_logout - need to have login in APIController
+        [Fact]
+        public async Task Login_LogOut()
+        {
+            var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            _client = appF.CreateClient();
+
+            var userCredentials = new StringContent($"username ={ dummyUser.email } & password ={ dummyUser.pw_hash}");
+
+            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+            var loginResp = await _client.PostAsync("/Home/SignIn", userCredentials);
+
+            output.WriteLine("LOGIN: " + await loginResp.Content.ReadAsStringAsync());
+            //loginResp.EnsureSuccessStatusCode();
+
+
+        }
+
+        [Fact]
+        public async Task CreateMessageByUser_Success()
+        {
+            var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            _client = appF.CreateClient();
+
+            await _client.PostAsJsonAsync("/register", dummyUser);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "msgs/" + dummyUser.username);
+
+            //request.Content = new StringContent(JsonSerializer.Serialize(new {
+            //    term = "MFA",
+            //    definition = "An authentication process that considers multiple factors."
+            //}), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await _client.SendAsync(request);
+
+            var mess = new Message { author_id = 0, text = "test text", pub_date = (int)(DateTimeOffset.Now.ToUnixTimeSeconds()) };
+            //_client.PostAsync("/msgs/"+dummyUser.username, mess);
+        }
+
 
         [Fact]
         public async Task GetAllMessages()
