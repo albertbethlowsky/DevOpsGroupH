@@ -37,7 +37,7 @@ namespace mvc_minitwit.Controllers
             {
                 return user.Single().user_id;
             }
-            else return -1;
+            else return -1;     //no user found
         }
 
         private void UpdateLatest() {
@@ -140,10 +140,12 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                var noUsers = _context.user;
-                var ls = noUsers.ToList().Select(u => u.username);
-                var str = string.Join(",", ls.ToList());
-                return Ok("User registered " + user.username + " | " +  str);
+                //var noUsers = _context.user;
+                //var ls = noUsers.ToList().Select(u => u.username);
+                //var str = string.Join(",", ls.ToList());
+                //return Ok("User registered " + user.username + " | " +  str);
+                return Ok("User registered");
+
             }
         }
 

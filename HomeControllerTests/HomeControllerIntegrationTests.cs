@@ -75,13 +75,57 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task Register_UsernameShouldAlreadyTakenError()
+        public async Task Register_Error_HaveToEnterPW()
         {
             var appF = new CustomWebApplicationFactory<MvcDbContext>();
             var _client = appF.CreateClient();
 
-            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+            dummyUser.pw_hash = null;
+            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
             
+            Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
+
+
+            dummyUser.pw_hash = "";
+            var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
+            //var strResp2 = await resp.Content.ReadAsStringAsync();
+
+            Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
+
+            //doesn't work since get this back: https://tools.ietf.org/html/rfc7231#section-6.5.1
+            //which is json. Have to parse it to that. Error is gen. from ApiData model
+            //Assert.Equal("You have to enter a password", strResp2);
+        }
+
+        [Fact]
+        public async Task Register_Error_InvalidEmail()
+        {
+            var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            var _client = appF.CreateClient();
+
+            dummyUser.email = "noatsign";
+            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+            var strResp = await resp.Content.ReadAsStringAsync();
+
+            Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
+            Assert.Equal("You have to enter a valid email address", strResp);
+
+            dummyUser.email = "";
+            var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
+            var strResp2 = await resp.Content.ReadAsStringAsync();
+
+
+            Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
+            Assert.Equal("You have to enter a valid email address", strResp2);
+        } 
+
+
+        [Fact]
+        public async Task Register_Error_UsernameAlreadyTaken()
+        {
+            var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            var _client = appF.CreateClient();
+
             var initResp = await _client.PostAsJsonAsync("/register", dummyUser);
             var initStrResp = await initResp.Content.ReadAsStringAsync();
             output.WriteLine("INIT " + initStrResp);
@@ -94,12 +138,6 @@ namespace HomeControllerTests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.Equal("The username is already taken", strResponse);
 
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-                myDataContext.Dispose();
-            }
-
         }
 
 
@@ -108,25 +146,25 @@ namespace HomeControllerTests
         {
             var appF = new CustomWebApplicationFactory<MvcDbContext>();
             _client = appF.CreateClient();
-            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+            //var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
 
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-                var lst = myDataContext.user;
-                output.WriteLine("All users:");
-                foreach (User u in lst)
-                    output.WriteLine(u.username);
-            }
+            //using (var scope = scopeFactory.CreateScope())
+            //{
+            //    var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+            //    var lst = myDataContext.user;
+            //    output.WriteLine("All users:");
+            //    foreach (User u in lst)
+            //        output.WriteLine(u.username);
+            //}
 
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
            
             responsePrint(response);
 
             var stringResponse = await response.Content.ReadAsStringAsync();
-            output.WriteLine("---> " + stringResponse);
+            output.WriteLine(stringResponse);
 
-            //Assert.Equal("User registered", stringResponse);
+            Assert.Equal("User registered", stringResponse);
             response.EnsureSuccessStatusCode();
             
         }
