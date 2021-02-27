@@ -1,4 +1,5 @@
 ﻿using mvc_minitwit;
+using mvc_minitwit.Data;
 using mvc_minitwit.Models;
 using Newtonsoft.Json;
 using System;
@@ -12,6 +13,11 @@ using System.Threading.Tasks;
 using System.Web.Http.Results;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.Data.Sqlite;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HomeControllerTests
 {
@@ -20,9 +26,12 @@ namespace HomeControllerTests
         private HttpClient _client;
         private CustomWebApplicationFactory<Startup> factory;
         private readonly ITestOutputHelper output;
+
+        private DbConnection _connection;
+
         private User dummyUser = new User {
-            username = "Bo",
-            email = "bo@bo",
+            username = "dummy321",
+            email = "dummy@dummy",
             pw_hash = "very_secure",
             pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
         };   
@@ -30,9 +39,21 @@ namespace HomeControllerTests
         public HomeControllerIntegrationTests(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
         {
             this.output = output;
-            _client = factory.CreateClient();
+            //_client = factory.CreateClient();
             this.factory = factory;
         }
+
+        private DbConnection CreateInMemoryDatabase()
+        {
+            var connection = new SqliteConnection("Filename=:memory:");
+            connection.Open();
+
+            return connection;
+        }
+
+        protected DbContextOptions<MvcDbContext> ContextOptions { get; }
+
+        public void Dispose() => _connection.Dispose();
 
         //[Fact]
         //public async Task CanGetPlayers()
@@ -65,34 +86,78 @@ namespace HomeControllerTests
             }
         }
 
-        [Fact]
-        public async Task Register_Success()
-        {
-            _client = factory.CreateClient();
-            var response = _client.PostAsJsonAsync("/register", dummyUser).Result;
+        //[Fact]
+        //public async Task Register_Success()
+        //{
 
-            responsePrint(response);
-            //output.WriteLine("statsu:" + response.StatusCode.ToString());
+        //    _client = factory.CreateClient();
+        //    var response = await _client.PostAsJsonAsync("/register", dummyUser);
 
-            var stringResponse = await response.Content.ReadAsStringAsync();
-            
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("User registered", stringResponse);
-        }
+        //    var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+
+        //    using (var scope = scopeFactory.CreateScope())
+        //    {
+        //        var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+        //        var lst = myDataContext.user;
+        //        output.WriteLine("All users:");
+        //        foreach (User u in lst)
+        //            output.WriteLine(u.username);
+        //        myDataContext.SaveChanges();
+        //        //myDataContext.Dispose();
+        //        // Query the in-memory database
+        //        myDataContext.Dispose();
+        //    }
+
+        //    responsePrint(response);
+
+        //    var stringResponse = await response.Content.ReadAsStringAsync();
+        //    output.WriteLine("---> " + stringResponse);
+
+        //    //Assert.Equal("User registered", stringResponse);
+        //    response.EnsureSuccessStatusCode();
+        //}
+
+        
+
+        //output.WriteLine("statsu:" + response.StatusCode.ToString());
 
         [Fact]      //make the tests for all other fail-cases:
         public async Task Register_UsernameShouldAlreadyTakenError()
         {
+            _client = factory.CreateClient();
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                var lst = myDataContext.user;
+                output.WriteLine("InMem, All users - Before:");
+                foreach (User u in lst)
+                    output.WriteLine(u.username);
+            }
+
             var initResp = await _client.PostAsJsonAsync("/register", dummyUser);
             var initStrResp = await initResp.Content.ReadAsStringAsync();
             output.WriteLine("INIT " + initStrResp);
 
-            //_client.PostAsJsonAsync("/register", dummyUser).Result;
-            //_client.PostAsJsonAsync("/register", dummyUser).Result;
-            
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                var lst = myDataContext.user;
+                output.WriteLine("InMem, All users - After:");
+                foreach (User u in lst)
+                    output.WriteLine(u.username);
+
+                //myDataContext.user.Add(dummyUser);
+                myDataContext.SaveChanges();
+                // Query the in-memory database
+
+            }
+
             //register same user again:
 
-            var response = _client.PostAsJsonAsync("/register", dummyUser).Result;
+            var response = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResponse = await response.Content.ReadAsStringAsync();
             output.WriteLine("RESP: " + strResponse);
 
@@ -104,31 +169,33 @@ namespace HomeControllerTests
         }
 
 
-        [Fact]
-        public async Task GetAllMessages()
-        {
-            // The endpoint or route of the controller action.
-            var response = await _client.GetAsync("/msgs");
-            
-            responsePrint(response);
+        //[Fact]
+        //public async Task GetAllMessages()
+        //{
+        //    // The endpoint or route of the controller action.
+        //    _client = factory.CreateClient();
 
-            // Must be successful.
-            response.EnsureSuccessStatusCode();
+        //    var response = await _client.GetAsync("/msgs");
+            
+        //    responsePrint(response);
 
-            // Deserialize and examine results.
+        //    // Must be successful.
+        //    response.EnsureSuccessStatusCode();
+
+        //    // Deserialize and examine results.
             
 
-            var definition = new { content = "", pub_date = "", user= "" };     // format for the anon-type received
+        //    var definition = new { content = "", pub_date = "", user= "" };     // format for the anon-type received
 
-            var stringResponse = await response.Content.ReadAsStringAsync();
-            //output.WriteLine("STR RESP: " + stringResponse);
+        //    var stringResponse = await response.Content.ReadAsStringAsync();
+        //    //output.WriteLine("STR RESP: " + stringResponse);
             
-            var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
-            //output.WriteLine("DES: " + mess);
+        //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
+        //    //output.WriteLine("DES: " + mess);
             
-            Assert.Equal("seed data", mess.content);
-            Assert.Equal("HelloKitty", mess.user);
-        }
+        //    Assert.Equal("seed data", mess.content);
+        //    Assert.Equal("HelloKitty", mess.user);
+        //}
 
         
     }

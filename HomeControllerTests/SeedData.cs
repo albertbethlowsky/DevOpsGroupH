@@ -12,7 +12,7 @@ namespace HomeControllerTests
     {
         public static void PopulateTestData(MvcDbContext dbContext)
         {
-            var user = new User { username = "HelloKitty", pw_hash = "somehash", pw_hash2 = "somehash", email = "hello@hello" };
+            var user = new User { username = "SeedUser", pw_hash = "somehash", pw_hash2 = "somehash", email = "hello@hello" };
             dbContext.user.Add(user);
             dbContext.message.Add(new Message { author_id= 0, author = user, text="seed data" });
 

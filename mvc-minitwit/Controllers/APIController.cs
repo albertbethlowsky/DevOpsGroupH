@@ -33,7 +33,7 @@ namespace mvc_minitwit.Controllers
         private int GetUserId(string username)
         {
             var user = _context.user.Where(u => u.username == username);
-            if (user.SingleOrDefault() != null)
+            if (user.Count() == 1)
             {
                 return user.Single().user_id;
             }
@@ -117,7 +117,7 @@ namespace mvc_minitwit.Controllers
             {
                 error = "You have to enter a password";
             }
-            else if (GetUserId(user.username) == -1)
+            else if (GetUserId(user.username) != -1)
             {
                 error = "The username is already taken";
             }
@@ -129,15 +129,21 @@ namespace mvc_minitwit.Controllers
                 _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pw_hash)});
                 await _context.SaveChangesAsync();
             }
-
-            if (string.IsNullOrEmpty(error))
+            //Console.WriteLine("GetId: " + GetUserId(user.username));
+            if (!string.IsNullOrEmpty(error))
             {
+                var ls = _context.user.ToList().Select(u => u.username);
+                var str = string.Join(",", ls.ToList());
+                //return BadRequest(error + " Error:" + " user arg: " + user.username +  ", but all other users: " + str);
                 return BadRequest(error);
+
             }
             else
             {
-                var noUsers = _context.user.Count();
-                return Ok("User registered no: " +  noUsers);
+                var noUsers = _context.user;
+                var ls = noUsers.ToList().Select(u => u.username);
+                var str = string.Join(",", ls.ToList());
+                return Ok("User registered no: " +  str);
             }
         }
 
