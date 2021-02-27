@@ -98,6 +98,20 @@ namespace HomeControllerTests
         }
 
         [Fact]
+        public async Task Register_Error_PWsDontMatch()
+        {
+            var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            var _client = appF.CreateClient();
+
+            dummyUser.pw_hash = "123";
+            dummyUser.pw_hash2 = "321";
+            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+
+            Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
+
+        }
+
+        [Fact]
         public async Task Register_Error_InvalidEmail()
         {
             var appF = new CustomWebApplicationFactory<MvcDbContext>();
@@ -113,7 +127,6 @@ namespace HomeControllerTests
             dummyUser.email = "";
             var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResp2 = await resp.Content.ReadAsStringAsync();
-
 
             Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
             Assert.Equal("You have to enter a valid email address", strResp2);
