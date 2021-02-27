@@ -34,6 +34,7 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
 
             // Register new database service (SQLite In-Memory)
             services.AddDbContext<MvcDbContext>(options => options.UseSqlite(Connection));
+            
 
             // Build the service provider.
             var sp = services.BuildServiceProvider();
@@ -45,9 +46,12 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 var scopedServices = scope.ServiceProvider;
                 var appDb = scopedServices.GetRequiredService<MvcDbContext>();
 
+                //var db = new DbContextOptionsBuilder<MvcDbContext>();
+
                 var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
 
                 // Ensure the database is created.
+                //appDb.Database.EnsureDeleted();
                 appDb.Database.EnsureCreated();
 
                 try
@@ -62,7 +66,6 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 }
             }
         });
-    //});
        
     }
 

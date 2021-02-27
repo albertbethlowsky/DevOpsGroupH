@@ -27,8 +27,6 @@ namespace HomeControllerTests
         private CustomWebApplicationFactory<Startup> factory;
         private readonly ITestOutputHelper output;
 
-        private DbConnection _connection;
-
         private User dummyUser = new User {
             username = "dummy321",
             email = "dummy@dummy",
@@ -53,7 +51,6 @@ namespace HomeControllerTests
 
         protected DbContextOptions<MvcDbContext> ContextOptions { get; }
 
-        public void Dispose() => _connection.Dispose();
 
         //[Fact]
         //public async Task CanGetPlayers()
@@ -86,51 +83,22 @@ namespace HomeControllerTests
             }
         }
 
-        //[Fact]
-        //public async Task Register_Success()
-        //{
-
-        //    _client = factory.CreateClient();
-        //    var response = await _client.PostAsJsonAsync("/register", dummyUser);
-
-        //    var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
-
-        //    using (var scope = scopeFactory.CreateScope())
-        //    {
-        //        var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-        //        var lst = myDataContext.user;
-        //        output.WriteLine("All users:");
-        //        foreach (User u in lst)
-        //            output.WriteLine(u.username);
-        //        myDataContext.SaveChanges();
-        //        //myDataContext.Dispose();
-        //        // Query the in-memory database
-        //        myDataContext.Dispose();
-        //    }
-
-        //    responsePrint(response);
-
-        //    var stringResponse = await response.Content.ReadAsStringAsync();
-        //    output.WriteLine("---> " + stringResponse);
-
-        //    //Assert.Equal("User registered", stringResponse);
-        //    response.EnsureSuccessStatusCode();
-        //}
-
-        
-
-        //output.WriteLine("statsu:" + response.StatusCode.ToString());
-
-        [Fact]      //make the tests for all other fail-cases:
+        [Fact]
         public async Task Register_UsernameShouldAlreadyTakenError()
         {
-            _client = factory.CreateClient();
+            var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            var _client = appF.CreateClient();
+
+            //_client = factory.CreateClient();
+
             var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
-
-
+            
             using (var scope = scopeFactory.CreateScope())
             {
+                
                 var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                myDataContext.Database.EnsureDeleted();
+                myDataContext.Database.EnsureCreated();
                 var lst = myDataContext.user;
                 output.WriteLine("InMem, All users - Before:");
                 foreach (User u in lst)
@@ -141,32 +109,75 @@ namespace HomeControllerTests
             var initStrResp = await initResp.Content.ReadAsStringAsync();
             output.WriteLine("INIT " + initStrResp);
 
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-                var lst = myDataContext.user;
-                output.WriteLine("InMem, All users - After:");
-                foreach (User u in lst)
-                    output.WriteLine(u.username);
-
-                //myDataContext.user.Add(dummyUser);
-                myDataContext.SaveChanges();
-                // Query the in-memory database
-
-            }
-
             //register same user again:
 
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResponse = await response.Content.ReadAsStringAsync();
-            output.WriteLine("RESP: " + strResponse);
-
-            
+            output.WriteLine("RESP " + strResponse);
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.Equal("The username is already taken", strResponse);
+            Assert.Equal("-> " +"The username is already taken", strResponse);
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                myDataContext.Dispose();
+            }
+
+        }
+
+
+        [Fact]
+        public async Task Register_Success()
+        {
+            var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            _client = appF.CreateClient();
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                var lst = myDataContext.user;
+                output.WriteLine("All users:");
+                foreach (User u in lst)
+                    output.WriteLine(u.username);
+            }
+
+            //_client = factory.CreateClient();
+            var response = await _client.PostAsJsonAsync("/register", dummyUser);
+
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                var lst = myDataContext.user;
+                output.WriteLine("All users:");
+                foreach (User u in lst)
+                    output.WriteLine(u.username);
+
+                // Query the in-memory database
+                //myDataContext.Dispose();
+                myDataContext.Database.EnsureDeleted();
+                myDataContext.SaveChanges();
+
+
+            }
+
+            responsePrint(response);
+
+            var stringResponse = await response.Content.ReadAsStringAsync();
+            output.WriteLine("---> " + stringResponse);
+
+            //Assert.Equal("User registered", stringResponse);
+            response.EnsureSuccessStatusCode();
             
         }
+
+        
+
+        ////output.WriteLine("statsu:" + response.StatusCode.ToString());
+
+
 
 
         //[Fact]
@@ -176,27 +187,25 @@ namespace HomeControllerTests
         //    _client = factory.CreateClient();
 
         //    var response = await _client.GetAsync("/msgs");
-            
+
         //    responsePrint(response);
 
         //    // Must be successful.
         //    response.EnsureSuccessStatusCode();
 
         //    // Deserialize and examine results.
-            
-
-        //    var definition = new { content = "", pub_date = "", user= "" };     // format for the anon-type received
+        //    var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
 
         //    var stringResponse = await response.Content.ReadAsStringAsync();
         //    //output.WriteLine("STR RESP: " + stringResponse);
-            
+
         //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
-        //    //output.WriteLine("DES: " + mess);
-            
+        //                                                                                                                         //output.WriteLine("DES: " + mess);
+
         //    Assert.Equal("seed data", mess.content);
-        //    Assert.Equal("HelloKitty", mess.user);
+        //    Assert.Equal("SeedUser", mess.user);
         //}
 
-        
+
     }
 }

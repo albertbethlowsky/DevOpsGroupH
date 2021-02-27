@@ -135,7 +135,7 @@ namespace mvc_minitwit.Controllers
                 var ls = _context.user.ToList().Select(u => u.username);
                 var str = string.Join(",", ls.ToList());
                 //return BadRequest(error + " Error:" + " user arg: " + user.username +  ", but all other users: " + str);
-                return BadRequest(error);
+                return BadRequest("-> " + error);
 
             }
             else
@@ -143,7 +143,7 @@ namespace mvc_minitwit.Controllers
                 var noUsers = _context.user;
                 var ls = noUsers.ToList().Select(u => u.username);
                 var str = string.Join(",", ls.ToList());
-                return Ok("User registered no: " +  str);
+                return Ok("User registered " + user.username + " | " +  str);
             }
         }
 
