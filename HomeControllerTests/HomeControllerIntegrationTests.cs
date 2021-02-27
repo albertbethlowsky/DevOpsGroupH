@@ -37,16 +37,7 @@ namespace HomeControllerTests
         public HomeControllerIntegrationTests(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
         {
             this.output = output;
-            //_client = factory.CreateClient();
             this.factory = factory;
-        }
-
-        private DbConnection CreateInMemoryDatabase()
-        {
-            var connection = new SqliteConnection("Filename=:memory:");
-            connection.Open();
-
-            return connection;
         }
 
         protected DbContextOptions<MvcDbContext> ContextOptions { get; }
@@ -89,34 +80,19 @@ namespace HomeControllerTests
             var appF = new CustomWebApplicationFactory<MvcDbContext>();
             var _client = appF.CreateClient();
 
-            //_client = factory.CreateClient();
-
             var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
             
-            using (var scope = scopeFactory.CreateScope())
-            {
-                
-                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-                myDataContext.Database.EnsureDeleted();
-                myDataContext.Database.EnsureCreated();
-                var lst = myDataContext.user;
-                output.WriteLine("InMem, All users - Before:");
-                foreach (User u in lst)
-                    output.WriteLine(u.username);
-            }
-
             var initResp = await _client.PostAsJsonAsync("/register", dummyUser);
             var initStrResp = await initResp.Content.ReadAsStringAsync();
             output.WriteLine("INIT " + initStrResp);
 
             //register same user again:
-
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResponse = await response.Content.ReadAsStringAsync();
             output.WriteLine("RESP " + strResponse);
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.Equal("-> " +"The username is already taken", strResponse);
+            Assert.Equal("The username is already taken", strResponse);
 
             using (var scope = scopeFactory.CreateScope())
             {
@@ -143,26 +119,8 @@ namespace HomeControllerTests
                     output.WriteLine(u.username);
             }
 
-            //_client = factory.CreateClient();
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
-
-
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-                var lst = myDataContext.user;
-                output.WriteLine("All users:");
-                foreach (User u in lst)
-                    output.WriteLine(u.username);
-
-                // Query the in-memory database
-                //myDataContext.Dispose();
-                myDataContext.Database.EnsureDeleted();
-                myDataContext.SaveChanges();
-
-
-            }
-
+           
             responsePrint(response);
 
             var stringResponse = await response.Content.ReadAsStringAsync();
@@ -173,38 +131,29 @@ namespace HomeControllerTests
             
         }
 
-        
 
-        ////output.WriteLine("statsu:" + response.StatusCode.ToString());
+        [Fact]
+        public async Task GetAllMessages()
+        {
+            // The endpoint or route of the controller action.
+            _client = factory.CreateClient();
 
+            var response = await _client.GetAsync("/msgs");
 
+            responsePrint(response);
 
+            response.EnsureSuccessStatusCode();
 
-        //[Fact]
-        //public async Task GetAllMessages()
-        //{
-        //    // The endpoint or route of the controller action.
-        //    _client = factory.CreateClient();
+            var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
 
-        //    var response = await _client.GetAsync("/msgs");
+            var stringResponse = await response.Content.ReadAsStringAsync();
+            //output.WriteLine("STR RESP: " + stringResponse);
 
-        //    responsePrint(response);
+            var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
 
-        //    // Must be successful.
-        //    response.EnsureSuccessStatusCode();
-
-        //    // Deserialize and examine results.
-        //    var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
-
-        //    var stringResponse = await response.Content.ReadAsStringAsync();
-        //    //output.WriteLine("STR RESP: " + stringResponse);
-
-        //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
-        //                                                                                                                         //output.WriteLine("DES: " + mess);
-
-        //    Assert.Equal("seed data", mess.content);
-        //    Assert.Equal("SeedUser", mess.user);
-        //}
+            Assert.Equal("seed data", mess.content);
+            Assert.Equal("SeedUser", mess.user);
+        }
 
 
     }

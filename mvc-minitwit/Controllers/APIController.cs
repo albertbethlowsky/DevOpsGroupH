@@ -135,7 +135,7 @@ namespace mvc_minitwit.Controllers
                 var ls = _context.user.ToList().Select(u => u.username);
                 var str = string.Join(",", ls.ToList());
                 //return BadRequest(error + " Error:" + " user arg: " + user.username +  ", but all other users: " + str);
-                return BadRequest("-> " + error);
+                return BadRequest(error);
 
             }
             else
