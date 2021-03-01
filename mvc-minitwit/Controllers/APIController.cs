@@ -48,7 +48,6 @@ namespace mvc_minitwit.Controllers
             }
         }
 
-        //TODO: make user login method
 
         [HttpGet("~/latest")]
         public ActionResult GetLatest() {
