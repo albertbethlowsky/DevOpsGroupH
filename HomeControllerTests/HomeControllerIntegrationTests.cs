@@ -40,7 +40,9 @@ namespace HomeControllerTests
             this.factory = factory;
         }
 
-        protected DbContextOptions<MvcDbContext> ContextOptions { get; }
+        //protected DbContextOptions<MvcDbContext> ContextOptions { get; }
+
+
 
 
         //[Fact]
@@ -62,7 +64,24 @@ namespace HomeControllerTests
         //to see more print: dotnet test --logger:"console;verbosity=detailed"
         //docs: https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
 
-        private void responsePrint(HttpResponseMessage resp)
+        private string GetPW_hashFromUser(string username)
+        {
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                var lst = myDataContext.user;
+                var matchingUser = myDataContext.user.Where(u => u.username == username);
+
+                if (matchingUser.Count() == 1)
+                    return matchingUser.First().pw_hash;
+                else
+                    throw new ArgumentException("username: " + username + " not found");
+            }   
+        }
+
+        private void ResponsePrint(HttpResponseMessage resp)
         {
             if (resp.StatusCode != HttpStatusCode.OK)
             {
@@ -182,21 +201,23 @@ namespace HomeControllerTests
             
         }
 
-        //test_login_logout - need to have login in APIController
+        //test_login_logout 
         [Fact]
         public async Task Login_LogOut()
         {
             var appF = new CustomWebApplicationFactory<MvcDbContext>();
             _client = appF.CreateClient();
-
-            var userCredentials = new StringContent($"username ={ dummyUser.email } & password ={ dummyUser.pw_hash}");
-
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
-            var loginResp = await _client.PostAsync("/Home/SignIn", userCredentials);
+
+
+
+
+            var userCredentials = new StringContent($"email ={ dummyUser.email } & pw_hash ={ dummyUser.pw_hash}");
+
+            var loginResp = await _client.PostAsync("/Home/SignIn?"+dummyUser.username, userCredentials);
 
             output.WriteLine("LOGIN: " + await loginResp.Content.ReadAsStringAsync());
             //loginResp.EnsureSuccessStatusCode();
-
 
         }
 
