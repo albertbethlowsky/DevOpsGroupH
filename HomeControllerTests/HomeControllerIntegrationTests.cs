@@ -40,11 +40,6 @@ namespace HomeControllerTests
             this.factory = factory;
         }
 
-        //protected DbContextOptions<MvcDbContext> ContextOptions { get; }
-
-
-
-
         //[Fact]
         //public async Task CanGetPlayers()
         //{
@@ -66,8 +61,8 @@ namespace HomeControllerTests
 
         private string GetPW_hashFromUser(string username)
         {
-            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
 
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())
             {
                 var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
@@ -77,7 +72,7 @@ namespace HomeControllerTests
                 if (matchingUser.Count() == 1)
                     return matchingUser.First().pw_hash;
                 else
-                    throw new ArgumentException("username: " + username + " not found");
+                    throw new ArgumentException("username: " + username + " not found\n" + "error - count is:" + matchingUser.Count());
             }   
         }
 
@@ -162,10 +157,24 @@ namespace HomeControllerTests
             var initStrResp = await initResp.Content.ReadAsStringAsync();
             output.WriteLine("INIT " + initStrResp);
 
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                myDataContext.Database.EnsureDeleted();
+                myDataContext.Database.EnsureCreated();
+                var lst = myDataContext.user;
+                output.WriteLine("InMem, All users - Before:");
+                foreach (User u in lst)
+                    output.WriteLine(u.username);
+            }
+
             //register same user again:
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResponse = await response.Content.ReadAsStringAsync();
             output.WriteLine("RESP " + strResponse);
+
+          
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.Equal("The username is already taken", strResponse);
@@ -178,23 +187,24 @@ namespace HomeControllerTests
         {
             var appF = new CustomWebApplicationFactory<MvcDbContext>();
             _client = appF.CreateClient();
-            //var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
-
-            //using (var scope = scopeFactory.CreateScope())
-            //{
-            //    var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-            //    var lst = myDataContext.user;
-            //    output.WriteLine("All users:");
-            //    foreach (User u in lst)
-            //        output.WriteLine(u.username);
-            //}
 
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
            
-            responsePrint(response);
+            ResponsePrint(response);
 
             var stringResponse = await response.Content.ReadAsStringAsync();
             output.WriteLine(stringResponse);
+
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                myDataContext.Database.EnsureCreated();
+                var lst = myDataContext.user;
+                output.WriteLine("InMem, All users - Before:");
+                foreach (User u in lst)
+                    output.WriteLine(u.username);
+            }
 
             Assert.Equal("User registered", stringResponse);
             response.EnsureSuccessStatusCode();
@@ -208,16 +218,32 @@ namespace HomeControllerTests
             var appF = new CustomWebApplicationFactory<MvcDbContext>();
             _client = appF.CreateClient();
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+            resp.EnsureSuccessStatusCode();
+            var stringResponse = await resp.Content.ReadAsStringAsync();
+            output.WriteLine("REGISTER: " + stringResponse);
 
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
 
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
+                myDataContext.Database.EnsureCreated();
+                var lst = myDataContext.user;
+                output.WriteLine("InMem, All users - Before:");
+                foreach (User u in lst)
+                    output.WriteLine(u.username);
+            }
 
+            var pw_hash = GetPW_hashFromUser(dummyUser.username);
+            output.WriteLine("pw_hash: " + pw_hash);
 
-            var userCredentials = new StringContent($"email ={ dummyUser.email } & pw_hash ={ dummyUser.pw_hash}");
+            //var userCredentials = new StringContent($"email ={ dummyUser.email } & pw_hash ={ pw_hash }");
 
-            var loginResp = await _client.PostAsync("/Home/SignIn?"+dummyUser.username, userCredentials);
+            var loginResp = await _client.GetAsync("/Home/SignIn?email="+dummyUser.email+"&pw_hash="+pw_hash);
+            var content = await loginResp.Content.ReadAsStringAsync();
+            output.WriteLine("LOGIN content: "+ content);
 
-            output.WriteLine("LOGIN: " + await loginResp.Content.ReadAsStringAsync());
-            //loginResp.EnsureSuccessStatusCode();
+            loginResp.EnsureSuccessStatusCode();
 
         }
 
@@ -252,7 +278,7 @@ namespace HomeControllerTests
 
             var response = await _client.GetAsync("/msgs");
 
-            responsePrint(response);
+            ResponsePrint(response);
 
             response.EnsureSuccessStatusCode();
 
