@@ -183,8 +183,7 @@ namespace HomeControllerTests
             dummyUser.username = "123dummy";
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
            
-            var stringResponse = await response.Content.ReadAsStringAsync();
-            output.WriteLine(stringResponse);
+            output.WriteLine(await response.Content.ReadAsStringAsync());
 
             var users = _context.user.ToArray();
             output.WriteLine("CONTEXT:");
@@ -198,14 +197,13 @@ namespace HomeControllerTests
 
         //test_login_logout 
         [Fact]
-        public async Task Login_LogOut()
+        public async Task Login_LogOut_Success()
         {
             _client = factory.CreateClient();
             dummyUser.username = "Login_LogOut_TestUser";
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
             resp.EnsureSuccessStatusCode();
-            var stringResponse = await resp.Content.ReadAsStringAsync();
-            output.WriteLine("REGISTER: " + stringResponse);
+            output.WriteLine("REGISTER: " + await resp.Content.ReadAsStringAsync());
 
             UserPrinter(_context.user.ToArray());
 
@@ -221,6 +219,21 @@ namespace HomeControllerTests
             //output.WriteLine("LOGOUT content: " + content);        //gets back the html for public timeline
             
             logOutResp.EnsureSuccessStatusCode();
+
+        }
+
+        [Fact]
+        public async Task Login_LogOut_InvalidEmail_Or_PW()
+        {
+            _client = factory.CreateClient();
+            dummyUser.email = "NoSuch@Mail";   //non registered user
+            var resp = await _client.GetAsync("Home/SignIn=email=" + dummyUser.email + "&pw_hash=" + "totally legit pw hash");
+            //output.WriteLine("Invalid Username: " + await resp.Content.ReadAsStringAsync());
+            ResponsePrint(resp);
+
+            Assert.Equal(HttpStatusCode.NotFound, resp.StatusCode);     //check user is redirected to sign-in 
+
+            
 
         }
 

@@ -33,7 +33,32 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
 
             // Register new database service (SQLite In-Memory)
             services.AddDbContext<MvcDbContext>(options => options.UseSqlite(Connection));
+
+            using (var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var scopedServices = scope.ServiceProvider;
+                var appDb = scopedServices.GetRequiredService<MvcDbContext>();
+
+                //var db = new DbContextOptionsBuilder<MvcDbContext>();
+
+                var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
+
+                // Ensure the database is created.
+                appDb.Database.EnsureCreated();
+
+                try
+                {
+                    // Seed the database with some specific test data.
+                    SeedData.PopulateTestData(appDb);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "An error occurred seeding the " +
+                                        "database with test messages. Error: {ex.Message}");
+                }
+            }
         });
+
     }
 
 

@@ -189,7 +189,7 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
             if(!userExistDB()){
-                Sign_Out();
+                await Sign_Out();
             }
             if(ModelState.IsValid)
             {
