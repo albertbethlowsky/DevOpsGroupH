@@ -18,6 +18,9 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using mvc_minitwit.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace HomeControllerTests
 {
@@ -34,7 +37,7 @@ namespace HomeControllerTests
             pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
         };
 
-
+        
         //private readonly WebApplicationFactory<Startup> factory;
 
         //public HomeControllerIntegrationTests(WebApplicationFactory<Startup> factory, ITestOutputHelper output)
@@ -79,7 +82,7 @@ namespace HomeControllerTests
             }   
         }
 
-        private void ResponsePrint(HttpResponseMessage resp)
+        private void PrintResp(HttpResponseMessage resp)
         {
             if (resp.StatusCode != HttpStatusCode.OK)
             {
@@ -91,9 +94,10 @@ namespace HomeControllerTests
             }
         }
 
-        private void UserPrinter(User[] users)
+        private void PrintUser()
         {
-            foreach (User u in users)
+            output.WriteLine("Users:");
+            foreach (User u in _context.user)
                 output.WriteLine(u.username);
         }
 
@@ -195,7 +199,20 @@ namespace HomeControllerTests
 
         }
 
-        //test_login_logout 
+        
+        string GetCookieValueFromResponse(HttpResponse response, string cookieName)
+        {
+            foreach (var headers in response.Headers.Values)
+                foreach (var header in headers)
+                    if (header.StartsWith($"{cookieName}="))
+                    {
+                        var p1 = header.IndexOf('=');
+                        var p2 = header.IndexOf(';');
+                        return header.Substring(p1 + 1, p2 - p1 - 1);
+                    }
+            return null;
+        }
+
         [Fact]
         public async Task Login_LogOut_Success()
         {
@@ -205,7 +222,7 @@ namespace HomeControllerTests
             resp.EnsureSuccessStatusCode();
             output.WriteLine("REGISTER: " + await resp.Content.ReadAsStringAsync());
 
-            UserPrinter(_context.user.ToArray());
+            PrintUser();
 
             var pw_hash = GetPW_hashFromUser(dummyUser.username);
             output.WriteLine("pw_hash: " + pw_hash);
@@ -218,22 +235,31 @@ namespace HomeControllerTests
             //ResponsePrint(logOutResp);
             //output.WriteLine("LOGOUT content: " + content);        //gets back the html for public timeline
             
+            //GetCookieValueFromResponse(logOutResp, "UserEmail");
             logOutResp.EnsureSuccessStatusCode();
+
+            //var result = await new HomeController(_context).SignIn(dummyUser.email, pw_hash) as ViewResult;
+            //Console.WriteLine(result);
+            //Assert.Equal("Index", result.ViewName);
 
         }
 
         [Fact]
         public async Task Login_LogOut_InvalidEmail_Or_PW()
         {
+            PrintUser();
             _client = factory.CreateClient();
-            dummyUser.email = "NoSuch@Mail";   //non registered user
-            var resp = await _client.GetAsync("Home/SignIn=email=" + dummyUser.email + "&pw_hash=" + "totally legit pw hash");
-            //output.WriteLine("Invalid Username: " + await resp.Content.ReadAsStringAsync());
-            ResponsePrint(resp);
+            var invalidEmailResp = await _client.GetAsync("Home/SignIn?email=NoSuch@Mail&pw_hash=totally_legit_pw");
+            output.WriteLine("RESP: " + await invalidEmailResp.Content.ReadAsStringAsync());
+            PrintResp(invalidEmailResp);
 
-            Assert.Equal(HttpStatusCode.NotFound, resp.StatusCode);     //check user is redirected to sign-in 
-
+            Assert.Equal(HttpStatusCode.Redirect, invalidEmailResp.StatusCode);     //check user is redirected to sign-in 
             
+
+            dummyUser.email = SeedData.user.email;  //valid email from seed data user
+            dummyUser.pw_hash = "incorrect_pw";
+            var invalidPWResp = await _client.GetAsync("Home/SignIn?email=" + dummyUser.email + "NoSuch@Mail&pw_hash=" + dummyUser.pw_hash);
+            PrintResp(invalidPWResp);
 
         }
 

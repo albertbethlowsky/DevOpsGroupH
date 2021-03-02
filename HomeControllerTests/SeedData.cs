@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 namespace HomeControllerTests
 {
-    public static class SeedData
+    public class SeedData
     {
-        public static void PopulateTestData(MvcDbContext dbContext)
+        public static User user { get; set; }
+        
+        public void PopulateTestData(MvcDbContext dbContext)
         {
-            var user = new User { username = "SeedUser", pw_hash = "somehash", pw_hash2 = "somehash", email = "hello@hello" };
+            var user = new User { username = "SeedUser", pw_hash = "somehash", pw_hash2 = "somehash", email = "seed@seed" };
             dbContext.user.Add(user);
             dbContext.message.Add(new Message { author_id= 0, author = user, text="seed data" });
 

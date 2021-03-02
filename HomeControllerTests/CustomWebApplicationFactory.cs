@@ -49,7 +49,7 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
                 try
                 {
                     // Seed the database with some specific test data.
-                    SeedData.PopulateTestData(appDb);
+                    new SeedData().PopulateTestData(appDb);
                 }
                 catch (Exception ex)
                 {
