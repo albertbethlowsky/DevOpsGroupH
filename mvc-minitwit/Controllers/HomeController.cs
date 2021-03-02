@@ -25,7 +25,9 @@ namespace mvc_minitwit.Controllers
         private readonly MvcDbContext _context;
         private readonly LoginHelper lh;
 
+        //public HomeController(ILogger<HomeController> logger, MvcDbContext context)
         public HomeController(ILogger<HomeController> logger, MvcDbContext context)
+
         {
             _logger = logger;
             _context = context;
@@ -190,7 +192,7 @@ namespace mvc_minitwit.Controllers
         {
             if(!userExistDB()){
                 Console.WriteLine("User not exist: sign in");
-                await Sign_Out();
+                 Sign_Out();
             }
 
             if(ModelState.IsValid && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(pw_hash))
@@ -213,6 +215,7 @@ namespace mvc_minitwit.Controllers
 
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
                         Console.WriteLine("Login Succes");
+
                         return RedirectToAction("Timeline");
                     
                     }
@@ -220,6 +223,7 @@ namespace mvc_minitwit.Controllers
                 else
                 {
                     ViewBag.error = "Login failed";
+                    ViewData["testOutput"] = "Login failed";
                     return RedirectToAction("SignIn");
                 }
             }

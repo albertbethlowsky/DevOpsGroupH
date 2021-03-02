@@ -21,6 +21,8 @@ using Microsoft.Extensions.DependencyInjection;
 using mvc_minitwit.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace HomeControllerTests
 {
@@ -200,18 +202,18 @@ namespace HomeControllerTests
         }
 
         
-        string GetCookieValueFromResponse(HttpResponse response, string cookieName)
-        {
-            foreach (var headers in response.Headers.Values)
-                foreach (var header in headers)
-                    if (header.StartsWith($"{cookieName}="))
-                    {
-                        var p1 = header.IndexOf('=');
-                        var p2 = header.IndexOf(';');
-                        return header.Substring(p1 + 1, p2 - p1 - 1);
-                    }
-            return null;
-        }
+        //string GetCookieValueFromResponse(HttpResponse response, string cookieName)
+        //{
+        //    foreach (var headers in response.Headers.Values)
+        //        foreach (var header in headers)
+        //            if (header.StartsWith($"{cookieName}="))
+        //            {
+        //                var p1 = header.IndexOf('=');
+        //                var p2 = header.IndexOf(';');
+        //                return header.Substring(p1 + 1, p2 - p1 - 1);
+        //            }
+        //    return null;
+        //}
 
         [Fact]
         public async Task Login_LogOut_Success()
@@ -225,7 +227,6 @@ namespace HomeControllerTests
             PrintUser();
 
             var pw_hash = GetPW_hashFromUser(dummyUser.username);
-            output.WriteLine("pw_hash: " + pw_hash);
 
             var loginResp = await _client.GetAsync("/Home/SignIn?email=" + dummyUser.email + "&pw_hash=" + pw_hash);
             loginResp.EnsureSuccessStatusCode();
@@ -237,6 +238,21 @@ namespace HomeControllerTests
             
             //GetCookieValueFromResponse(logOutResp, "UserEmail");
             logOutResp.EnsureSuccessStatusCode();
+            //var mockLogger = new Mock<ILogger<HomeController>>();
+            var mockLog = Mock.Of<ILogger<HomeController>>();
+            var homeC = new HomeController(mockLog, _context);
+            var res = await homeC.SignIn(dummyUser.email, pw_hash) as ViewResult;
+            output.WriteLine("!!res:  "+res);
+            var viewD = res.ViewData;
+            var viewLst = viewD.Values.ToList();
+            output.WriteLine("VIEWLST: ");
+            foreach (object o in viewLst)
+                Console.WriteLine("obj: " + o);
+            //Assert.Equal("Login failed", viewLst);
+
+            //var res = await homeC.SignIn(dummyUser.email, pw_hash);
+            //var a = Assert.IsType<RedirectToActionResult>(res);
+
 
             //var result = await new HomeController(_context).SignIn(dummyUser.email, pw_hash) as ViewResult;
             //Console.WriteLine(result);
@@ -250,7 +266,7 @@ namespace HomeControllerTests
             PrintUser();
             _client = factory.CreateClient();
             var invalidEmailResp = await _client.GetAsync("Home/SignIn?email=NoSuch@Mail&pw_hash=totally_legit_pw");
-            output.WriteLine("RESP: " + await invalidEmailResp.Content.ReadAsStringAsync());
+            //output.WriteLine("RESP: " + await invalidEmailResp.Content.ReadAsStringAsync());
             PrintResp(invalidEmailResp);
 
             Assert.Equal(HttpStatusCode.Redirect, invalidEmailResp.StatusCode);     //check user is redirected to sign-in 
