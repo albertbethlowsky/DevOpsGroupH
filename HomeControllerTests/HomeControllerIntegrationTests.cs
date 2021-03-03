@@ -223,16 +223,32 @@ namespace HomeControllerTests
             dummyUser.username = "Login_LogOut_TestUser";
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
             resp.EnsureSuccessStatusCode();
-            output.WriteLine("REGISTER: " + await resp.Content.ReadAsStringAsync());
+            // output.WriteLine("REGISTER: " + await resp.Content.ReadAsStringAsync());
 
             PrintUser();
 
-            var pw_hash = GetPW_hashFromUser(dummyUser.username);
-            var loginResp = await _client.GetAsync("/Home/SignIn?email=" + dummyUser.email + "&pw_hash=" + pw_hash);
+            //var pw_hash = GetPW_hashFromUser(dummyUser.username);
+            var loginResp = await _client.PostAsync("/api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            output.WriteLine("SING: " + await loginResp.Content.ReadAsStringAsync());
+            
             loginResp.EnsureSuccessStatusCode();
+            IEnumerable<string> values;
+            if (loginResp.Headers.TryGetValues("Set-Cookie", out values))
+            {
+                string cookie = values.First();
+                output.WriteLine(cookie);
+            }
+            Assert.True(values.Any());
 
-            var logOutResp = await _client.GetAsync("/Home/Sign_Out");
+            var logOutResp = await _client.GetAsync("/api/Sign_Out");
 
+            IEnumerable<string> values1;
+            if (logOutResp.Headers.TryGetValues("Set-Cookie", out values1))
+            {
+                string cookie = values1.First();
+                output.WriteLine(cookie);
+            }
+            Assert.True(values1 == null);
 
             //var res = await homeC.SignIn(dummyUser.email, pw_hash);
             //var a = Assert.IsType<RedirectToActionResult>(res);
@@ -249,7 +265,7 @@ namespace HomeControllerTests
         {
             PrintUser();
             _client = factory.CreateClient();
-            var invalidEmailResp = await _client.GetAsync("Home/SignIn?email=NoSuch@Mail&pw_hash=totally_legit_pw");
+            var invalidEmailResp = await _client.GetAsync("api/SignIn?email=NoSuch@Mail&pw_hash=totally_legit_pw");
             //output.WriteLine("RESP: " + await invalidEmailResp.Content.ReadAsStringAsync());
             PrintResp(invalidEmailResp);
 
@@ -258,7 +274,7 @@ namespace HomeControllerTests
 
             dummyUser.email = SeedData.user.email;  //valid email from seed data user
             dummyUser.pw_hash = "incorrect_pw";
-            var invalidPWResp = await _client.GetAsync("Home/SignIn?email=" + dummyUser.email + "NoSuch@Mail&pw_hash=" + dummyUser.pw_hash);
+            var invalidPWResp = await _client.GetAsync("api/SignIn?email=" + dummyUser.email + "NoSuch@Mail&pw_hash=" + dummyUser.pw_hash);
             PrintResp(invalidPWResp);
 
         }
