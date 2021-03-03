@@ -189,13 +189,20 @@ namespace mvc_minitwit.Controllers
 
         
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
+                var usersStr = "";
                 var query = (from f in _context.follower
-                                    join u in _context.user on f.whom_id equals u.user_id
-                                    where f.who_id == userid
-                                    select 
-                                    new {follows = u.username})
-                                    .Take(no_followers).ToList();
-                var jsonreturn = JsonSerializer.Serialize(query);
+                             join u in _context.user on f.whom_id equals u.user_id
+                             where f.who_id == userid
+                             select u.username);
+                //.Take(no_followers).ToList();
+                foreach (string f in query)
+                    usersStr += f;
+                    //Console.WriteLine("user -: " + f);
+                //Console.WriteLine("followers: " + query.ToList());
+                usersStr = "follows" + usersStr;
+                //var jsonreturn = JsonSerializer.Serialize(query);
+                var jsonreturn = JsonSerializer.Serialize(usersStr);
+
 
                 return Ok(jsonreturn);
             }

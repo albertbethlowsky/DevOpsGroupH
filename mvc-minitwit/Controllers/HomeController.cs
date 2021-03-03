@@ -224,6 +224,7 @@ namespace mvc_minitwit.Controllers
                 {
                     ViewBag.error = "Login failed";
                     ViewData["testOutput"] = "Login failed";
+                    
                     return RedirectToAction("SignIn");
                 }
             }
