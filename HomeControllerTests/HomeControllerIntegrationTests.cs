@@ -202,20 +202,6 @@ namespace HomeControllerTests
 
         }
 
-        
-        //string GetCookieValueFromResponse(HttpResponse response, string cookieName)
-        //{
-        //    foreach (var headers in response.Headers.Values)
-        //        foreach (var header in headers)
-        //            if (header.StartsWith($"{cookieName}="))
-        //            {
-        //                var p1 = header.IndexOf('=');
-        //                var p2 = header.IndexOf(';');
-        //                return header.Substring(p1 + 1, p2 - p1 - 1);
-        //            }
-        //    return null;
-        //}
-
         [Fact]
         public async Task Login_LogOut_Success()
         {
@@ -223,17 +209,16 @@ namespace HomeControllerTests
             dummyUser.username = "Login_LogOut_TestUser";
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
             resp.EnsureSuccessStatusCode();
-            // output.WriteLine("REGISTER: " + await resp.Content.ReadAsStringAsync());
 
             PrintUser();
 
-            //var pw_hash = GetPW_hashFromUser(dummyUser.username);
             var loginResp = await _client.PostAsync("/api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
-            output.WriteLine("SING: " + await loginResp.Content.ReadAsStringAsync());
-            
+            //output.WriteLine("SING: " + await loginResp.Content.ReadAsStringAsync());
+            PrintUser();
+
             loginResp.EnsureSuccessStatusCode();
             IEnumerable<string> values;
-            if (loginResp.Headers.TryGetValues("Set-Cookie", out values))
+            if (loginResp.Headers.TryGetValues("Set-Cookie", out values))       //TODO: consider removing the if. Just do assert
             {
                 string cookie = values.First();
                 output.WriteLine(cookie);
@@ -246,36 +231,30 @@ namespace HomeControllerTests
             if (logOutResp.Headers.TryGetValues("Set-Cookie", out values1))
             {
                 string cookie = values1.First();
-                output.WriteLine(cookie);
+                //output.WriteLine(cookie);
             }
             Assert.True(values1 == null);
-
-            //var res = await homeC.SignIn(dummyUser.email, pw_hash);
-            //var a = Assert.IsType<RedirectToActionResult>(res);
-
-
-            //var result = await new HomeController(_context).SignIn(dummyUser.email, pw_hash) as ViewResult;
-            //Console.WriteLine(result);
-            //Assert.Equal("Index", result.ViewName);
-
         }
 
         [Fact]
         public async Task Login_LogOut_InvalidEmail_Or_PW()
         {
-            PrintUser();
             _client = factory.CreateClient();
-            var invalidEmailResp = await _client.GetAsync("api/SignIn?email=NoSuch@Mail&pw_hash=totally_legit_pw");
-            //output.WriteLine("RESP: " + await invalidEmailResp.Content.ReadAsStringAsync());
-            PrintResp(invalidEmailResp);
+            var noUserRegisteredResp = await _client.PostAsync("api/SignIn?email=NoSuch@Mail&password=totally_legit_pw", null);
+            output.WriteLine("RESP: " + await noUserRegisteredResp.Content.ReadAsStringAsync());
+            Assert.Equal(HttpStatusCode.BadRequest, noUserRegisteredResp.StatusCode);
 
-            Assert.Equal(HttpStatusCode.Redirect, invalidEmailResp.StatusCode);     //check user is redirected to sign-in 
-            
+            dummyUser.username = "Login_LogOut_InvalidPW_TestUser";
+            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+            resp.EnsureSuccessStatusCode();
 
-            dummyUser.email = SeedData.user.email;  //valid email from seed data user
-            dummyUser.pw_hash = "incorrect_pw";
-            var invalidPWResp = await _client.GetAsync("api/SignIn?email=" + dummyUser.email + "NoSuch@Mail&pw_hash=" + dummyUser.pw_hash);
-            PrintResp(invalidPWResp);
+            dummyUser.pw_hash = "incorrect_pw";     //invalid password from seed data user
+            var invalidPWResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            Assert.Equal(HttpStatusCode.BadRequest, invalidPWResp.StatusCode);
+
+            dummyUser.email = "not" + dummyUser.email;      //invalid email
+            var invalidEmailResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            Assert.Equal(HttpStatusCode.BadRequest, invalidEmailResp.StatusCode);
 
         }
 
@@ -288,11 +267,6 @@ namespace HomeControllerTests
             await _client.PostAsJsonAsync("/register", dummyUser);
 
             var request = new HttpRequestMessage(HttpMethod.Post, "msgs/" + dummyUser.username);
-
-            //request.Content = new StringContent(JsonSerializer.Serialize(new {
-            //    term = "MFA",
-            //    definition = "An authentication process that considers multiple factors."
-            //}), Encoding.UTF8, "application/json");
 
             // Act
             var response = await _client.SendAsync(request);
