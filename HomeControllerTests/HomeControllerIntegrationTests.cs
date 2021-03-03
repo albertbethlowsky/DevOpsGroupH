@@ -241,7 +241,7 @@ namespace HomeControllerTests
             //var mockLogger = new Mock<ILogger<HomeController>>();
             var mockLog = Mock.Of<ILogger<HomeController>>();
             var homeC = new HomeController(mockLog, _context);
-            var res = await homeC.SignIn(dummyUser.email, pw_hash) as ViewResult;
+            var res = await homeC.SignIn("seed", "somehash") as ViewResult;
             output.WriteLine("!!res:  "+res);
             var viewD = res.ViewData;
             var viewLst = viewD.Values.ToList();
