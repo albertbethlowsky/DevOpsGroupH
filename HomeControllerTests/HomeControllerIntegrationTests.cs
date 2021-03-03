@@ -258,22 +258,42 @@ namespace HomeControllerTests
 
         }
 
+        //TODO: neg. test for missing email or pw?
+
         [Fact]
         public async Task CreateMessageByUser_Success()
         {
-            var appF = new CustomWebApplicationFactory<MvcDbContext>();
-            _client = appF.CreateClient();
+            dummyUser.username = "Message_Recording_Success_TestUser";
+            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+            resp.EnsureSuccessStatusCode();
+            var loginResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            loginResp.EnsureSuccessStatusCode();
 
-            await _client.PostAsJsonAsync("/register", dummyUser);
+            var postMessageResp = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = " content for test message" });
+            postMessageResp.EnsureSuccessStatusCode();
+            Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "msgs/" + dummyUser.username);
+            foreach (Message m in _context.message)
+                output.WriteLine(m.text);
 
-            // Act
-            var response = await _client.SendAsync(request);
-
-            var mess = new Message { author_id = 0, text = "test text", pub_date = (int)(DateTimeOffset.Now.ToUnixTimeSeconds()) };
-            //_client.PostAsync("/msgs/"+dummyUser.username, mess);
         }
+
+        //[Fact]
+        //public async Task CreateMessageByUser_Success()
+        //{
+        //    var appF = new CustomWebApplicationFactory<MvcDbContext>();
+        //    _client = appF.CreateClient();
+
+        //    await _client.PostAsJsonAsync("/register", dummyUser);
+
+        //    var request = new HttpRequestMessage(HttpMethod.Post, "msgs/" + dummyUser.username);
+
+        //    // Act
+        //    var response = await _client.SendAsync(request);
+
+        //    var mess = new Message { author_id = 0, text = "test text", pub_date = (int)(DateTimeOffset.Now.ToUnixTimeSeconds()) };
+        //    //_client.PostAsync("/msgs/"+dummyUser.username, mess);
+        //}
 
 
         //[Fact]

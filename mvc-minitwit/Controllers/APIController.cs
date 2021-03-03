@@ -78,7 +78,7 @@ namespace mvc_minitwit.Controllers
 
         //This is working now - /msgs/<username>
         [HttpGet("{username}")]
-        public async Task<ActionResult<IEnumerable<dynamic>>> GetmessageByUser(string username, int no = 100)
+        public async Task<ActionResult<IEnumerable<dynamic>>> GetMessageByUser(string username, int no = 100)
         {
             return await _context.message.OrderByDescending(m => m.pub_date)
                 .Include(x => x.author)
@@ -92,7 +92,7 @@ namespace mvc_minitwit.Controllers
 
         //This is working now - /msgs/<username>
         [HttpPost("{username}")]
-        public async Task<ActionResult<IEnumerable<dynamic>>> CreatemessageByUser(string username,[FromBody] CreateMessage model)
+        public async Task<ActionResult<IEnumerable<dynamic>>> CreateMessageByUser(string username,[FromBody] CreateMessage model)
         {
             Message message = new Message();
             message.author_id = _context.user.Single(x => x.username == username).user_id;
@@ -102,7 +102,7 @@ namespace mvc_minitwit.Controllers
 
             _context.message.Add(message);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok("Message posted");
         }
 
         [HttpPost("~/register")] //This syntax goes back to root and the /whaterver
