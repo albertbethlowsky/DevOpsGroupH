@@ -51,7 +51,7 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> Timeline(string? id)
         {    
             if(!userExistDB()){
-                Sign_Out();
+                await Sign_Out();
             }
             
             if(id == lh.getUsername()) id = "My Timeline";
@@ -191,8 +191,7 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
             if(!userExistDB()){
-                Console.WriteLine("User not exist: sign in");
-                 Sign_Out();
+                await Sign_Out();
             }
 
             if(ModelState.IsValid && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(pw_hash))
@@ -214,7 +213,6 @@ namespace mvc_minitwit.Controllers
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                        Console.WriteLine("Login Succes");
 
                         return RedirectToAction("Timeline");
                     
@@ -229,14 +227,12 @@ namespace mvc_minitwit.Controllers
                 }
             }
             ViewBag.error = "Login failed";
-            Console.WriteLine("LOGIN Failed");
             return View();
         }
 
         public async Task<IActionResult> Sign_Out()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            Console.WriteLine("SIGN OUT");
             return RedirectToAction("Timeline");
         }
 

@@ -49,6 +49,7 @@ namespace HomeControllerTests
         //}
         private readonly IServiceScope _scope;
         private readonly MvcDbContext _context;
+        private readonly CookieContainer cookies = new System.Net.CookieContainer();
 
         public HomeControllerIntegrationTests(CustomWebApplicationFactory<Startup> factory, ITestOutputHelper output)
         {
@@ -227,28 +228,11 @@ namespace HomeControllerTests
             PrintUser();
 
             var pw_hash = GetPW_hashFromUser(dummyUser.username);
-
             var loginResp = await _client.GetAsync("/Home/SignIn?email=" + dummyUser.email + "&pw_hash=" + pw_hash);
             loginResp.EnsureSuccessStatusCode();
 
             var logOutResp = await _client.GetAsync("/Home/Sign_Out");
-            //var content = await logOutResp.Content.ReadAsStringAsync();
-            //ResponsePrint(logOutResp);
-            //output.WriteLine("LOGOUT content: " + content);        //gets back the html for public timeline
-            
-            //GetCookieValueFromResponse(logOutResp, "UserEmail");
-            logOutResp.EnsureSuccessStatusCode();
-            //var mockLogger = new Mock<ILogger<HomeController>>();
-            var mockLog = Mock.Of<ILogger<HomeController>>();
-            var homeC = new HomeController(mockLog, _context);
-            var res = await homeC.SignIn("seed", "somehash") as ViewResult;
-            output.WriteLine("!!res:  "+res);
-            var viewD = res.ViewData;
-            var viewLst = viewD.Values.ToList();
-            output.WriteLine("VIEWLST: ");
-            foreach (object o in viewLst)
-                Console.WriteLine("obj: " + o);
-            //Assert.Equal("Login failed", viewLst);
+
 
             //var res = await homeC.SignIn(dummyUser.email, pw_hash);
             //var a = Assert.IsType<RedirectToActionResult>(res);

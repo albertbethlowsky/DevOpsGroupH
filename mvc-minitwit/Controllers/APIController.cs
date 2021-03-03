@@ -13,6 +13,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Net.Http;
 
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+
 
 namespace mvc_minitwit.Controllers
 {
@@ -52,7 +56,7 @@ namespace mvc_minitwit.Controllers
         [HttpGet("~/latest")]
         public ActionResult GetLatest() {
 
-            ApiData returnlatest = new ApiData {latest = LATEST};
+            ApiDataLatest returnlatest = new ApiDataLatest {latest = LATEST};
             var jsonreturn = JsonSerializer.Serialize(returnlatest);
             return Ok(jsonreturn);
         }
@@ -88,11 +92,11 @@ namespace mvc_minitwit.Controllers
 
         //This is working now - /msgs/<username>
         [HttpPost("{username}")]
-        public async Task<ActionResult<IEnumerable<dynamic>>> CreatemessageByUser(string username, CreateMessage model)
+        public async Task<ActionResult<IEnumerable<dynamic>>> CreatemessageByUser(string username,[FromBody] CreateMessage model)
         {
             Message message = new Message();
             message.author_id = _context.user.Single(x => x.username == username).user_id;
-            message.text = model.Content;
+            message.text = model.content;
             message.pub_date = (Int32)(DateTimeOffset.Now.ToUnixTimeSeconds());
             message.flagged = 0;
 
@@ -150,11 +154,46 @@ namespace mvc_minitwit.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("~/api/SignIn")]
+        public async Task<IActionResult> SignIn(string email, string password)
+        {
+            var f_password = new GravatarImage().hashBuilder(password);
+
+            User user = await _context.user.FirstOrDefaultAsync(u => u.email.Equals(email) && u.pw_hash.Equals(f_password));
+            if(user != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim("UserEmail", user.email),
+                    new Claim("Username", user.username),
+                    new Claim("UserID", user.user_id.ToString())
+                };
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+
+                return Ok("You were logged in");
+            
+            } else {
+                return BadRequest("Wrong email or password");
+            }
+
+        }
+        
+        [HttpPost]
+        [Route("~/api/SignOut")]
+        public async Task<IActionResult> Sign_Out()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok();
+        }
+
         [Route("~/fllws/{username}")]
         [AcceptVerbs("POST", "GET")]
         public IActionResult Follow(string username, int no_followers = 100) {
             var verb = _accessor.HttpContext.Request.Method.ToString();
-            var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiData>();
+            var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiDataFollows>();
             int userid = GetUserId(username);
             
             UpdateLatest();
@@ -189,20 +228,20 @@ namespace mvc_minitwit.Controllers
 
         
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
-                var usersStr = "";
                 var query = (from f in _context.follower
-                             join u in _context.user on f.whom_id equals u.user_id
-                             where f.who_id == userid
-                             select u.username);
-                //.Take(no_followers).ToList();
-                foreach (string f in query)
-                    usersStr += f;
-                    //Console.WriteLine("user -: " + f);
-                //Console.WriteLine("followers: " + query.ToList());
-                usersStr = "follows" + usersStr;
-                //var jsonreturn = JsonSerializer.Serialize(query);
-                var jsonreturn = JsonSerializer.Serialize(usersStr);
 
+                                    join u in _context.user on f.whom_id equals u.user_id
+                                    where f.who_id == userid
+                                    select 
+                                    new {u.username})
+                                    .Take(no_followers).ToList();
+                List<string> Follows = new List<string>();
+                foreach (var item in query)
+                {
+                    Follows.Add(item.username);
+                }                
+                ApiDataFollows returnfollows = new ApiDataFollows {follows = Follows};
+                var jsonreturn = JsonSerializer.Serialize(returnfollows);
 
                 return Ok(jsonreturn);
             }
