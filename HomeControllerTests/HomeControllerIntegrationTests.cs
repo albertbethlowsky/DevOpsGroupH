@@ -19,15 +19,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using mvc_minitwit.Controllers;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Moq;
 
 namespace HomeControllerTests
 {
     public class HomeControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory<Startup>>
-    //public class HomeControllerIntegrationTests : IClassFixture<WebApplicationFactory<Startup>>
     {
         private HttpClient _client;
         private CustomWebApplicationFactory<Startup> factory;
@@ -39,14 +36,6 @@ namespace HomeControllerTests
             pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
         };
 
-        
-        //private readonly WebApplicationFactory<Startup> factory;
-
-        //public HomeControllerIntegrationTests(WebApplicationFactory<Startup> factory, ITestOutputHelper output)
-        //{
-        //    this.output = output;
-        //    this.factory = factory;
-        //}
         private readonly IServiceScope _scope;
         private readonly MvcDbContext _context;
         private readonly CookieContainer cookies = new System.Net.CookieContainer();
@@ -63,27 +52,8 @@ namespace HomeControllerTests
             _context.Database.EnsureCreated();
         }
 
-  
-
         //to see more print: dotnet test --logger:"console;verbosity=detailed"
         //docs: https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
-
-        private string GetPW_hashFromUser(string username)
-        {
-
-            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var myDataContext = scope.ServiceProvider.GetService<MvcDbContext>();
-                var lst = myDataContext.user;
-                var matchingUser = myDataContext.user.Where(u => u.username == username);
-
-                if (matchingUser.Count() == 1)
-                    return matchingUser.First().pw_hash;
-                else
-                    throw new ArgumentException("username: " + username + " not found\n" + "error - count is:" + matchingUser.Count());
-            }   
-        }
 
         private void PrintResp(HttpResponseMessage resp)
         {
@@ -168,12 +138,10 @@ namespace HomeControllerTests
 
             var initResp = await _client.PostAsJsonAsync("/register", dummyUser);
             var initStrResp = await initResp.Content.ReadAsStringAsync();
-            output.WriteLine("INIT " + initStrResp);
 
             //register same user again:
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResponse = await response.Content.ReadAsStringAsync();
-            output.WriteLine("RESP " + strResponse);
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             //Assert.Equal("The username is already taken", strResponse);
@@ -184,22 +152,13 @@ namespace HomeControllerTests
         [Fact]
         public async Task Register_Success()
         {
-            
             _client = factory.CreateClient();
 
             dummyUser.username = "123dummy";
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
            
-            output.WriteLine(await response.Content.ReadAsStringAsync());
-
-            var users = _context.user.ToArray();
-            output.WriteLine("CONTEXT:");
-            foreach (User u in users)
-                output.WriteLine(u.username);
-
             //Assert.Equal("User registered", stringResponse);
             response.EnsureSuccessStatusCode();
-
         }
 
         [Fact]
@@ -289,7 +248,6 @@ namespace HomeControllerTests
 
         }
 
-        //TODO test_timeline
         [Fact]
         public async Task Message_By_Other_User_Found_On_Timeline()
         {
@@ -324,22 +282,11 @@ namespace HomeControllerTests
 
         }
 
-            //[Fact]
-            //public async Task CreateMessageByUser_Success()
-            //{
-            //    var appF = new CustomWebApplicationFactory<MvcDbContext>();
-            //    _client = appF.CreateClient();
+        [Fact]
+        public async Task User_Should_Only_See_Own_Timeline()
+        {
 
-            //    await _client.PostAsJsonAsync("/register", dummyUser);
-
-            //    var request = new HttpRequestMessage(HttpMethod.Post, "msgs/" + dummyUser.username);
-
-            //    // Act
-            //    var response = await _client.SendAsync(request);
-
-            //    var mess = new Message { author_id = 0, text = "test text", pub_date = (int)(DateTimeOffset.Now.ToUnixTimeSeconds()) };
-            //    //_client.PostAsync("/msgs/"+dummyUser.username, mess);
-            //}
+        }
 
 
             //[Fact]
