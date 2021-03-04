@@ -197,10 +197,14 @@ namespace mvc_minitwit.Controllers
             int userid = GetUserId(username);
             
             UpdateLatest();
-
             if(userid == -1) return BadRequest("error");
-            
+            Console.WriteLine("json FOll: " +json.Result.follow);
+            Console.WriteLine("json UnFOll: " + json.Result.unfollow);
+            Console.WriteLine("json " + json.Result);
+
+
             if (verb == "POST" && json.Result.follow != null){
+                Console.WriteLine("INside post");
                 string follows_username = json.Result.follow;
                 int follows_user_id = GetUserId(follows_username);
                 if(follows_user_id == -1) return NotFound();
@@ -211,20 +215,21 @@ namespace mvc_minitwit.Controllers
                 _context.Add(follower);
                 _context.SaveChanges();
 
-            return Ok();
+                return Ok(username + " now follows " + follows_username);
                 
             } else if(verb == "POST" && json.Result.unfollow != null) {
                 string follows_username = json.Result.unfollow;
                 int follows_user_id = GetUserId(follows_username);
                 if(follows_user_id == -1) return NotFound();
-        
+                Console.WriteLine("INside post - UNFOLLOW");
+
                 Follower follower = new Follower();
                 follower.who_id = userid;
                 follower.whom_id = follows_user_id;
                 _context.Remove(follower);
                 _context.SaveChanges();
 
-                return Ok();
+                return Ok("don't follow");
 
         
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
