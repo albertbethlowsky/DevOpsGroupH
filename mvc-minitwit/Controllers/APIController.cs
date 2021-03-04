@@ -63,7 +63,7 @@ namespace mvc_minitwit.Controllers
 
         //This is working now the - /msgs?no=42
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<dynamic>>> Getmessage(int no = 100)
+        public async Task<ActionResult<IEnumerable<dynamic>>> GetAllMessages(int no = 100)
         {
             UpdateLatest();
 

@@ -16,7 +16,7 @@ namespace HomeControllerTests
         {
             var user = new User { username = "SeedUser", pw_hash = "somehash", pw_hash2 = "somehash", email = "seed@seed" };
             dbContext.user.Add(user);
-            dbContext.message.Add(new Message { author_id= 0, author = user, text="seed data" });
+            dbContext.message.Add(new Message { author_id= 0, author = user, text="seed message" });
 
             dbContext.SaveChanges();
         }

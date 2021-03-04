@@ -213,7 +213,6 @@ namespace HomeControllerTests
             PrintUser();
 
             var loginResp = await _client.PostAsync("/api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
-            //output.WriteLine("SING: " + await loginResp.Content.ReadAsStringAsync());
             PrintUser();
 
             loginResp.EnsureSuccessStatusCode();
@@ -237,11 +236,10 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task Login_LogOut_InvalidEmail_Or_PW()
+        public async Task Login_InvalidEmail_Or_PW()
         {
             _client = factory.CreateClient();
             var noUserRegisteredResp = await _client.PostAsync("api/SignIn?email=NoSuch@Mail&password=totally_legit_pw", null);
-            output.WriteLine("RESP: " + await noUserRegisteredResp.Content.ReadAsStringAsync());
             Assert.Equal(HttpStatusCode.BadRequest, noUserRegisteredResp.StatusCode);
 
             dummyUser.username = "Login_LogOut_InvalidPW_TestUser";
@@ -269,56 +267,104 @@ namespace HomeControllerTests
             var loginResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
             loginResp.EnsureSuccessStatusCode();
 
-            var postMessageResp = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = " content for test message" });
+            var testMess = "content for test message";
+            var postMessageResp = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
             postMessageResp.EnsureSuccessStatusCode();
+            
             Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
+            Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
-            foreach (Message m in _context.message)
-                output.WriteLine(m.text);
+            testMess = "";
+            var postMessageResp2 = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
+            postMessageResp.EnsureSuccessStatusCode();
+            
+            Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
+            Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
         }
 
-        //[Fact]
-        //public async Task CreateMessageByUser_Success()
-        //{
-        //    var appF = new CustomWebApplicationFactory<MvcDbContext>();
-        //    _client = appF.CreateClient();
+        [Fact]
+        public async Task CreateMessageByUser_UserNotExist()
+        {
 
-        //    await _client.PostAsJsonAsync("/register", dummyUser);
+        }
 
-        //    var request = new HttpRequestMessage(HttpMethod.Post, "msgs/" + dummyUser.username);
+        //TODO test_timeline
+        [Fact]
+        public async Task Message_By_Other_User_Found_On_Timeline()
+        {
+            dummyUser.username = "Message_By_Other_User_Found_On_Timeline";
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
 
-        //    // Act
-        //    var response = await _client.SendAsync(request);
+            var testMess1 = "1st user message";
+            await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess1 });
+            await _client.GetAsync("/api/Sign_Out");
 
-        //    var mess = new Message { author_id = 0, text = "test text", pub_date = (int)(DateTimeOffset.Now.ToUnixTimeSeconds()) };
-        //    //_client.PostAsync("/msgs/"+dummyUser.username, mess);
-        //}
+            dummyUser.username = "2Message_By_Other_User_Found_On_Timeline";
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            
+            var testMess2 = "2nd user message";
+            await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess2 });
+            await _client.GetAsync("/api/Sign_Out");
+
+            var messagesFromTimeLineResp = await _client.GetAsync("/msgs");
+            messagesFromTimeLineResp.EnsureSuccessStatusCode();
+            var messages = await messagesFromTimeLineResp.Content.ReadAsStringAsync();
+
+            Assert.Equal(testMess1, _context.message.Where(m => m.text == testMess1).Single().text);    //order in db is not same as in resp
+            Assert.Equal(testMess2, _context.message.Where(m => m.text == testMess2).Single().text);
+
+            var definition = new[] { new { content = "" } };
+            var deserialized = JsonConvert.DeserializeAnonymousType(messages, definition);
+            
+            Assert.Equal(testMess1, deserialized[0].content);   
+            Assert.Equal(testMess2, deserialized[1].content);
+
+        }
+
+            //[Fact]
+            //public async Task CreateMessageByUser_Success()
+            //{
+            //    var appF = new CustomWebApplicationFactory<MvcDbContext>();
+            //    _client = appF.CreateClient();
+
+            //    await _client.PostAsJsonAsync("/register", dummyUser);
+
+            //    var request = new HttpRequestMessage(HttpMethod.Post, "msgs/" + dummyUser.username);
+
+            //    // Act
+            //    var response = await _client.SendAsync(request);
+
+            //    var mess = new Message { author_id = 0, text = "test text", pub_date = (int)(DateTimeOffset.Now.ToUnixTimeSeconds()) };
+            //    //_client.PostAsync("/msgs/"+dummyUser.username, mess);
+            //}
 
 
-        //[Fact]
-        //public async Task GetAllMessages()
-        //{
-        //    // The endpoint or route of the controller action.
-        //    _client = factory.CreateClient();
+            //[Fact]
+            //public async Task GetAllMessages()
+            //{
+            //    // The endpoint or route of the controller action.
+            //    _client = factory.CreateClient();
 
-        //    var response = await _client.GetAsync("/msgs");
+            //    var response = await _client.GetAsync("/msgs");
 
-        //    ResponsePrint(response);
+            //    ResponsePrint(response);
 
-        //    response.EnsureSuccessStatusCode();
+            //    response.EnsureSuccessStatusCode();
 
-        //    var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
+            //    var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
 
-        //    var stringResponse = await response.Content.ReadAsStringAsync();
-        //    //output.WriteLine("STR RESP: " + stringResponse);
+            //    var stringResponse = await response.Content.ReadAsStringAsync();
+            //    //output.WriteLine("STR RESP: " + stringResponse);
 
-        //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
+            //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
 
-        //    Assert.Equal("seed data", mess.content);
-        //    Assert.Equal("SeedUser", mess.user);
-        //}
+            //    Assert.Equal("seed data", mess.content);
+            //    Assert.Equal("SeedUser", mess.user);
+            //}
 
 
-    }
+        }
 }
