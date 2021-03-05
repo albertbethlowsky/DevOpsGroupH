@@ -251,7 +251,7 @@ namespace HomeControllerTests
         [Fact]
         public async Task Message_By_Other_User_Found_On_Timeline()
         {
-            dummyUser.username = "Message_By_Other_User_Found_On_Timeline";
+            dummyUser.username = "Message_By_Other_User_Found_On_Timeline_TestUser";
             await _client.PostAsJsonAsync("/register", dummyUser);
             await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
 
@@ -259,7 +259,7 @@ namespace HomeControllerTests
             await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess1 });
             await _client.GetAsync("/api/Sign_Out");
 
-            dummyUser.username = "2Message_By_Other_User_Found_On_Timeline";
+            dummyUser.username = "2Message_By_Other_User_Found_On_Timeline_TestUser";
             await _client.PostAsJsonAsync("/register", dummyUser);
             await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
             
@@ -282,36 +282,49 @@ namespace HomeControllerTests
 
         }
 
+        //Doesn't make sense when you're testing the API and not the Server/HomeController
+        //[Fact]
+        //public async Task SignIn_User_Sould_Only_See_Own_Timeline()
+        //{
+        //    dummyUser.username = "SignIn_User_Sould_Only_See_Own_Timeline_TestUser";
+        //    await _client.PostAsJsonAsync("/register", dummyUser);
+        //    await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+        //}
+
         [Fact]
-        public async Task User_Should_Only_See_Own_Timeline()
+        public async Task Follow_User_Shows_Their_Messages()
         {
+            dummyUser.username = "SignIn_User_Sould_Only_See_Own_Timeline_TestUser";
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            var followResp = await _client.PostAsync("fllws/" + dummyUser.username, null);
+            output.WriteLine("follow: " + await followResp.Content.ReadAsStringAsync());
 
         }
 
+        //[Fact]
+        //public async Task GetAllMessages()
+        //{
+        //    // The endpoint or route of the controller action.
+        //    _client = factory.CreateClient();
 
-            //[Fact]
-            //public async Task GetAllMessages()
-            //{
-            //    // The endpoint or route of the controller action.
-            //    _client = factory.CreateClient();
+        //    var response = await _client.GetAsync("/msgs");
 
-            //    var response = await _client.GetAsync("/msgs");
+        //    ResponsePrint(response);
 
-            //    ResponsePrint(response);
+        //    response.EnsureSuccessStatusCode();
 
-            //    response.EnsureSuccessStatusCode();
+        //    var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
 
-            //    var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
+        //    var stringResponse = await response.Content.ReadAsStringAsync();
+        //    //output.WriteLine("STR RESP: " + stringResponse);
 
-            //    var stringResponse = await response.Content.ReadAsStringAsync();
-            //    //output.WriteLine("STR RESP: " + stringResponse);
+        //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
 
-            //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
-
-            //    Assert.Equal("seed data", mess.content);
-            //    Assert.Equal("SeedUser", mess.user);
-            //}
+        //    Assert.Equal("seed data", mess.content);
+        //    Assert.Equal("SeedUser", mess.user);
+        //}
 
 
-        }
+    }
 }

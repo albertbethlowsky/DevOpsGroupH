@@ -250,7 +250,7 @@ namespace mvc_minitwit.Controllers
 
                 return Ok(jsonreturn);
             }
-            return Ok();
+            return Ok("other");
         }
 
     }
