@@ -210,16 +210,15 @@ namespace mvc_minitwit.Controllers
                 if(userToFollowId == -1) return NotFound();
 
                 var followersOfUserId = _context.follower.Where(f => f.who_id == userid).ToList();
-                foreach (Follower f in followersOfUserId)
-                {
-                    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
-                    Console.WriteLine("whom_name: " + f.whom_name);
-                }
-                //var UserIdFollowing = _context.follower.Where(f => f.whom_id == userid).ToList();
+                //foreach (Follower f in followersOfUserId)
+                //{
+                //    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
+                //    Console.WriteLine("whom_name: " + f.whom_name);
+                //}
                 if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
                 {
-                    Console.WriteLine(username + " already followes " + userToFollowId );
-                    return Ok(username + " already followes " + userToFollowId);
+                    //Console.WriteLine(username + " already followes " + userToFollowId );
+                    return Ok(username + " already follows " + userToFollow);
                 }
 
                 Follower follower = new Follower();
@@ -231,18 +230,30 @@ namespace mvc_minitwit.Controllers
                 return Ok(username + " now follows " + userToFollow);
                 
             } else if(verb == "POST" && json.Result.unfollow != null) {
-                string follows_username = json.Result.unfollow;
-                int follows_user_id = GetUserId(follows_username);
-                if(follows_user_id == -1) return NotFound();
+                string userToUnfollow = json.Result.unfollow;
+                int userToUnfollowId = GetUserId(userToUnfollow);
+                if(userToUnfollowId == -1) return NotFound();
                 Console.WriteLine("INside post - UNFOLLOW");
+
+                var followersOfUserId = _context.follower.AsNoTracking().Where(f => f.who_id == userid).ToList();
+                foreach (Follower f in followersOfUserId)
+                {
+                    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
+                    //Console.WriteLine("whom_name: " + f.whom_name);
+                }
+                if (!followersOfUserId.Where(f => f.whom_id == userToUnfollowId).Any())
+                {
+                    //Console.WriteLine(username + " already followes " + userToFollowId );
+                    return Ok(username + " isn't following " + userToUnfollow + " to begin with");
+                }
 
                 Follower follower = new Follower();
                 follower.who_id = userid;
-                follower.whom_id = follows_user_id;
+                follower.whom_id = userToUnfollowId;
                 _context.Remove(follower);
                 _context.SaveChanges();
 
-                return Ok("don't follow");
+                return Ok(username + "now doesn't follow " + userToUnfollow);
 
         
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
