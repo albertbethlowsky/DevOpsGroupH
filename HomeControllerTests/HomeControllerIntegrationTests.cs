@@ -299,7 +299,7 @@ namespace HomeControllerTests
             await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
             var followResp = await _client.PostAsync("fllws/" + dummyUser.username, null);
             output.WriteLine("follow: " + await followResp.Content.ReadAsStringAsync());
-
+            //Asssert with getting the followers of that user
         }
 
         //[Fact]
