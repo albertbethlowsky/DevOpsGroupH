@@ -205,17 +205,30 @@ namespace mvc_minitwit.Controllers
 
             if (verb == "POST" && json.Result.follow != null){
                 Console.WriteLine("INside post");
-                string follows_username = json.Result.follow;
-                int follows_user_id = GetUserId(follows_username);
-                if(follows_user_id == -1) return NotFound();
+                string userToFollow = json.Result.follow;
+                int userToFollowId = GetUserId(userToFollow);  //find the id of user to follow
+                if(userToFollowId == -1) return NotFound();
+
+                var followersOfUserId = _context.follower.Where(f => f.who_id == userid).ToList();
+                foreach (Follower f in followersOfUserId)
+                {
+                    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
+                    Console.WriteLine("whom_name: " + f.whom_name);
+                }
+                //var UserIdFollowing = _context.follower.Where(f => f.whom_id == userid).ToList();
+                if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
+                {
+                    Console.WriteLine(username + " already followes " + userToFollowId );
+                    return Ok(username + " already followes " + userToFollowId);
+                }
 
                 Follower follower = new Follower();
                 follower.who_id = userid;
-                follower.whom_id = follows_user_id;
+                follower.whom_id = userToFollowId;
                 _context.Add(follower);
                 _context.SaveChanges();
 
-                return Ok(username + " now follows " + follows_username);
+                return Ok(username + " now follows " + userToFollow);
                 
             } else if(verb == "POST" && json.Result.unfollow != null) {
                 string follows_username = json.Result.unfollow;
