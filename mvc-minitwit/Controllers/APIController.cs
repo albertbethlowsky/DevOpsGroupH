@@ -193,7 +193,7 @@ namespace mvc_minitwit.Controllers
         [AcceptVerbs("POST", "GET")]
         public IActionResult Follow(string username, int no_followers = 100) {
             var verb = _accessor.HttpContext.Request.Method.ToString();
-            var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiDataFollows>();
+            var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiDataFollow>();
             int userid = GetUserId(username);
             
             UpdateLatest();

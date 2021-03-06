@@ -12,17 +12,5 @@ namespace mvc_minitwit.Models
         [JsonPropertyName("follows")]
         public List<string> follows { get; set; }
 
-        [JsonIgnore]
-        [JsonPropertyName("follow")]
-        public string follow { get; set; }
-
-        [JsonIgnore]
-        [JsonPropertyName("unfollow")]
-        public string unfollow { get; set; }
-
-        [JsonIgnore]
-        [JsonPropertyName("latest")]
-        public int latest { get; set; }
-
     }
 }
