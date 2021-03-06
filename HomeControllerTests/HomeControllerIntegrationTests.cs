@@ -297,9 +297,11 @@ namespace HomeControllerTests
             dummyUser.username = "SignIn_User_Sould_Only_See_Own_Timeline_TestUser";
             await _client.PostAsJsonAsync("/register", dummyUser);
             await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
-            var followResp = await _client.PostAsync("fllws/" + dummyUser.username, null);
+            var followResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username, new ApiDataFollow { follow= "SeedUser" } );
             output.WriteLine("follow: " + await followResp.Content.ReadAsStringAsync());
             //Asssert with getting the followers of that user
+
+
         }
 
         //[Fact]

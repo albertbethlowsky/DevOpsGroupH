@@ -76,19 +76,57 @@ namespace mvc_minitwit.Controllers
                 .ToListAsync();
         }
 
-        //This is working now - /msgs/<username>
         [HttpGet("{username}")]
-        public async Task<ActionResult<IEnumerable<dynamic>>> GetMessageByUser(string username, int no = 100)
+        public async Task<ActionResult<IEnumerable<dynamic>>> GetMessageByUserAndItsFollowers(string username, int no = 100)
         {
-            return await _context.message.OrderByDescending(m => m.pub_date)
-                .Include(x => x.author)
-                .Where(x => x.flagged == 0)
-                .Where(x => x.author.username == username)
-                .OrderByDescending(x => x.pub_date)
-                .Select(x => new { content = x.text, pub_date = x.pub_date, user = x.author.username })
-                .Take(no)
-                .ToListAsync();
+            UpdateLatest();
+            var userId = GetUserId(username);
+            if (userId == -1) return BadRequest("invalid username");
+            var checkfollow = (from f in _context.follower
+                               join u in _context.user on f.whom_id equals u.user_id
+                               select
+                               new Follower { who_id = f.who_id, whom_id = f.whom_id, whom_name = u.username }).Where(i => i.who_id == userId).ToList();
+            var followlist = new List<Int32>() { userId };
+            //followlist.Add(userId);
+            foreach (var item in checkfollow)
+            {
+                Console.WriteLine(item.whom_id);
+                followlist.Add(item.whom_id);
+            }
+
+            var joinedtable = await (from m in _context.message
+                                     //join u in _context.user on m.author_id equals u.user_id
+                                     where followlist.Contains(m.author_id) //&& m.flagged == 0 && m.author.username == username
+                                     select
+                                   new 
+                                   {
+                                       content = m.text,
+                                       pub_date = m.pub_date,
+                                       user = m.author.username
+                                   }).Distinct()
+                                     .OrderByDescending(x => x.pub_date)
+                                     .Take(no)
+                                     .ToListAsync();
+                                            //.OrderByDescending(t => t.message_id).Take(50).ToList();
+
+            return joinedtable;
+
         }
+
+
+        ////This is working now - /msgs/<username>
+        //[HttpGet("{username}")]
+        //public async Task<ActionResult<IEnumerable<dynamic>>> GetMessageByUser(string username, int no = 100)
+        //{
+        //    return await _context.message.OrderByDescending(m => m.pub_date)
+        //        .Include(x => x.author)
+        //        .Where(x => x.flagged == 0)
+        //        .Where(x => x.author.username == username)
+        //        .OrderByDescending(x => x.pub_date)
+        //        .Select(x => new { content = x.text, pub_date = x.pub_date, user = x.author.username })
+        //        .Take(no)
+        //        .ToListAsync();
+        //}
 
         //This is working now - /msgs/<username>
         [HttpPost("{username}")]
@@ -198,13 +236,12 @@ namespace mvc_minitwit.Controllers
             
             UpdateLatest();
             if(userid == -1) return BadRequest("error");
-            Console.WriteLine("json FOll: " +json.Result.follow);
-            Console.WriteLine("json UnFOll: " + json.Result.unfollow);
-            Console.WriteLine("json " + json.Result);
+            //Console.WriteLine("json FOll: " +json.Result.follow);
+            //Console.WriteLine("json UnFOll: " + json.Result.unfollow);
+            //Console.WriteLine("json " + json.Result);
 
 
             if (verb == "POST" && json.Result.follow != null){
-                Console.WriteLine("INside post");
                 string userToFollow = json.Result.follow;
                 int userToFollowId = GetUserId(userToFollow);  //find the id of user to follow
                 if(userToFollowId == -1) return NotFound();
@@ -233,14 +270,13 @@ namespace mvc_minitwit.Controllers
                 string userToUnfollow = json.Result.unfollow;
                 int userToUnfollowId = GetUserId(userToUnfollow);
                 if(userToUnfollowId == -1) return NotFound();
-                Console.WriteLine("INside post - UNFOLLOW");
 
                 var followersOfUserId = _context.follower.AsNoTracking().Where(f => f.who_id == userid).ToList();
-                foreach (Follower f in followersOfUserId)
-                {
-                    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
-                    //Console.WriteLine("whom_name: " + f.whom_name);
-                }
+                //foreach (Follower f in followersOfUserId)
+                //{
+                //    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
+                //    //Console.WriteLine("whom_name: " + f.whom_name);
+                //}
                 if (!followersOfUserId.Where(f => f.whom_id == userToUnfollowId).Any())
                 {
                     //Console.WriteLine(username + " already followes " + userToFollowId );
