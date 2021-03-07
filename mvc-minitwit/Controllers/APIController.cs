@@ -247,7 +247,8 @@ namespace mvc_minitwit.Controllers
                 if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
                 {
                     //Console.WriteLine(username + " already followes " + userToFollowId );
-                    return Ok(username + " already follows " + userToFollow);
+                    return BadRequest(username + " already follows " + userToFollow);
+                    //return Ok(username + " already follows " + userToFollow);
                 }
 
                 Follower follower = new Follower();

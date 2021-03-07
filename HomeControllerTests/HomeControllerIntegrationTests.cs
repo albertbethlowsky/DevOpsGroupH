@@ -344,11 +344,26 @@ namespace HomeControllerTests
             getFollowers2.EnsureSuccessStatusCode();
             Assert.DoesNotContain(SeedData.user.username, getFollowersString2);
 
-
         }
 
-    //TODO make test checks to not be able to follow user twice
-    //TODO also can't unfollow twice
+        //TODO make test checks to not be able to follow user twice
+        //TODO also can't unfollow twice
+
+        [Fact]
+        public async Task Follow_User_Twice_Fails()
+        {
+            dummyUser.username = "Follow_User_Twice_Fails";
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+
+            await _client.PostAsJsonAsync("fllws/" + dummyUser.username, new ApiDataFollow { follow = SeedData.user.username });
+            var followSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
+                new ApiDataFollow { follow = SeedData.user.username });
+            output.WriteLine("follow: " + await followSeedDataResp.Content.ReadAsStringAsync());
+            Assert.Equal(HttpStatusCode.BadRequest, followSeedDataResp.StatusCode);
+
+
+        }
 
 
     }
