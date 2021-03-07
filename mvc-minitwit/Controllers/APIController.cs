@@ -87,16 +87,11 @@ namespace mvc_minitwit.Controllers
                                select
                                new Follower { who_id = f.who_id, whom_id = f.whom_id, whom_name = u.username }).Where(i => i.who_id == userId).ToList();
             var followlist = new List<Int32>() { userId };
-            //followlist.Add(userId);
             foreach (var item in checkfollow)
-            {
-                Console.WriteLine(item.whom_id);
                 followlist.Add(item.whom_id);
-            }
 
             var joinedtable = await (from m in _context.message
-                                     //join u in _context.user on m.author_id equals u.user_id
-                                     where followlist.Contains(m.author_id) //&& m.flagged == 0 && m.author.username == username
+                                     where followlist.Contains(m.author_id)
                                      select
                                    new 
                                    {
@@ -107,26 +102,12 @@ namespace mvc_minitwit.Controllers
                                      .OrderByDescending(x => x.pub_date)
                                      .Take(no)
                                      .ToListAsync();
-                                            //.OrderByDescending(t => t.message_id).Take(50).ToList();
+                                           
 
             return joinedtable;
 
         }
 
-
-        ////This is working now - /msgs/<username>
-        //[HttpGet("{username}")]
-        //public async Task<ActionResult<IEnumerable<dynamic>>> GetMessageByUser(string username, int no = 100)
-        //{
-        //    return await _context.message.OrderByDescending(m => m.pub_date)
-        //        .Include(x => x.author)
-        //        .Where(x => x.flagged == 0)
-        //        .Where(x => x.author.username == username)
-        //        .OrderByDescending(x => x.pub_date)
-        //        .Select(x => new { content = x.text, pub_date = x.pub_date, user = x.author.username })
-        //        .Take(no)
-        //        .ToListAsync();
-        //}
 
         //This is working now - /msgs/<username>
         [HttpPost("{username}")]
@@ -172,12 +153,10 @@ namespace mvc_minitwit.Controllers
                 _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pw_hash)});
                 await _context.SaveChangesAsync();
             }
-            //Console.WriteLine("GetId: " + GetUserId(user.username));
             if (!string.IsNullOrEmpty(error))
             {
                 var ls = _context.user.ToList().Select(u => u.username);
                 var str = string.Join(",", ls.ToList());
-                //return BadRequest(error + " Error:" + " user arg: " + user.username + ", but all other users: " + str);
                 return BadRequest(error);
 
             }
@@ -186,8 +165,7 @@ namespace mvc_minitwit.Controllers
                 var noUsers = _context.user;
                 var ls = noUsers.ToList().Select(u => u.username);
                 var str = string.Join(",", ls.ToList());
-                return Ok("User registered " + user.username + " | " + str);
-                //return Ok("User registered");
+                return Ok("User registered " + user.username);
 
             }
         }
@@ -246,9 +224,7 @@ namespace mvc_minitwit.Controllers
                 
                 if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
                 {
-                    //Console.WriteLine(username + " already followes " + userToFollowId );
                     return BadRequest(username + " already follows " + userToFollow);
-                    //return Ok(username + " already follows " + userToFollow);
                 }
 
                 Follower follower = new Follower();
@@ -268,8 +244,7 @@ namespace mvc_minitwit.Controllers
                 
                 if (!followersOfUserId.Where(f => f.whom_id == userToUnfollowId).Any())
                 {
-                    //Console.WriteLine(username + " already followes " + userToFollowId );
-                    return Ok(username + " isn't following " + userToUnfollow + " to begin with");
+                    return BadRequest(username + " isn't following " + userToUnfollow + " to begin with");
                 }
 
                 Follower follower = new Follower();
