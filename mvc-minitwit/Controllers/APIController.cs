@@ -236,10 +236,6 @@ namespace mvc_minitwit.Controllers
             
             UpdateLatest();
             if(userid == -1) return BadRequest("error");
-            //Console.WriteLine("json FOll: " +json.Result.follow);
-            //Console.WriteLine("json UnFOll: " + json.Result.unfollow);
-            //Console.WriteLine("json " + json.Result);
-
 
             if (verb == "POST" && json.Result.follow != null){
                 string userToFollow = json.Result.follow;
@@ -247,11 +243,7 @@ namespace mvc_minitwit.Controllers
                 if(userToFollowId == -1) return NotFound();
 
                 var followersOfUserId = _context.follower.Where(f => f.who_id == userid).ToList();
-                //foreach (Follower f in followersOfUserId)
-                //{
-                //    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
-                //    Console.WriteLine("whom_name: " + f.whom_name);
-                //}
+                
                 if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
                 {
                     //Console.WriteLine(username + " already followes " + userToFollowId );
@@ -272,11 +264,7 @@ namespace mvc_minitwit.Controllers
                 if(userToUnfollowId == -1) return NotFound();
 
                 var followersOfUserId = _context.follower.AsNoTracking().Where(f => f.who_id == userid).ToList();
-                //foreach (Follower f in followersOfUserId)
-                //{
-                //    Console.WriteLine(f.who_id + " follows --> " + f.whom_id);
-                //    //Console.WriteLine("whom_name: " + f.whom_name);
-                //}
+                
                 if (!followersOfUserId.Where(f => f.whom_id == userToUnfollowId).Any())
                 {
                     //Console.WriteLine(username + " already followes " + userToFollowId );
@@ -289,7 +277,7 @@ namespace mvc_minitwit.Controllers
                 _context.Remove(follower);
                 _context.SaveChanges();
 
-                return Ok(username + "now doesn't follow " + userToUnfollow);
+                return Ok(username + " now doesn't follow " + userToUnfollow);
 
         
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query

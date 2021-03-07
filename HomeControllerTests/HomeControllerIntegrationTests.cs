@@ -267,26 +267,17 @@ namespace HomeControllerTests
             await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess2 });
             await _client.GetAsync("/api/Sign_Out");
 
-            var messagesFromTimeLineResp = await _client.GetAsync("/msgs");
-            messagesFromTimeLineResp.EnsureSuccessStatusCode();
-            var messages = await messagesFromTimeLineResp.Content.ReadAsStringAsync();
+            var messagesPublicTimeLineResp = await _client.GetAsync("/msgs");
+            messagesPublicTimeLineResp.EnsureSuccessStatusCode();
+            var messages = await messagesPublicTimeLineResp.Content.ReadAsStringAsync();
 
             Assert.Equal(testMess1, _context.message.Where(m => m.text == testMess1).Single().text);    //order in db is not same as in resp
             Assert.Equal(testMess2, _context.message.Where(m => m.text == testMess2).Single().text);
 
             var definition = new[] { new { content = "" } };
             var deserialized = JsonConvert.DeserializeAnonymousType(messages, definition);
-            //output.WriteLine("deserialized: ");
-            //for(int i=0; i<deserialized.Length; i++)
-            //    output.WriteLine(deserialized[i]);
-
-            //Assert.Equal(testMess1, deserialized[0].content);   
-            //Assert.Equal(testMess2, deserialized[1].content);
 
             Assert.Contains(deserialized, e => e.content.Contains(testMess1) || e.content.Contains(testMess2));
-            //Assert.All(deserialized,
-            //    item => item.content.Contains(testMess1, testMess2) //|| item.content.Contains(testMess2)
-            //);
 
         }
 
@@ -300,7 +291,7 @@ namespace HomeControllerTests
         //}
 
         [Fact]
-        public async Task Follow_User_Shows_Their_Messages()
+        public async Task Follow_User_Shows_Their_Messages_Unfollow_Doesnt()
         {
             dummyUser.username = "Follow_User_Shows_Their_Messages";
             await _client.PostAsJsonAsync("/register", dummyUser);
@@ -308,48 +299,56 @@ namespace HomeControllerTests
 
             await _client.PostAsJsonAsync("msgs/"+dummyUser.username, new CreateMessage { content = "Follow test" });
             
-            //output.WriteLine("SEEDDATA " + SeedData.user.username);
-            var followSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username, new ApiDataFollow { follow= SeedData.user.username } );
+            var followSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username, 
+                new ApiDataFollow { follow= SeedData.user.username } );
             output.WriteLine("follow: " + await followSeedDataResp.Content.ReadAsStringAsync());
 
-            //Asssert with getting the followers of that user
             var getFollowers = await _client.GetAsync("fllws/"+dummyUser.username);
             var getFollowersString = await getFollowers.Content.ReadAsStringAsync();
-            output.WriteLine("follwoers: " + getFollowersString);
+            //output.WriteLine("follwoers: " + getFollowersString);
             
             getFollowers.EnsureSuccessStatusCode();
             Assert.Contains(SeedData.user.username, getFollowersString);
 
-            var messagesOfDummyResp = await _client.GetAsync("msgs/" + dummyUser.username);
-            var messagesOfDummyContent = await messagesOfDummyResp.Content.ReadAsStringAsync();
-            output.WriteLine("mess by dummy: " + messagesOfDummyContent );
+            var messagesOfDummyContent = await (await _client.GetAsync("msgs/" + dummyUser.username)).Content.ReadAsStringAsync();
+            //var messagesOfDummyContent = await messagesOfDummyResp.Content.ReadAsStringAsync();
+            //output.WriteLine("mess by dummy: " + messagesOfDummyContent); 
             Assert.Contains(SeedData.message.text, messagesOfDummyContent);
 
-            //Assert that list now has 
+            //Unfollowing:
+            output.WriteLine("Before unf.");
+            foreach (Follower f in _context.follower)
+                output.WriteLine("" + f.who_id);
+
+
+            var unfollowSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
+                    new ApiDataFollow { unfollow = SeedData.user.username });
+            unfollowSeedDataResp.EnsureSuccessStatusCode();
+
+            var unfollowStr = await unfollowSeedDataResp.Content.ReadAsStringAsync();
+            output.WriteLine("UNFOLLOW: " + unfollowStr);
+            Assert.Equal(dummyUser.username + " now doesn't follow " + SeedData.user.username, unfollowStr);
+            
+            var getFollowers2 = await _client.GetAsync("fllws/" + dummyUser.username);
+            var getFollowersString2 = await getFollowers.Content.ReadAsStringAsync();
+
+            output.WriteLine("AFTER unf.");
+            foreach (Follower f in _context.follower)
+                output.WriteLine("" + f.who_id);
+
+            output.WriteLine("followers: " + getFollowersString2);
+            var messagesOfDummy2 = await (await _client.GetAsync("msgs/" + dummyUser.username)).Content.ReadAsStringAsync();
+            output.WriteLine("messagesOfDummy2 " + messagesOfDummy2);
+            Assert.DoesNotContain(SeedData.message.text, messagesOfDummy2);
+
+            getFollowers2.EnsureSuccessStatusCode();
+            Assert.DoesNotContain(SeedData.user.username, getFollowersString2);
+
+
         }
 
-        //[Fact]
-        //public async Task GetAllMessages()
-        //{
-        //    // The endpoint or route of the controller action.
-        //    _client = factory.CreateClient();
-
-        //    var response = await _client.GetAsync("/msgs");
-
-        //    ResponsePrint(response);
-
-        //    response.EnsureSuccessStatusCode();
-
-        //    var definition = new { content = "", pub_date = "", user = "" };     // format for the anon-type received
-
-        //    var stringResponse = await response.Content.ReadAsStringAsync();
-        //    //output.WriteLine("STR RESP: " + stringResponse);
-
-        //    var mess = JsonConvert.DeserializeAnonymousType(stringResponse.Substring(1, stringResponse.Length - 2), definition); //cuts of [ ] to deserialize correctly
-
-        //    Assert.Equal("seed data", mess.content);
-        //    Assert.Equal("SeedUser", mess.user);
-        //}
+    //TODO make test checks to not be able to follow user twice
+    //TODO also can't unfollow twice
 
 
     }
