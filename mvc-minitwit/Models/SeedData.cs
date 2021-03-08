@@ -11,8 +11,7 @@ namespace mvc_minitwit.Models
         public static void Initialize(IServiceProvider serviceProvider)
         {
             using (var context = new MvcDbContext(
-                serviceProvider.GetRequiredService<
-                    DbContextOptions<MvcDbContext>>()))
+                serviceProvider.GetRequiredService<DbContextOptions<MvcDbContext>>()))
             {
                 // Look for any messages.
                 if (context.message.Any())
