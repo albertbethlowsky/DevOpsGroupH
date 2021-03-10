@@ -27,7 +27,6 @@ stages:
               command: test
               projects: "**/*HomeControllerTests/*.csproj"
               ##arguments: "--configuration $(BuildConfiguration)"
-              ##Test
 
           - task: Docker@2
             displayName: Build an image
