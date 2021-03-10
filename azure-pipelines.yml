@@ -29,23 +29,11 @@ stages:
               ##arguments: "--configuration $(BuildConfiguration)"
               
 
-          - task: Docker@2
-            displayName: Build an image
-            inputs:
-              repository: $(imageName)
-              command: build
-              dockerfile: "$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile"
-              tags: |
-                $(tag)
-
-          - task: Docker@2
-            displayName: Push image
-            inputs:
-              containerRegistry: |
-                $(dockerHub)
-              repository: $(imageName)
-              command: push
-              tags: |
-                $(tag)
-
-          ##Test
+          ##- task: Docker@2
+          ##  displayName: Build an image
+          ##  inputs:
+          ##    repository: $(imageName)
+          ##    command: build
+          ##    dockerfile: "$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile"
+          ##    tags: |
+          ##      $(tag)
