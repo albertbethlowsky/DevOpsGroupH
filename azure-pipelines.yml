@@ -10,8 +10,7 @@ resources:
 
 variables:
   tag: "$(Build.BuildId)"
-  repository: "neutrals-docker"
-  dockerhub: 
+  imageName: "neutrals-docker"
 
 stages:
   - stage: Build
