@@ -10,6 +10,8 @@ resources:
 
 variables:
   tag: "$(Build.BuildId)"
+  repository: "neutrals-docker"
+  dockerhub: 
 
 stages:
   - stage: Build
@@ -31,7 +33,18 @@ stages:
           - task: Docker@2
             displayName: Build an image
             inputs:
+              repository: $(imageName)
               command: build
               dockerfile: "$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile"
+              tags: |
+                $(tag)
+
+          - task: Docker@2
+            displayName: Push image
+            inputs:
+              containerRegistry: |
+                $(dockerHub)
+              repository: $(imageName)
+              command: push
               tags: |
                 $(tag)
