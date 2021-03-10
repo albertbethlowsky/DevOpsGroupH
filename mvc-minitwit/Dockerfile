@@ -7,10 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
-COPY ["mvc-minitwit.csproj", "./"]
-RUN dotnet restore "mvc-minitwit.csproj"
+COPY ["mvc-minitwit/mvc-minitwit.csproj", "mvc-minitwit/"]
+RUN dotnet restore "mvc-minitwit/mvc-minitwit.csproj"
 COPY . .
-WORKDIR "/src/"
+WORKDIR "/src/mvc-minitwit/"
 RUN dotnet build "mvc-minitwit.csproj" -c Release -o /app/build
 
 FROM build AS publish
