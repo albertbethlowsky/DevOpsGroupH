@@ -1,0 +1,44 @@
+﻿@{
+    var login = new mvc_minitwit.HelperClasses.LoginHelper();
+}
+
+<html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>@ViewData["Title"] - mvc_minitwit</title>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" />
+    
+<div class=page>
+<h1>MiniTwit</h1>
+@if(login.checkLogin())
+{
+    <div class=navigation>  
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="My Timeline">My Timeline</a> |
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="Public Timeline">Public Timeline</a> |
+        <a asp-controller="Home" asp-action="Sign_Out">Sign Out</a> |
+    </div>
+} else {
+    <div class=navigation>  
+        <a asp-controller="Home" asp-action="Timeline" asp-route-id="Public Timeline">Public Timeline</a> |
+        <a asp-controller="Home" asp-action="SignIn">Sign In</a> |
+        <a asp-controller="Home" asp-action="SignUp">Sign Up</a> |
+    </div> 
+}
+
+<div class=body>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+</div>
+<div class=footer>
+    MiniTwit &mdash; A .NET application
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</div>
+</html>
