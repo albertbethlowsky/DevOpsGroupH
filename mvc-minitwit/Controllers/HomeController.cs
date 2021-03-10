@@ -25,7 +25,9 @@ namespace mvc_minitwit.Controllers
         private readonly MvcDbContext _context;
         private readonly LoginHelper lh;
 
+        //public HomeController(ILogger<HomeController> logger, MvcDbContext context)
         public HomeController(ILogger<HomeController> logger, MvcDbContext context)
+
         {
             _logger = logger;
             _context = context;
@@ -49,7 +51,7 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> Timeline(string? id)
         {    
             if(!userExistDB()){
-                Sign_Out();
+                await Sign_Out();
             }
             
             if(id == lh.getUsername()) id = "My Timeline";
@@ -189,9 +191,10 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
             if(!userExistDB()){
-                Sign_Out();
+                await Sign_Out();
             }
-            if(ModelState.IsValid)
+
+            if(ModelState.IsValid && !string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(pw_hash))
             {
                 GravatarImage newHash = new GravatarImage();
                 var f_password = newHash.hashBuilder(pw_hash);
@@ -218,6 +221,8 @@ namespace mvc_minitwit.Controllers
                 else
                 {
                     ViewBag.error = "Login failed";
+                    ViewData["testOutput"] = "Login failed";
+                    
                     return RedirectToAction("SignIn");
                 }
             }
