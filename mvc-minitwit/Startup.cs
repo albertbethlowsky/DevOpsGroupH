@@ -30,11 +30,11 @@ namespace mvc_minitwit
         {
             services.AddControllersWithViews();
 
+           // services.AddDbContext<MvcDbContext>(options =>
+           // options.UseSqlite(
+            //   Configuration.GetConnectionString("DefaultConnection"))); //database context
             services.AddDbContext<MvcDbContext>(options =>
-            options.UseSqlite(
-               Configuration.GetConnectionString("DefaultConnection"))); //database context
-            //services.AddDbContext<MvcDbContext>(options =>
-              //  options.UseSqlServer(Configuration.GetConnectionString("MvcDbContext")));
+                options.UseSqlServer(Configuration.GetConnectionString("MvcDbContext")));
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
