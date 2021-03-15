@@ -18,9 +18,9 @@ using mvc_minitwit.HelperClasses;
 namespace mvc_minitwit.Controllers
 {
     public class HomeController : Controller
-    
+
     {
-        
+
         private readonly ILogger<HomeController> _logger;
         private readonly MvcDbContext _context;
         private readonly LoginHelper lh;
@@ -49,17 +49,17 @@ namespace mvc_minitwit.Controllers
         }
 
         public async Task<IActionResult> Timeline(string? id)
-        {    
+        {
             if(!userExistDB()){
                 await Sign_Out();
             }
-            
+
             if(id == lh.getUsername()) id = "My Timeline";
             if(id == "My Timeline") {
                 ViewData["Title"] = "My Timeline";
                 var checkfollow = (from f in _context.follower
                                     join u in _context.user on f.whom_id equals u.user_id
-                                    select 
+                                    select
                                     new Follower {who_id = f.who_id, whom_id = f.whom_id, whom_name = u.username}).Where(i => i.who_id == lh.getUserID()).ToList();
                 List<Int32> followlist = new List<Int32>();
                 foreach (var item in checkfollow)
@@ -79,7 +79,7 @@ namespace mvc_minitwit.Controllers
                 ViewData["Title"] = "Public Timeline";
                 var joinedtable = (from m in _context.message
                                 join u in _context.user on m.author_id equals u.user_id
-                                select 
+                                select
                                 new TimelineData {message_id = m.message_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, flagged = m.flagged})
                                                 .Where(m => m.flagged == 0).OrderByDescending(t => t.message_id).Take(50).ToList();
                 return View(joinedtable);
@@ -91,23 +91,23 @@ namespace mvc_minitwit.Controllers
                                 select
                                 new TimelineData {message_id = m.message_id, author_id = m.author_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, isFollowed = false})
                                                 .Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
-                
-                
+
+
 
                 if(lh.checkLogin())
                 {
                     var checkfollow = (from f in _context.follower
                                     join u in _context.user on f.whom_id equals u.user_id
-                                    select 
+                                    select
                                     new Follower {who_id = f.who_id, whom_id = f.whom_id, whom_name = u.username}).Where(i => i.who_id == lh.getUserID()).ToList();
-                    
+
                     foreach (var item in checkfollow)
-                    {   
+                    {
                         if(item.whom_name == id) {
                             joinedtable[0].isFollowed = true;
                         }
                     }
-                    
+
                 }
 
                 return View(joinedtable);
@@ -131,7 +131,7 @@ namespace mvc_minitwit.Controllers
         }
 
         public IActionResult Follow(List<Int32> values)
-        {   
+        {
             Follower follower = new Follower();
             follower.who_id = values[1];
             follower.whom_id = values[0];
@@ -140,7 +140,7 @@ namespace mvc_minitwit.Controllers
 
             return RedirectToAction("Timeline");
         }
-        
+
         public IActionResult Unfollow(List<Int32> values)
         {
             Follower follower = new Follower();
@@ -151,7 +151,7 @@ namespace mvc_minitwit.Controllers
 
             return RedirectToAction("Timeline");
         }
-        
+
         public IActionResult SignUp()
         {
             return View();
@@ -215,14 +215,14 @@ namespace mvc_minitwit.Controllers
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
                         return RedirectToAction("Timeline");
-                    
+
                     }
                 }
                 else
                 {
                     ViewBag.error = "Login failed";
                     ViewData["testOutput"] = "Login failed";
-                    
+
                     return RedirectToAction("SignIn");
                 }
             }
