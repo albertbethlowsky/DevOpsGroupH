@@ -261,7 +261,7 @@ namespace HomeControllerTests
 
             await _client.PostAsJsonAsync("msgs/" + dummyUser.username, new CreateMessage { content = "Follow test" });
 
-            await _client.PostAsJsonAsync("fllws/" + dummyUser.username, 
+            await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                 new ApiDataFollow { follow = SeedData.user.username });
 
             var getFollowers = await _client.GetAsync("fllws/" + dummyUser.username);
@@ -301,7 +301,7 @@ namespace HomeControllerTests
                     new ApiDataFollow { unfollow = SeedData.user.username });
             Assert.Equal(HttpStatusCode.BadRequest, unfollow.StatusCode);
 
-            await _client.PostAsJsonAsync("fllws/" + dummyUser.username, 
+            await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                     new ApiDataFollow { follow = SeedData.user.username });
             var followSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                 new ApiDataFollow { follow = SeedData.user.username });
