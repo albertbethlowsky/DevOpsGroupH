@@ -123,13 +123,8 @@ namespace mvc_minitwit.Controllers
 
             _context.message.Add(message);
             await _context.SaveChangesAsync();
-<<<<<<< HEAD
-            return Ok("Message posted");        //NoContent() for 204
-
-=======
            // return Ok("Message posted");
            return NoContent();
->>>>>>> cc278f55b0c3340771a54ccb47bf6ef9b5af4050
         }
 
         [HttpPost("~/register")] //This syntax goes back to root and the /whaterver
