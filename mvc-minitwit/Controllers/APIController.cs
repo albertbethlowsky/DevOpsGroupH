@@ -113,6 +113,8 @@ namespace mvc_minitwit.Controllers
         [HttpPost("{username}")]
         public async Task<ActionResult<IEnumerable<dynamic>>> CreateMessageByUser(string username,[FromBody] CreateMessage model)
         {
+            UpdateLatest();
+            if(GetUserId(username) == -1) return BadRequest("error");
             Message message = new Message();
             message.author_id = _context.user.Single(x => x.username == username).user_id;
             message.text = model.content;
@@ -121,7 +123,8 @@ namespace mvc_minitwit.Controllers
 
             _context.message.Add(message);
             await _context.SaveChangesAsync();
-            return Ok("Message posted");
+           // return Ok("Message posted");
+           return NoContent();
         }
 
         [HttpPost("~/register")] //This syntax goes back to root and the /whaterver
@@ -165,8 +168,8 @@ namespace mvc_minitwit.Controllers
                 var noUsers = _context.user;
                 var ls = noUsers.ToList().Select(u => u.username);
                 var str = string.Join(",", ls.ToList());
-                return Ok("User registered " + user.username);
-
+                //return Ok("User registered " + user.username);
+                return NoContent();
             }
         }
 
@@ -189,8 +192,8 @@ namespace mvc_minitwit.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                return Ok("You were logged in");
-            
+                //return Ok("You were logged in");
+                return NoContent();
             } else {
                 return BadRequest("Wrong email or password");
             }
@@ -202,7 +205,7 @@ namespace mvc_minitwit.Controllers
         public async Task<IActionResult> Sign_Out()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok();
+            return NoContent();
         }
 
         [Route("~/fllws/{username}")]
@@ -233,7 +236,8 @@ namespace mvc_minitwit.Controllers
                 _context.Add(follower);
                 _context.SaveChanges();
 
-                return Ok(username + " now follows " + userToFollow);
+                //return Ok(username + " now follows " + userToFollow);
+                return NoContent();
                 
             } else if(verb == "POST" && json.Result.unfollow != null) {
                 string userToUnfollow = json.Result.unfollow;
@@ -253,8 +257,8 @@ namespace mvc_minitwit.Controllers
                 _context.Remove(follower);
                 _context.SaveChanges();
 
-                return Ok(username + " now doesn't follow " + userToUnfollow);
-
+                //return Ok(username + " now doesn't follow " + userToUnfollow);
+                return NoContent();
         
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
                 var query = (from f in _context.follower
