@@ -2,7 +2,39 @@ version: '3.4'
 
 services:
   mvc-minitwit:
-    image: ${DOCKER_REGISTRY-}mvcminitwit
+    image: mvcminitwit
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      - ASPNETCORE_URLS=http://*:8080
+    networks:
+      - dotnetcorepromgrafana
+    command: ["--privileged"]
+      
+  prometheus:
+    image: prom/prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - dotnetcorepromgrafana
+
+  grafana: 
+    image: grafana/grafana
+    #command:
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - dotnetcorepromgrafana
+
+### put all the networks here
+networks:
+  dotnetcorepromgrafana:
