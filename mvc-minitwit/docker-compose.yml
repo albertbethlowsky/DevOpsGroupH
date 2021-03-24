@@ -17,7 +17,7 @@ services:
   prometheus:
     build:
       context: .
-      dockerfile: './Prometheus/dockerfile'
+      dockerfile: './Prometheus/Dockerfile'
     restart: always
     ports:
       - 9090:9090
@@ -29,7 +29,7 @@ services:
   grafana: 
     build:
       context: .
-      dockerfile: './grafana/dockerfile'
+      dockerfile: './grafana/Dockerfile'
     #command:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
