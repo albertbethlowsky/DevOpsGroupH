@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   mvc-minitwit:
-    image: mvcminitwit
+    image: jokeren9/neutralsminitwit
     build:
       context: .
       dockerfile: Dockerfile
