@@ -16,6 +16,6 @@ RUN dotnet publish "mvc-minitwit.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-EXPOSE 8080:80
+EXPOSE 8080:8080
 
 ENTRYPOINT ["dotnet", "mvc-minitwit.dll"]
