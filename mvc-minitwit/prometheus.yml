@@ -16,3 +16,4 @@ scrape_configs:
       # localhost is not it, as that is w/in the container :)
       - targets: ['host.docker.internal:8080']
       - targets: ['mvcminitwit:8080']
+      - targets: ['neutrals-minitwit.azurewebsites.net']

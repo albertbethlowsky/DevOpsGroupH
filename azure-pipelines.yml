@@ -10,7 +10,7 @@ resources:
 
 variables:
   tag: "$(Build.BuildId)"
-  ImageName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
+  projectName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
 
 stages:
   - stage: Build
@@ -27,24 +27,25 @@ stages:
               command: test
               projects: "**/*HomeControllerTests/*.csproj"
           ##arguments: "--configuration $(BuildConfiguration)"
-
-          - task: Docker@1
-            displayName: 'Build an Docker image'
+          - task: DockerCompose@0
+            displayName: Build services
             inputs:
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'Docker Hub'
-              command: 'Build an image'
-              dockerfile: "$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile"
-              imageName: '$(ImageName)'
-              includeLatestTag: true
-              useDefaultContext: false
-              buildContext: '.'
+              action: Build services
+              containerregistrytype: 'Container Registry' #how???
+              dockerRegistryEndpoint: 'Docker Hub' #how?? 
+              dockerComposeFile: "$(Build.SourcesDirectory)/mvc-minitwit/docker-compose.yml"
+              projectName: $(projectName)
+              qualifyImageNames: true
+              additionalImageTags: $(Build.BuildId)
 
-          - task: Docker@1
-            displayName: 'Push the Docker image to Dockerhub'
+          - task: DockerCompose@0
+            displayName: Push services
             inputs:
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'Docker Hub'
-              command: 'Push an image'
-              imageName: '$(ImageName)'
-            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+              action: Push services
+              containerregistrytype: 'Container Registry' #how???
+              dockerRegistryEndpoint: 'Docker Hub' #how?? 
+              dockerComposeFile: "$(Build.SourcesDirectory)/mvc-minitwit/docker-compose.yml"
+              projectName: $(projectName)
+              qualifyImageNames: true
+              additionalImageTags: $(Build.BuildId)
+
