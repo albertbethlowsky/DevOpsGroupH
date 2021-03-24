@@ -15,7 +15,9 @@ services:
     command: ["--privileged"]
       
   prometheus:
-    image: prom/prometheus
+    build:
+      context: .
+      dockerfile: './Prometheus/dockerfile'
     restart: always
     ports:
       - 9090:9090
@@ -25,7 +27,9 @@ services:
       - dotnetcorepromgrafana
 
   grafana: 
-    image: grafana/grafana
+    build:
+      context: .
+      dockerfile: './grafana/dockerfile'
     #command:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
