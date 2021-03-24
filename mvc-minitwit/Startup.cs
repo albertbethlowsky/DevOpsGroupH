@@ -13,28 +13,33 @@ using mvc_minitwit.Data; //database context
 using mvc_minitwit.Models; //model context
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Swagger;
+using Prometheus;
 
 namespace mvc_minitwit
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+        private readonly IWebHostEnvironment Environment;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
 
-           // services.AddDbContext<MvcDbContext>(options =>
-           // options.UseSqlite(
-            //   Configuration.GetConnectionString("DefaultConnection"))); //database context
+            if(Environment.IsDevelopment()) {
             services.AddDbContext<MvcDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("MvcDbContext")));
+                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))); //database context
+            } else {
+            services.AddDbContext<MvcDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("MvcDbContext"))); //production database context
+            }
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -63,6 +68,22 @@ namespace mvc_minitwit
 
             app.UseRouting();
 
+            // Custom Metrics to count requests for each endpoint and the method
+            var counter = Metrics.CreateCounter("minitwitAPI", "Does great monitoring on API endpoints", new CounterConfiguration
+            {
+            LabelNames = new[] { "method", "endpoint" }
+            });
+
+            app.Use((context, next) =>
+            {
+                counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+                return next();
+            });
+
+            // Use the Prometheus Middleware
+            app.UseMetricServer();
+            app.UseHttpMetrics();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -80,5 +101,7 @@ namespace mvc_minitwit
                     pattern: "{controller=Home}/{action=Timeline}/{id?}");
             });
         }
+
+
     }
 }

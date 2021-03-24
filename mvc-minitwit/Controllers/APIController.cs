@@ -93,7 +93,7 @@ namespace mvc_minitwit.Controllers
             var joinedtable = await (from m in _context.message
                                      where followlist.Contains(m.author_id)
                                      select
-                                   new 
+                                   new
                                    {
                                        content = m.text,
                                        pub_date = m.pub_date,
@@ -102,7 +102,7 @@ namespace mvc_minitwit.Controllers
                                      .OrderByDescending(x => x.pub_date)
                                      .Take(no)
                                      .ToListAsync();
-                                           
+
 
             return joinedtable;
 
@@ -150,7 +150,7 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                //The user given in the json body from the request, 
+                //The user given in the json body from the request,
                 //isn't added directly to  the context (that would insecure). But its attributes are used such that
                 //userId is generated automatically, and the pw is hashed into pw_hash
                 _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pw_hash)});
@@ -199,7 +199,7 @@ namespace mvc_minitwit.Controllers
             }
 
         }
-        
+
         [HttpPost]
         [Route("~/api/SignOut")]
         public async Task<IActionResult> Sign_Out()
@@ -214,7 +214,7 @@ namespace mvc_minitwit.Controllers
             var verb = _accessor.HttpContext.Request.Method.ToString();
             var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiDataFollow>();
             int userid = GetUserId(username);
-            
+
             UpdateLatest();
             if(userid == -1) return BadRequest("error");
 
@@ -224,7 +224,7 @@ namespace mvc_minitwit.Controllers
                 if(userToFollowId == -1) return NotFound();
 
                 var followersOfUserId = _context.follower.Where(f => f.who_id == userid).ToList();
-                
+
                 if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
                 {
                     return BadRequest(username + " already follows " + userToFollow);
@@ -238,14 +238,14 @@ namespace mvc_minitwit.Controllers
 
                 //return Ok(username + " now follows " + userToFollow);
                 return NoContent();
-                
+
             } else if(verb == "POST" && json.Result.unfollow != null) {
                 string userToUnfollow = json.Result.unfollow;
                 int userToUnfollowId = GetUserId(userToUnfollow);
                 if(userToUnfollowId == -1) return NotFound();
 
                 var followersOfUserId = _context.follower.AsNoTracking().Where(f => f.who_id == userid).ToList();
-                
+
                 if (!followersOfUserId.Where(f => f.whom_id == userToUnfollowId).Any())
                 {
                     return BadRequest(username + " isn't following " + userToUnfollow + " to begin with");
@@ -259,20 +259,20 @@ namespace mvc_minitwit.Controllers
 
                 //return Ok(username + " now doesn't follow " + userToUnfollow);
                 return NoContent();
-        
+
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
                 var query = (from f in _context.follower
 
                                     join u in _context.user on f.whom_id equals u.user_id
                                     where f.who_id == userid
-                                    select 
+                                    select
                                     new {u.username})
                                     .Take(no_followers).ToList();
                 List<string> Follows = new List<string>();
                 foreach (var item in query)
                 {
                     Follows.Add(item.username);
-                }                
+                }
                 ApiDataFollows returnfollows = new ApiDataFollows {follows = Follows};
                 var jsonreturn = JsonSerializer.Serialize(returnfollows);
 
