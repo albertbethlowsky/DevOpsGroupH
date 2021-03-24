@@ -10,7 +10,7 @@ resources:
 
 variables:
   tag: "$(Build.BuildId)"
-  projectName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
+  projectName: 'jokeren9/neutralsminitwit'
 
 stages:
   - stage: Build

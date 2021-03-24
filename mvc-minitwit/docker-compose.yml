@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   mvc-minitwit:
-    image: jokeren9/neutralsminitwit
+    image: jokeren9/neutralsminitwit:mvc
     build:
       context: .
       dockerfile: Dockerfile
@@ -15,6 +15,7 @@ services:
     command: ["--privileged"]
       
   prometheus:
+    image: jokeren9/neutralsminitwit:prom
     build:
       context: .
       dockerfile: './Prometheus/Dockerfile'
@@ -27,6 +28,7 @@ services:
       - dotnetcorepromgrafana
 
   grafana: 
+    image: jokeren9/neutralsminitwit:grafana
     build:
       context: .
       dockerfile: './grafana/Dockerfile'
