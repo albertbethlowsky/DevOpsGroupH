@@ -16,7 +16,7 @@ scrape_configs:
   - job_name: system
     static_configs:
     - targets:
-        - http://neutrals-minitwit.scm.azurewebsites.net
+        - http://neutrals-minitwit.azurewebsites.net
       labels:
         job: varlogs
-        __path__: /api/vfs/LogFiles/*log
+        __path__: /*log
