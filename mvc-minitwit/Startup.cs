@@ -30,7 +30,7 @@ namespace mvc_minitwit
         private readonly IWebHostEnvironment Environment;
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        //test trigger pipeline
+        //test trigger pipeline2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
