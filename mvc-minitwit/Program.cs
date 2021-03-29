@@ -45,13 +45,13 @@ namespace mvc_minitwit
                     webBuilder.UseStartup<Startup>();
                 }).UseSerilog((ctx, cfg) =>
                 {
-                    var credentials = new NoAuthCredentials(ctx.Configuration.GetConnectionString("loki"));
+                    //var credentials = new NoAuthCredentials(ctx.Configuration.GetConnectionString("loki"));
 
                     cfg.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                         .Enrich.FromLogContext()
                         .Enrich.WithProperty("Application", ctx.HostingEnvironment.ApplicationName)
-                        .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
-                        .WriteTo.LokiHttp(credentials);
+                        .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName);
+                        //.WriteTo.LokiHttp(credentials);
 
                    if(ctx.HostingEnvironment.IsDevelopment())
                        cfg.WriteTo.Console(new RenderedCompactJsonFormatter());
