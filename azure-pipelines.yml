@@ -48,3 +48,12 @@ stages:
               command: 'Push an image'
               imageName: '$(ImageName)'
             condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+          - task: GitHubRelease@1
+            inputs:
+              gitHubConnection: 'albertbethlowsky'
+              repositoryName: '$(Build.Repository.Name)'
+              action: 'create'
+              target: '$(Build.SourceVersion)'
+              tagSource: 'gitTag'
+              changeLogCompareToRelease: 'lastFullRelease'
+              changeLogType: 'commitBased'
