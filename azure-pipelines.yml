@@ -58,3 +58,5 @@ stages:
               tagPattern: 'release-v[0-9]*\S*'
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
+              title: '$(Build.BuildNumber)' 
+              addChangeLog: true
