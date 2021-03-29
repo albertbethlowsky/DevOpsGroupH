@@ -1,43 +1,39 @@
 version: '3.4'
 
-services:
-  mvc-minitwit:
-    image: jokeren9/neutralsminitwit:mvc
-    build:
-      context: .
-      dockerfile: Dockerfile
+services:  
+  grafana: 
+    image: jokeren9/neutralsminitwit:grafana
     ports:
-      - 8080:8080
+    - "3000:3000"
     environment:
-      - ASPNETCORE_URLS=http://*:8080
+      - GF_SECURITY_ADMIN_USER=devops21
+      - GF_SECURITY_ADMIN_PASSWORD=-lEtMEIn-
     networks:
       - dotnetcorepromgrafana
-    command: ["--privileged"]
-      
-  prometheus:
-    image: jokeren9/neutralsminitwit:prom
-    build:
-      context: .
-      dockerfile: './Prometheus/Dockerfile'
-    restart: always
+    depends_on:
+      - prometheus
+
+  loki:
+    image: grafana/loki:master
     ports:
-      - 9090:9090
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
     networks:
       - dotnetcorepromgrafana
 
-  grafana: 
-    image: jokeren9/neutralsminitwit:grafana
-    build:
-      context: .
-      dockerfile: './grafana/Dockerfile'
-    #command:
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
+  promtail:
+    image: jokeren9/neutralsminitwit:promtail
+    ports:
+    - "9080:9080"
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - dotnetcorepromgrafana
+
+  prometheus:
+    image: jokeren9/neutralsminitwit:prometheus
     restart: always
     ports:
-      - 3000:3000
+      - "9090:9090"
     networks:
       - dotnetcorepromgrafana
 

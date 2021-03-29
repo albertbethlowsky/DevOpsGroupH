@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using mvc_minitwit.Data;
 using mvc_minitwit.Models;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.Loki;
 using System;
 
 namespace mvc_minitwit
@@ -38,6 +43,18 @@ namespace mvc_minitwit
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                }).UseSerilog((ctx, cfg) =>
+                {
+                    var credentials = new NoAuthCredentials(ctx.Configuration.GetConnectionString("loki"));
+
+                    cfg.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                        .Enrich.FromLogContext()
+                        .Enrich.WithProperty("Application", ctx.HostingEnvironment.ApplicationName)
+                        .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
+                        .WriteTo.LokiHttp(credentials);
+
+                   if(ctx.HostingEnvironment.IsDevelopment())
+                       cfg.WriteTo.Console(new RenderedCompactJsonFormatter());
                 });
     }
 }

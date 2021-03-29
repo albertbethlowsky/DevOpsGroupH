@@ -13,6 +13,7 @@ using mvc_minitwit.Data; //database context
 using mvc_minitwit.Models; //model context
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Swagger;
+using Serilog;
 using Prometheus;
 
 namespace mvc_minitwit
@@ -63,6 +64,7 @@ namespace mvc_minitwit
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

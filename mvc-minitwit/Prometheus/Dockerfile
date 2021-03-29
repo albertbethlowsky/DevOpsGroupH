@@ -1,3 +1,3 @@
 FROM prom/prometheus:latest
 
-# # COPY datasource ? 
+COPY ./prometheus.yml /etc/prometheus/prometheus.yml

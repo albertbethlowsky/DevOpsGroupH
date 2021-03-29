@@ -214,6 +214,7 @@ namespace mvc_minitwit.Controllers
 
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
+                        _logger.LogInformation("{userID}, just logged into the website!", user.user_id.ToString());
                         return RedirectToAction("Timeline");
 
                     }
@@ -223,6 +224,7 @@ namespace mvc_minitwit.Controllers
                     ViewBag.error = "Login failed";
                     ViewData["testOutput"] = "Login failed";
 
+                    _logger.LogWarning("A user has failed to login!");
                     return RedirectToAction("SignIn");
                 }
             }

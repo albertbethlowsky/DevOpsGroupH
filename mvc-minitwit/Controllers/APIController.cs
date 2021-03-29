@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using mvc_minitwit.Data;
 using mvc_minitwit.HelperClasses;
@@ -27,10 +28,12 @@ namespace mvc_minitwit.Controllers
         private readonly MvcDbContext _context;
         static int LATEST = 0;
 
+        private readonly ILogger<APIController> _logger;
         private HttpContextAccessor _accessor = new HttpContextAccessor();
 
-        public APIController(MvcDbContext context)
+        public APIController(ILogger<APIController> logger, MvcDbContext context)
         {
+            _logger = logger;
             _context = context;
         }
 

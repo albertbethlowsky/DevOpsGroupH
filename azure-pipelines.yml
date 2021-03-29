@@ -10,7 +10,7 @@ resources:
 
 variables:
   tag: "$(Build.BuildId)"
-  projectName: 'jokeren9/neutralsminitwit'
+  ImageName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
 
 stages:
   - stage: Build
@@ -27,25 +27,24 @@ stages:
               command: test
               projects: "**/*HomeControllerTests/*.csproj"
           ##arguments: "--configuration $(BuildConfiguration)"
-          - task: DockerCompose@0
-            displayName: Build services
-            inputs:
-              action: Build services
-              containerregistrytype: 'Container Registry' #how???
-              dockerRegistryEndpoint: 'Docker Hub' #how?? 
-              dockerComposeFile: "$(Build.SourcesDirectory)/mvc-minitwit/docker-compose.yml"
-              projectName: $(projectName)
-              qualifyImageNames: true
-              additionalImageTags: $(Build.BuildId)
 
-          - task: DockerCompose@0
-            displayName: Push services
+          - task: Docker@1
+            displayName: 'Build an Docker image'
             inputs:
-              action: Push services
-              containerregistrytype: 'Container Registry' #how???
-              dockerRegistryEndpoint: 'Docker Hub' #how?? 
-              dockerComposeFile: "$(Build.SourcesDirectory)/mvc-minitwit/docker-compose.yml"
-              projectName: $(projectName)
-              qualifyImageNames: true
-              additionalImageTags: $(Build.BuildId)
+              containerregistrytype: 'Container Registry'
+              dockerRegistryEndpoint: 'Docker Hub'
+              command: 'Build an image'
+              dockerfile: "$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile"
+              imageName: '$(ImageName)'
+              includeLatestTag: true
+              useDefaultContext: false
+              buildContext: '.'
 
+          - task: Docker@1
+            displayName: 'Push the Docker image to Dockerhub'
+            inputs:
+              containerregistrytype: 'Container Registry'
+              dockerRegistryEndpoint: 'Docker Hub'
+              command: 'Push an image'
+              imageName: '$(ImageName)'
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
