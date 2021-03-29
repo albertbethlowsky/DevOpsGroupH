@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using mvc_minitwit.Data;
 using mvc_minitwit.HelperClasses;
@@ -27,10 +28,12 @@ namespace mvc_minitwit.Controllers
         private readonly MvcDbContext _context;
         static int LATEST = 0;
 
+        private readonly ILogger<APIController> _logger;
         private HttpContextAccessor _accessor = new HttpContextAccessor();
 
-        public APIController(MvcDbContext context)
+        public APIController(ILogger<APIController> logger, MvcDbContext context)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -93,7 +96,7 @@ namespace mvc_minitwit.Controllers
             var joinedtable = await (from m in _context.message
                                      where followlist.Contains(m.author_id)
                                      select
-                                   new 
+                                   new
                                    {
                                        content = m.text,
                                        pub_date = m.pub_date,
@@ -102,7 +105,7 @@ namespace mvc_minitwit.Controllers
                                      .OrderByDescending(x => x.pub_date)
                                      .Take(no)
                                      .ToListAsync();
-                                           
+
 
             return joinedtable;
 
@@ -113,6 +116,8 @@ namespace mvc_minitwit.Controllers
         [HttpPost("{username}")]
         public async Task<ActionResult<IEnumerable<dynamic>>> CreateMessageByUser(string username,[FromBody] CreateMessage model)
         {
+            UpdateLatest();
+            if(GetUserId(username) == -1) return BadRequest("error");
             Message message = new Message();
             message.author_id = _context.user.Single(x => x.username == username).user_id;
             message.text = model.content;
@@ -121,7 +126,8 @@ namespace mvc_minitwit.Controllers
 
             _context.message.Add(message);
             await _context.SaveChangesAsync();
-            return Ok("Message posted");
+           // return Ok("Message posted");
+           return NoContent();
         }
 
         [HttpPost("~/register")] //This syntax goes back to root and the /whaterver
@@ -147,7 +153,7 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                //The user given in the json body from the request, 
+                //The user given in the json body from the request,
                 //isn't added directly to  the context (that would insecure). But its attributes are used such that
                 //userId is generated automatically, and the pw is hashed into pw_hash
                 _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pw_hash)});
@@ -165,8 +171,8 @@ namespace mvc_minitwit.Controllers
                 var noUsers = _context.user;
                 var ls = noUsers.ToList().Select(u => u.username);
                 var str = string.Join(",", ls.ToList());
-                return Ok("User registered " + user.username);
-
+                //return Ok("User registered " + user.username);
+                return NoContent();
             }
         }
 
@@ -189,20 +195,20 @@ namespace mvc_minitwit.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                return Ok("You were logged in");
-            
+                //return Ok("You were logged in");
+                return NoContent();
             } else {
                 return BadRequest("Wrong email or password");
             }
 
         }
-        
+
         [HttpPost]
         [Route("~/api/SignOut")]
         public async Task<IActionResult> Sign_Out()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok();
+            return NoContent();
         }
 
         [Route("~/fllws/{username}")]
@@ -211,7 +217,7 @@ namespace mvc_minitwit.Controllers
             var verb = _accessor.HttpContext.Request.Method.ToString();
             var json = _accessor.HttpContext.Request.ReadFromJsonAsync<ApiDataFollow>();
             int userid = GetUserId(username);
-            
+
             UpdateLatest();
             if(userid == -1) return BadRequest("error");
 
@@ -221,7 +227,7 @@ namespace mvc_minitwit.Controllers
                 if(userToFollowId == -1) return NotFound();
 
                 var followersOfUserId = _context.follower.Where(f => f.who_id == userid).ToList();
-                
+
                 if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
                 {
                     return BadRequest(username + " already follows " + userToFollow);
@@ -233,15 +239,16 @@ namespace mvc_minitwit.Controllers
                 _context.Add(follower);
                 _context.SaveChanges();
 
-                return Ok(username + " now follows " + userToFollow);
-                
+                //return Ok(username + " now follows " + userToFollow);
+                return NoContent();
+
             } else if(verb == "POST" && json.Result.unfollow != null) {
                 string userToUnfollow = json.Result.unfollow;
                 int userToUnfollowId = GetUserId(userToUnfollow);
                 if(userToUnfollowId == -1) return NotFound();
 
                 var followersOfUserId = _context.follower.AsNoTracking().Where(f => f.who_id == userid).ToList();
-                
+
                 if (!followersOfUserId.Where(f => f.whom_id == userToUnfollowId).Any())
                 {
                     return BadRequest(username + " isn't following " + userToUnfollow + " to begin with");
@@ -253,22 +260,22 @@ namespace mvc_minitwit.Controllers
                 _context.Remove(follower);
                 _context.SaveChanges();
 
-                return Ok(username + " now doesn't follow " + userToUnfollow);
+                //return Ok(username + " now doesn't follow " + userToUnfollow);
+                return NoContent();
 
-        
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
                 var query = (from f in _context.follower
 
                                     join u in _context.user on f.whom_id equals u.user_id
                                     where f.who_id == userid
-                                    select 
+                                    select
                                     new {u.username})
                                     .Take(no_followers).ToList();
                 List<string> Follows = new List<string>();
                 foreach (var item in query)
                 {
                     Follows.Add(item.username);
-                }                
+                }
                 ApiDataFollows returnfollows = new ApiDataFollows {follows = Follows};
                 var jsonreturn = JsonSerializer.Serialize(returnfollows);
 

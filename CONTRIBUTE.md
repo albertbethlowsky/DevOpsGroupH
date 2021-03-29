@@ -13,6 +13,6 @@ Iss#<NUMBER>-DescriptionWord<br />
   * Centralized Workflow. We're all dev's and can collaborate and contribute with equal rights to the repo.*
 
 * How do we expect contributions to look like?
-  * Team mettings mon 10-12hrs, wed 9-13hrs. Collaboration via 'Projets' board on Github. Teammembers assign themselvs to features and branch out for each feature. Since we have varying schedules and other stuff to do, we will contribute to the extent possible each week. 
+  * Team mettings mon 10-12hrs, wed 9-13hrs. Collaboration via 'Projets' board on Github. Teammembers assign themselvs to features and branch out for each feature. Since we have varying schedules and other stuff to do, we will contribute to the extent possible each week.
 * Who is responsible for integrating/reviewing contributions?
-  * We will have collaborative codereviews during meetings. Merging and releasing is also done in collaboration so we can address colfilcts together. 
+  * We will have collaborative codereviews during meetings. Merging and releasing is also done in collaboration so we can address colfilcts together.

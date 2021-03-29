@@ -135,8 +135,7 @@ namespace HomeControllerTests
             dummyUser.username = "123dummy";
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
 
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("User registered "+dummyUser.username, await response.Content.ReadAsStringAsync());
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
         [Fact]
@@ -201,15 +200,16 @@ namespace HomeControllerTests
             var postMessageResp = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
             postMessageResp.EnsureSuccessStatusCode();
 
-            Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
+            //Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
+            Assert.Equal(HttpStatusCode.NoContent, postMessageResp.StatusCode);
             Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
-            testMess = "";
-            var postMessageResp2 = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
-            postMessageResp.EnsureSuccessStatusCode();
+            //testMess = "";
+            //var postMessageResp2 = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
+            //postMessageResp.EnsureSuccessStatusCode();
 
-            Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
-            Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
+            //Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
+            //Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
         }
 
@@ -261,7 +261,7 @@ namespace HomeControllerTests
 
             await _client.PostAsJsonAsync("msgs/" + dummyUser.username, new CreateMessage { content = "Follow test" });
 
-            await _client.PostAsJsonAsync("fllws/" + dummyUser.username, 
+            await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                 new ApiDataFollow { follow = SeedData.user.username });
 
             var getFollowers = await _client.GetAsync("fllws/" + dummyUser.username);
@@ -277,8 +277,9 @@ namespace HomeControllerTests
                     new ApiDataFollow { unfollow = SeedData.user.username });
             unfollowSeedDataResp.EnsureSuccessStatusCode();
 
-            var unfollowStr = await unfollowSeedDataResp.Content.ReadAsStringAsync();
-            Assert.Equal(dummyUser.username + " now doesn't follow " + SeedData.user.username, unfollowStr);
+            //var unfollowStr = await unfollowSeedDataResp.Content.ReadAsStringAsync();
+            //Assert.Equal(dummyUser.username + " now doesn't follow " + SeedData.user.username, unfollowStr);
+            Assert.Equal(HttpStatusCode.NoContent, unfollowSeedDataResp.StatusCode);
 
             var getFollowers2 = await _client.GetAsync("fllws/" + dummyUser.username);
             var getFollowersString2 = await getFollowers2.Content.ReadAsStringAsync();
@@ -301,7 +302,7 @@ namespace HomeControllerTests
                     new ApiDataFollow { unfollow = SeedData.user.username });
             Assert.Equal(HttpStatusCode.BadRequest, unfollow.StatusCode);
 
-            await _client.PostAsJsonAsync("fllws/" + dummyUser.username, 
+            await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                     new ApiDataFollow { follow = SeedData.user.username });
             var followSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                 new ApiDataFollow { follow = SeedData.user.username });
