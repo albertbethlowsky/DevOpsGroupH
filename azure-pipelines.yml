@@ -69,6 +69,21 @@ stages:
               changeLogType: 'commitBased'
               title: '$(Build.BuildNumber)' 
               addChangeLog: true
+            
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: custom
+              custom: tool
+              arguments: install --tool-path . dotnet-reportgenerator-globaltool
+            displayName: Install ReportGenerator tool
+          - script: reportgenerator -reports:$(Agent.TempDirectory)/**/*.coverage -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
+            displayName: Create reports
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage'
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: '$(Build.SourcesDirectory)\TestResults\Coverage\*.xml'
+
           - task: SonarCloudAnalyze@1
             displayName: 'Run SonarCloud analysis'
           - task: SonarCloudPublish@1
