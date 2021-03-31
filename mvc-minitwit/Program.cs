@@ -17,6 +17,12 @@ namespace mvc_minitwit
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.Seq("https://neutrals-minitwit.azurewebsites.net:5341") // <- Added
+            .CreateLogger();
+
             var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
@@ -44,8 +50,7 @@ namespace mvc_minitwit
             {
                 webBuilder.UseStartup<Startup>();
             })
-            .UseSerilog((hostingContext, loggerConfig) =>
-                loggerConfig.ReadFrom.Configuration(hostingContext.Configuration)
-            );
+            .UseSerilog();
+            
     }
 }
