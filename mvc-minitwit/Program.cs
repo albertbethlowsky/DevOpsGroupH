@@ -20,7 +20,7 @@ namespace mvc_minitwit
             Log.Logger = new LoggerConfiguration()
             .Enrich.FromLogContext()
             .WriteTo.Console()
-            .WriteTo.Seq("https://neutrals-minitwit.azurewebsites.net:5341") // <- Added
+            .WriteTo.Seq("http://neutrals-minitwit.azurewebsites.net:5341") // <- Added
             .CreateLogger();
 
             var host = CreateHostBuilder(args).Build();
