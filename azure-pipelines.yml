@@ -9,6 +9,7 @@ resources:
   - repo: self
 
 variables:
+
   tag: "$(Build.BuildId)"
   ImageName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
 
@@ -17,7 +18,7 @@ stages:
     displayName: Build image
     jobs:
       - job: Build
-        displayName: Build
+        displayName: Test and Build
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -27,7 +28,14 @@ stages:
               command: test
               projects: "**/*HomeControllerTests/*.csproj"
           ##arguments: "--configuration $(BuildConfiguration)"
-
+          - task: SonarCloudPrepare@1
+            inputs:
+              SonarCloud: 'SonarCloud-MiniTwit'
+              organization: 'devopsgrouph'
+              scannerMode: 'MSBuild'
+              projectKey: 'albertbethlowsky_DevOpsGroupH'
+              projectName: 'DevOpsGroupH'
+          
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
@@ -60,3 +68,9 @@ stages:
               changeLogType: 'commitBased'
               title: '$(Build.BuildNumber)' 
               addChangeLog: true
+          - task: SonarCloudAnalyze@1
+            displayName: 'Run SonarCloud analysis'
+          - task: SonarCloudPublish@1
+            displayName: 'SonarCloud publish'
+            inputs:
+              pollingTimeoutSec: '300'
