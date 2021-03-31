@@ -32,6 +32,11 @@ namespace mvc_minitwit.Controllers
             _logger = logger;
             _context = context;
             lh = new LoginHelper();
+            _logger.LogInformation("Writing to log file with INFORMATION severity level.");
+            _logger.LogDebug("Writing to log file with DEBUG severity level."); 
+            _logger.LogWarning("Writing to log file with WARNING severity level.");
+            _logger.LogError("Writing to log file with ERROR severity level.");
+            _logger.LogCritical("Writing to log file with CRITICAL severity level.");
         }
 
         public Boolean userExistDB(){

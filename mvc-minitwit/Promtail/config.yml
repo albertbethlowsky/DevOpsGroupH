@@ -18,5 +18,12 @@ scrape_configs:
     - targets:
         - http://neutrals-minitwit.azurewebsites.net
       labels:
-        job: varlogs
-        __path__: /*log
+        job: logs
+        __path__: /*/*/*/*.log
+  - job_name: docker
+    static_configs:
+    - targets:
+        - http://neutrals-minitwit.azurewebsites.net
+      labels:
+        job: dockerlogs
+        __path__: /var/lib/docker/containers/*/*.log
