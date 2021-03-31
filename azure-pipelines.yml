@@ -22,12 +22,6 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          - task: DotNetCoreCLI@2
-            displayName: "dotnet test"
-            inputs:
-              command: test
-              projects: "**/*HomeControllerTests/*.csproj"
-          ##arguments: "--configuration $(BuildConfiguration)"
           - task: SonarCloudPrepare@1
             inputs:
               SonarCloud: 'SonarCloud-MiniTwit'
@@ -35,6 +29,13 @@ stages:
               scannerMode: 'MSBuild'
               projectKey: 'albertbethlowsky_DevOpsGroupH'
               projectName: 'DevOpsGroupH'
+          - task: DotNetCoreCLI@2
+            displayName: "dotnet test"
+            inputs:
+              command: test
+              projects: "**/*HomeControllerTests/*.csproj"
+          ##arguments: "--configuration $(BuildConfiguration)"
+         
           
           - task: Docker@1
             displayName: 'Build an Docker image'
