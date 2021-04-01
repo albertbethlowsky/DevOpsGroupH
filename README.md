@@ -1,6 +1,6 @@
 # DevOps - Group H - Team Neutrals
 
-https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main
+[![Build Status](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)
 
 [![Build Status](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)](https://dev.azure.com/GroupNeutrals/MiniTwit/_build/latest?definitionId=3&branchName=main)
 
@@ -32,13 +32,14 @@ https://github.com/albertbethlowsky/DevOpsGroupH/network/dependencies
 
 ### Cloud dependencies
 
-> These services are responsible for cloud hosting.
-> | Name | Service | Provider | Description |
-> neutrals-minitwit| App Service | Microsoft Azure | Hosting of web applications (.NET application) |
-> minitwit-neutrals | App Service | Microsoft Azure | Hosting of web applications (prometheus, grafana, loki, promtail etc.) |
-> minitwit-neutrals | SQL Server | Microsoft Azure | Hosting of SQL database |
-> minitwitDb (minitwit-neutrals) | SQL database | Microsoft Azure | SQL database |
-> jokeren9/neutralsminitwit | Docker container | DockerHub | Containerizing of applications |
+These services are responsible for cloud hosting.
+| Name | Service | Provider | Description |
+|------|---------|----------|-------------|
+| neutrals-minitwit | App Service | Microsoft Azure | Hosting of web applications (.NET application) |
+| minitwit-neutrals | App Service | Microsoft Azure | Hosting of web applications (prometheus, grafana, loki, promtail etc.) |
+| minitwit-neutrals | SQL Server | Microsoft Azure | Hosting of SQL database |
+| minitwitDb (minitwit-neutrals) | SQL database | Microsoft Azure | SQL database |
+| jokeren9/neutralsminitwit | Docker container | DockerHub | Containerizing of applications |
 
 ## API
 
