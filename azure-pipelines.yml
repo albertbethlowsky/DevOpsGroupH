@@ -69,15 +69,18 @@ stages:
               addChangeLog: true
 
           - task: DotNetCoreCLI@2
+            displayName: Install ReportGenerator Global Tool
             inputs:
               command: custom
               custom: tool
-              arguments: install --tool-path . dotnet-reportgenerator-globaltool
-            displayName: Install ReportGenerator tool
+              arguments: install dotnet-reportgenerator-globaltool -g
+
           - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
-            displayName: 'update PATH - fix for reportgenerator'
-          - script: reportgenerator -reports:$(Agent.TempDirectory)/**/*.coverage -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
+            displayName: 'Update PATH'
+
+          - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
             displayName: Create reports
+            continueOnError: true
           - task: PublishCodeCoverageResults@1
             displayName: 'Publish code coverage'
             inputs:
