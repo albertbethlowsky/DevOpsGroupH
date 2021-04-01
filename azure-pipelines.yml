@@ -9,8 +9,7 @@ resources:
   - repo: self
 
 variables:
-
-  tag: "$(Build.BuildId)"
+  tag: '$(Build.BuildId)'
   ImageName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
 
 stages:
@@ -30,20 +29,19 @@ stages:
               projectKey: 'albertbethlowsky_DevOpsGroupH'
               projectName: 'DevOpsGroupH'
           - task: DotNetCoreCLI@2
-            displayName: "dotnet test"
+            displayName: 'dotnet test'
             inputs:
               command: test
-              projects: "**/*HomeControllerTests/*.csproj"
+              projects: '**/*HomeControllerTests/*.csproj'
           ##arguments: "--configuration $(BuildConfiguration)"
-         
-          
+
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
               containerregistrytype: 'Container Registry'
               dockerRegistryEndpoint: 'Docker Hub'
               command: 'Build an image'
-              dockerfile: "$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile"
+              dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
               imageName: '$(ImageName)'
               includeLatestTag: true
               useDefaultContext: false
@@ -67,15 +65,17 @@ stages:
               tagPattern: 'release-v[0-9]*\S*'
               changeLogCompareToRelease: 'lastFullRelease'
               changeLogType: 'commitBased'
-              title: '$(Build.BuildNumber)' 
+              title: '$(Build.BuildNumber)'
               addChangeLog: true
-            
+
           - task: DotNetCoreCLI@2
             inputs:
               command: custom
               custom: tool
               arguments: install --tool-path . dotnet-reportgenerator-globaltool
             displayName: Install ReportGenerator tool
+          - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
+            displayName: 'update PATH - fix for reportgenerator'
           - script: reportgenerator -reports:$(Agent.TempDirectory)/**/*.coverage -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"
             displayName: Create reports
           - task: PublishCodeCoverageResults@1

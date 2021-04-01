@@ -60,7 +60,8 @@ SeriLog
 
 ## Static Tools
 
-SonarCloud
+SonarCloud.
+
 azsk - Secure DevOps Kit for Azure
 
 ## Authors
