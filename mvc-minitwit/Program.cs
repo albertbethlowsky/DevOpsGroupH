@@ -17,6 +17,12 @@ namespace mvc_minitwit
     {
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.Seq("http://neutrals-minitwit.azurewebsites.net:5341") // <- Added
+            .CreateLogger();
+
             var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
@@ -38,23 +44,13 @@ namespace mvc_minitwit
 
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args)=>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                }).UseSerilog((ctx, cfg) =>
-                {
-                    //var credentials = new NoAuthCredentials(ctx.Configuration.GetConnectionString("loki"));
-
-                    cfg.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-                        .Enrich.FromLogContext()
-                        .Enrich.WithProperty("Application", ctx.HostingEnvironment.ApplicationName)
-                        .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName);
-                        //.WriteTo.LokiHttp(credentials);
-
-                   if(ctx.HostingEnvironment.IsDevelopment())
-                       cfg.WriteTo.Console(new RenderedCompactJsonFormatter());
-                });
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            })
+            .UseSerilog();
+            
     }
 }
