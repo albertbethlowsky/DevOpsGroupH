@@ -30,8 +30,9 @@ stages:
               projectName: 'DevOpsGroupH'
               extraProperties: |
                 sonar.exclusions=**/obj/**,**/*.dll
-                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.cobertura.xml
-                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/*.coveragexml
+                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/**/*.trx
+               
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
             inputs:
@@ -94,7 +95,9 @@ stages:
           #     arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
           #     publishTestResults: true
           #     projects: 'HomeControllerTests' # update with your test project directory
-            
+          - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
+            displayName: Create reports
+            continueOnError: true
           - task: PublishCodeCoverageResults@1
             displayName: 'Publish code coverage report'
             inputs:
