@@ -30,7 +30,7 @@ stages:
               projectName: 'DevOpsGroupH'
               extraProperties: |
                 sonar.exclusions=**/obj/**,**/*.dll
-                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
+                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.cobertura.xml
                 sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
