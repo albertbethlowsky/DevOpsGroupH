@@ -28,33 +28,13 @@ stages:
               scannerMode: 'MSBuild'
               projectKey: 'albertbethlowsky_DevOpsGroupH'
               projectName: 'DevOpsGroupH'
-              extraProperties: |
-                sonar.exclusions=**/obj/**,**/*.dll
-                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
-                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
-              #     sonar.cs.opencover.reportsPaths="$(Build.SourcesDirectory)/**/coverage.**.xml"
-              #     sonar.analysis.buildNumber=$(Build.BuildId)
-              #     sonar.analysis.pipeline=$(Build.BuildId)
-              #     sonar.analysis.sha1=$(System.PullRequest.SourceCommitId)
-              #     sonar.analysis.prNumber=$(System.PullRequest.PullRequestNumber)
-              #     sonar.analysis.repository=$(Build.Repository.ID)
-
-                
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
             inputs:
               command: test
-              #arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
-              arguments: '--configuration $(BuildConfiguration) --collect "Code coverage"'
               projects: '**/*HomeControllerTests/*.csproj'
-              publishTestResults: true
           ##arguments: "--configuration $(BuildConfiguration)"
 
-          # - task: PublishTestResults@2
-          #   displayName: 'Publish test results'
-          #   inputs:
-          #     testResultsFormat: 'XUnit'
-          #     testResultsFiles: '**/TEST-*.xml'
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
@@ -88,24 +68,24 @@ stages:
               title: '$(Build.BuildNumber)'
               addChangeLog: true
 
-          # - task: DotNetCoreCLI@2
-          #   displayName: Install ReportGenerator Global Tool
-          #   inputs:
-          #     command: custom
-          #     custom: tool
-          #     arguments: install dotnet-reportgenerator-globaltool -g
+          - task: DotNetCoreCLI@2
+            displayName: Install ReportGenerator Global Tool
+            inputs:
+              command: custom
+              custom: tool
+              arguments: install dotnet-reportgenerator-globaltool -g
 
-          # - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
-          #   displayName: 'Update PATH'
+          - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
+            displayName: 'Update PATH'
 
-          # - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
-          #   displayName: Create reports
-          #   continueOnError: true
-          # - task: PublishCodeCoverageResults@1
-          #   displayName: 'Publish code coverage'
-          #   inputs:
-          #     codeCoverageTool: Cobertura
-          #     summaryFileLocation: '$(Build.SourcesDirectory)\TestResults\Coverage\*.xml'
+          - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
+            displayName: Create reports
+            continueOnError: true
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage'
+            inputs:
+              codeCoverageTool: Cobertura
+              summaryFileLocation: '$(Build.SourcesDirectory)\TestResults\Coverage\*.xml'
 
           - task: SonarCloudAnalyze@1
             displayName: 'Run SonarCloud analysis'
