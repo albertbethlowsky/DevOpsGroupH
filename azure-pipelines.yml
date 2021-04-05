@@ -33,7 +33,10 @@ stages:
             inputs:
               command: test
               projects: '**/*HomeControllerTests/*.csproj'
-              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[ProjectName.*]*" /p:Exclude="[*Tests]*"'
+              #arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[ProjectName.*]*" /p:Exclude="[*Tests]*"'
+              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+              publishTestResults: true
+              
           ##arguments: "--configuration $(BuildConfiguration)"
 
           - task: Docker@1
@@ -80,13 +83,13 @@ stages:
           #     command: 'build'
           #     configuration: $(buildConfiguration)
             
-          - task: DotNetCoreCLI@2
-            displayName: 'dotnet test'
-            inputs:
-              command: 'test'
-              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
-              publishTestResults: true
-              projects: 'HomeControllerTests' # update with your test project directory
+          # - task: DotNetCoreCLI@2
+          #   displayName: 'dotnet test'
+          #   inputs:
+          #     command: 'test'
+          #     arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+          #     publishTestResults: true
+          #     projects: 'HomeControllerTests' # update with your test project directory
             
           - task: PublishCodeCoverageResults@1
             displayName: 'Publish code coverage report'
@@ -108,6 +111,7 @@ stages:
           # - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
           #   displayName: Create reports
           #   continueOnError: true
+          
           # - task: PublishCodeCoverageResults@1
           #   displayName: 'Publish code coverage'
           #   inputs:
