@@ -51,6 +51,6 @@ namespace mvc_minitwit
                 webBuilder.UseStartup<Startup>();
             })
             .UseSerilog();
-            
+
     }
 }
