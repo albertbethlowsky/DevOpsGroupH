@@ -28,6 +28,10 @@ stages:
               scannerMode: 'MSBuild'
               projectKey: 'albertbethlowsky_DevOpsGroupH'
               projectName: 'DevOpsGroupH'
+              extraProperties: |
+                sonar.exclusions=**/obj/**,**/*.dll
+                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
+                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
             inputs:
@@ -111,7 +115,7 @@ stages:
           # - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
           #   displayName: Create reports
           #   continueOnError: true
-          
+
           # - task: PublishCodeCoverageResults@1
           #   displayName: 'Publish code coverage'
           #   inputs:
