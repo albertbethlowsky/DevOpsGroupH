@@ -53,4 +53,36 @@ namespace mvc_minitwit
             .UseSerilog();
 
     }
+    /* attempt at triggering SonarCloud to re-evaluate
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    */
 }
