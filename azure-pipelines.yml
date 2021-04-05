@@ -28,10 +28,15 @@ stages:
               scannerMode: 'MSBuild'
               projectKey: 'albertbethlowsky_DevOpsGroupH'
               projectName: 'DevOpsGroupH'
+              extraProperties: |
+                sonar.exclusions=**/obj/**,**/*.dll
+                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
+                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
             inputs:
               command: test
+              arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
               projects: '**/*HomeControllerTests/*.csproj'
           ##arguments: "--configuration $(BuildConfiguration)"
 
