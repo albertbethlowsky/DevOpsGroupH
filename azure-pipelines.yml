@@ -47,13 +47,14 @@ stages:
               #arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
               arguments: '--configuration $(BuildConfiguration) --collect "Code coverage"'
               projects: '**/*HomeControllerTests/*.csproj'
+              publishTestResults: true
           ##arguments: "--configuration $(BuildConfiguration)"
 
-          - task: PublishTestResults@2
-            displayName: 'Publish test results'
-            inputs:
-              testResultsFormat: 'XUnit'
-              testResultsFiles: '**/TEST-*.xml'
+          # - task: PublishTestResults@2
+          #   displayName: 'Publish test results'
+          #   inputs:
+          #     testResultsFormat: 'XUnit'
+          #     testResultsFiles: '**/TEST-*.xml'
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
