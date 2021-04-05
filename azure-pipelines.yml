@@ -33,6 +33,7 @@ stages:
             inputs:
               command: test
               projects: '**/*HomeControllerTests/*.csproj'
+              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Include="[ProjectName.*]*" /p:Exclude="[*Tests]*"'
           ##arguments: "--configuration $(BuildConfiguration)"
 
           - task: Docker@1
@@ -68,24 +69,50 @@ stages:
               title: '$(Build.BuildNumber)'
               addChangeLog: true
 
+          - task: UseDotNet@2
+            inputs:
+              version: '5.0.x'
+              includePreviewVersions: true # Required for preview versions
+            
           - task: DotNetCoreCLI@2
-            displayName: Install ReportGenerator Global Tool
+            displayName: 'dotnet build'
             inputs:
-              command: custom
-              custom: tool
-              arguments: install dotnet-reportgenerator-globaltool -g
-
-          - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
-            displayName: 'Update PATH'
-
-          - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
-            displayName: Create reports
-            continueOnError: true
+              command: 'build'
+              configuration: $(buildConfiguration)
+            
+          - task: DotNetCoreCLI@2
+            displayName: 'dotnet test'
+            inputs:
+              command: 'test'
+              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+              publishTestResults: true
+              projects: 'HomeControllerTests' # update with your test project directory
+            
           - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage'
+            displayName: 'Publish code coverage report'
             inputs:
-              codeCoverageTool: Cobertura
-              summaryFileLocation: '$(Build.SourcesDirectory)\TestResults\Coverage\*.xml'
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+            
+          # old  
+          # - task: DotNetCoreCLI@2
+          #   displayName: Install ReportGenerator Global Tool
+          #   inputs:
+          #     command: custom
+          #     custom: tool
+          #     arguments: install dotnet-reportgenerator-globaltool -g
+
+          # - script: echo "##vso[task.prependpath]$HOME/.dotnet/tools"
+          #   displayName: 'Update PATH'
+
+          # - script: reportgenerator "-reports:$(Agent.TempDirectory)/**/*.cobertura.xml" "-targetdir:$(Build.SourcesDirectory)/coverlet/reports" -reporttypes:Cobertura;htmlInline
+          #   displayName: Create reports
+          #   continueOnError: true
+          # - task: PublishCodeCoverageResults@1
+          #   displayName: 'Publish code coverage'
+          #   inputs:
+          #     codeCoverageTool: Cobertura
+          #     summaryFileLocation: '$(Build.SourcesDirectory)\TestResults\Coverage\*.xml'
 
           - task: SonarCloudAnalyze@1
             displayName: 'Run SonarCloud analysis'
