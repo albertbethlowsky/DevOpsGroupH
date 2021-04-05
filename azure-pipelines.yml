@@ -28,10 +28,10 @@ stages:
               scannerMode: 'MSBuild'
               projectKey: 'albertbethlowsky_DevOpsGroupH'
               projectName: 'DevOpsGroupH'
-              # extraProperties: |
-              #   sonar.exclusions=**/obj/**,**/*.dll
-              #   sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
-              #   sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+              extraProperties: |
+                sonar.exclusions=**/obj/**,**/*.dll
+                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
+                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
               #     sonar.cs.opencover.reportsPaths="$(Build.SourcesDirectory)/**/coverage.**.xml"
               #     sonar.analysis.buildNumber=$(Build.BuildId)
               #     sonar.analysis.pipeline=$(Build.BuildId)
