@@ -29,9 +29,17 @@ stages:
               projectKey: 'albertbethlowsky_DevOpsGroupH'
               projectName: 'DevOpsGroupH'
               extraProperties: |
-                sonar.exclusions=**/obj/**,**/*.dll
-                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
-                sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+                # sonar.exclusions=**/obj/**,**/*.dll
+                # sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
+                # sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+                  sonar.cs.opencover.reportsPaths="$(Build.SourcesDirectory)/**/coverage.**.xml"
+                  sonar.analysis.buildNumber=$(Build.BuildId)
+                  sonar.analysis.pipeline=$(Build.BuildId)
+                  sonar.analysis.sha1=$(System.PullRequest.SourceCommitId)
+                  sonar.analysis.prNumber=$(System.PullRequest.PullRequestNumber)
+                  sonar.analysis.repository=$(Build.Repository.ID)
+
+                
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
             inputs:
