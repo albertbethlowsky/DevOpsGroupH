@@ -48,6 +48,10 @@ stages:
               projects: '**/*HomeControllerTests/*.csproj'
           ##arguments: "--configuration $(BuildConfiguration)"
 
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'XUnit'
+              testResultsFiles: '**/TEST-*.xml'
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
