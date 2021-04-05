@@ -95,7 +95,7 @@ stages:
           #     arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
           #     publishTestResults: true
           #     projects: 'HomeControllerTests' # update with your test project directory
-          
+
           # - task: DotNetCoreCLI@2
           #   inputs:
           #     command: custom
@@ -110,10 +110,14 @@ stages:
           # - script: ./reportgenerator -reports:$(Agent.TempDirectory)/**/*.cobertura.xml -targetdir:$(Build.SourcesDirectory)/TestResults/Coverage/ -reporttypes:"Cobertura"
           #   displayName: Create reports
 
+          # - task: PublishCodeCoverageResults@1
+          #   displayName: 'Publish code coverage report'
+          #   inputs:
+          #     codeCoverageTool: 'Cobertura'
+          #     summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
           - task: PublishCodeCoverageResults@1
-            displayName: 'Publish code coverage report'
             inputs:
-              codeCoverageTool: 'Cobertura'
+              codeCoverageTool: 'JaCoCo'
               summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
             
           # old  
