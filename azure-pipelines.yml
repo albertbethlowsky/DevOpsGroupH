@@ -12,6 +12,48 @@ variables:
   tag: '$(Build.BuildId)'
   ImageName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 stages:
   - stage: Build
     displayName: Build image
