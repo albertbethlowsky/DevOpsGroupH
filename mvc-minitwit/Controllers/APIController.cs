@@ -58,7 +58,6 @@ namespace mvc_minitwit.Controllers
 
         [HttpGet("~/latest")]
         public ActionResult GetLatest() {
-
             ApiDataLatest returnlatest = new ApiDataLatest {latest = LATEST};
             var jsonreturn = JsonSerializer.Serialize(returnlatest);
             return Ok(jsonreturn);
