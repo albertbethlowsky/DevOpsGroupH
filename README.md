@@ -1,4 +1,5 @@
 # DevOps - Group H - Team Neutrals
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=albertbethlowsky_DevOpsGroupH&metric=alert_status)](https://sonarcloud.io/dashboard?id=albertbethlowsky_DevOpsGroupH)
 
 [![Build Status](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)
 
