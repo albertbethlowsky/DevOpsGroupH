@@ -10,7 +10,7 @@ resources:
 
 variables:
   tag: '$(Build.BuildId)'
-  ImageName: 'jokeren9/neutralsminitwit:$(Build.BuildId)'
+  ImageName: 'neutralsminitwit.azurecr.io:$(Build.BuildId)'
   
 stages:
   - stage: Build
@@ -46,8 +46,10 @@ stages:
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'Docker Hub'
+              azureSubscriptionEndpoint: 'Azure til studerende'
+              azureContainerRegistry: 'neutralsminitwit.azurecr.io'
+              #containerregistrytype: 'Container Registry'
+              #dockerRegistryEndpoint: 'Azure Container Registry'
               command: 'Build an image'
               dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
               imageName: '$(ImageName)'
@@ -58,8 +60,10 @@ stages:
           - task: Docker@1
             displayName: 'Push the Docker image to Dockerhub'
             inputs:
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'Docker Hub'
+              azureSubscriptionEndpoint: 'Azure til studerende'
+              azureContainerRegistry: 'neutralsminitwit.azurecr.io'
+              #containerregistrytype: 'Container Registry'
+              #dockerRegistryEndpoint: 'Docker Hub'
               command: 'Push an image'
               imageName: '$(ImageName)'
             condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
