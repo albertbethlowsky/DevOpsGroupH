@@ -5,10 +5,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using mvc_minitwit.Data;
 using mvc_minitwit.Models;
-using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
-using Serilog.Sinks.Loki;
+using Serilog;
 using System;
 
 namespace mvc_minitwit
@@ -17,11 +16,16 @@ namespace mvc_minitwit
     {
         public static void Main(string[] args)
         {
+            
             Log.Logger = new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .WriteTo.Console()
-            .WriteTo.Seq("http://neutrals-minitwit.azurewebsites.net:5341") // <- Added
-            .CreateLogger();
+                .Enrich.FromLogContext()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .WriteTo.Seq("https://neutralsseq.azurewebsites.net") // <- Added
+                .CreateLogger();
+            Serilog.Debugging.SelfLog.Enable(Console.Error);
+
+            Log.Information("Hello Serilog");
 
             var host = CreateHostBuilder(args).Build();
 
@@ -46,43 +50,12 @@ namespace mvc_minitwit
 
         public static IHostBuilder CreateHostBuilder(string[] args)=>
             Host.CreateDefaultBuilder(args)
+            .UseSerilog()
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
-            })
-            .UseSerilog();
-
+            });
+            
+            
     }
-    /* attempt at triggering SonarCloud to re-evaluate
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    */
 }
