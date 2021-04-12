@@ -45,7 +45,7 @@ stages:
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
-              azureSubscriptionEndpoint: Azure til studerende
+              azureSubscriptionEndpoint: ACR
               azureContainerRegistry: neutralsminitwit.azurecr.io
               #containerregistrytype: 'Container Registry'
               #dockerRegistryEndpoint: 'ACR'
@@ -59,7 +59,7 @@ stages:
           - task: Docker@1
             displayName: 'Push the Docker image to Dockerhub'
             inputs:
-              azureSubscriptionEndpoint: Azure til studerende
+              azureSubscriptionEndpoint: ACR
               azureContainerRegistry: neutralsminitwit.azurecr.io
               #containerregistrytype: 'Container Registry'
               #dockerRegistryEndpoint: 'ACR'
