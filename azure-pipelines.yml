@@ -10,7 +10,7 @@ resources:
 
 variables:
   tag: '$(Build.BuildId)'
-  ImageName: 'neutralsminitwit.azurecr.io:$(Build.BuildId)'
+  ImageName: 'neutralsminitwit:$(Build.BuildId)'
 
 stages:
   - stage: Build
@@ -45,10 +45,10 @@ stages:
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
-              #azureSubscriptionEndpoint: 42954916-e733-465e-97fb-9dcbcf102b04
-              #azureContainerRegistry: neutralsminitwit.azurecr.io
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'ACR'
+              azureSubscriptionEndpoint: 42954916-e733-465e-97fb-9dcbcf102b04
+              azureContainerRegistry: neutralsminitwit.azurecr.io
+              #containerregistrytype: 'Container Registry'
+              #dockerRegistryEndpoint: 'ACR'
               command: 'Build an image'
               dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
               imageName: '$(ImageName)'
@@ -59,10 +59,10 @@ stages:
           - task: Docker@1
             displayName: 'Push the Docker image to Dockerhub'
             inputs:
-              #azureSubscriptionEndpoint: 42954916-e733-465e-97fb-9dcbcf102b04
-              #azureContainerRegistry: neutralsminitwit.azurecr.io
-              containerregistrytype: 'Container Registry'
-              dockerRegistryEndpoint: 'ACR'
+              azureSubscriptionEndpoint: 42954916-e733-465e-97fb-9dcbcf102b04
+              azureContainerRegistry: neutralsminitwit.azurecr.io
+              #containerregistrytype: 'Container Registry'
+              #dockerRegistryEndpoint: 'ACR'
               command: 'Push an image'
               imageName: '$(ImageName)'
             condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
