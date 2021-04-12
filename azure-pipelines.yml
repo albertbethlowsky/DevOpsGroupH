@@ -48,7 +48,7 @@ stages:
               command: buildAndPush
               repository: 'NeutralsMinitwit'
               dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
-              containerRegistry: 'ACR'
+              containerRegistry: 'ACR2'
               tags: |
                 $(tag)
 
