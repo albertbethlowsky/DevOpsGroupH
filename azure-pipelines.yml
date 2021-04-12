@@ -11,7 +11,7 @@ resources:
 variables:
   tag: '$(Build.BuildId)'
   ImageName: 'neutralsminitwit.azurecr.io:$(Build.BuildId)'
-  
+
 stages:
   - stage: Build
     displayName: Build image
@@ -32,22 +32,21 @@ stages:
                 sonar.exclusions=**/obj/**,**/*.dll
                 sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
                 sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
-              
-               
+
           - task: DotNetCoreCLI@2
             displayName: 'dotnet test'
             inputs:
               command: test
               projects: '**/*HomeControllerTests/*.csproj'
-              arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx' 
+              arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
               publishTestResults: true
           ##arguments: "--configuration $(BuildConfiguration)"
 
           - task: Docker@1
             displayName: 'Build an Docker image'
             inputs:
-              azureSubscriptionEndpoint: 'Azure til studerende'
-              azureContainerRegistry: 'neutralsminitwit.azurecr.io'
+              azureSubscriptionEndpoint: 42954916-e733-465e-97fb-9dcbcf102b04
+              azureContainerRegistry: neutralsminitwit.azurecr.io
               #containerregistrytype: 'Container Registry'
               #dockerRegistryEndpoint: 'Azure Container Registry'
               command: 'Build an image'
@@ -60,8 +59,8 @@ stages:
           - task: Docker@1
             displayName: 'Push the Docker image to Dockerhub'
             inputs:
-              azureSubscriptionEndpoint: 'Azure til studerende'
-              azureContainerRegistry: 'neutralsminitwit.azurecr.io'
+              azureSubscriptionEndpoint: 42954916-e733-465e-97fb-9dcbcf102b04
+              azureContainerRegistry: neutralsminitwit.azurecr.io
               #containerregistrytype: 'Container Registry'
               #dockerRegistryEndpoint: 'Docker Hub'
               command: 'Push an image'
