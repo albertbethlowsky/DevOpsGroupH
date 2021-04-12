@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using mvc_minitwit.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Web.Mvc;
 
 namespace HomeControllerTests
 {
@@ -58,26 +59,18 @@ namespace HomeControllerTests
             //_client = factory.CreateClient();
             var logger = _scope.ServiceProvider.GetRequiredService<ILogger<HomeController>>();
             HomeController hc = new HomeController(logger, _context);
-            hc.Timeline(dummyUser.username);
+            
 
             // 2 - Act
-				var actionResult = hc.Timeline(dummyUser.username) as ViewResult; // Call the edit view with no item Id (Add New).
+			var actionResult = await hc.Timeline(dummyUser.username) as ViewResult; // Call the edit view with no item Id (Add New).
+            // Assert
+            Console.WriteLine(actionResult.ViewBag.message);
+            //Assert.Equal(actionResult.ViewBag.message, "My message.");
+
+           // Assert.Equal(actionResult.ViewName, "MyView");
             
-            dummyUser.pw_hash = null;
-            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
-
-            Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
-
-
-            dummyUser.pw_hash = "";
-            var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
-            //var strResp2 = await resp.Content.ReadAsStringAsync();
-
-            Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
-
-            //doesn't work since get this back: https://tools.ietf.org/html/rfc7231#section-6.5.1
-            //which is json. Have to parse it to that. Error is gen. from ApiData model
-            //Assert.Equal("You have to enter a password", strResp2);
+            
+           
         }
 
        
