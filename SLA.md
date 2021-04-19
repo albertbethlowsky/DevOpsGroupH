@@ -1,4 +1,5 @@
 # SLA for Neutrals Minitwit
+
 * Many of the metrics are collected using azure's metrics service application: https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics
     * We are also using grafana+prometheus for monitoring, but since it was implemented later in the development phase, it does not include as much insight as azure's integrated services. 
 * Azure Devops SLA: https://azure.microsoft.com/en-us/support/legal/sla/azure-devops/v2_0/
@@ -16,3 +17,4 @@ Manual recovery time (identifying error and solving): ~1 hour
 
 ## Failure frequency
 * Simulator status interface: http://138.68.93.2/status.html 
+
