@@ -83,25 +83,3 @@ stages:
             displayName: 'SonarCloud publish'
             inputs:
               pollingTimeoutSec: '300'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
