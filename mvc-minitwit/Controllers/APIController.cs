@@ -39,10 +39,10 @@ namespace mvc_minitwit.Controllers
 
         private int GetUserId(string username)
         {
-            var user = _context.user.Where(u => u.username == username);
-            if (user.Count() == 1)
+            List<User> user = _context.user.Where(u => u.username == username).ToList();
+            if (user.Count == 1)
             {
-                return user.Single().user_id;
+                return user.FirstOrDefault().user_id;
             }
             else return -1;     //no user found
         }
