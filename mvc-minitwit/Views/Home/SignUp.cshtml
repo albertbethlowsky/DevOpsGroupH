@@ -32,7 +32,7 @@
                     </div>
                     <div class="form-group">
                         <dt>Confirm Password:</dt>
-                        @Html.PasswordFor(m => m.pw_hash2, new { @class = "form-control", @placeholder = "Confim Password" })
+                        @Html.PasswordFor(m => m.pw_hash2, new { @class = "form-control", @placeholder = "Confirm Password" })
                         @Html.ValidationMessageFor(m => m.pw_hash2, "", new { @class = "badge badge-danger" })
                     </div>
                     <div class="form-group">

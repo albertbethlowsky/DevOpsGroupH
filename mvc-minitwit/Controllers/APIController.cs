@@ -130,7 +130,7 @@ namespace mvc_minitwit.Controllers
         }
 
         [HttpPost("~/register")] //This syntax goes back to root and the /whaterver
-        public async Task<ActionResult<User>> Register([FromBody] User user)
+        public async Task<ActionResult<User>> Register([FromBody] ApiUser user)
         {
             string error = "";
 
@@ -142,7 +142,7 @@ namespace mvc_minitwit.Controllers
             {
                 error = "You have to enter a valid email address";
             }
-            else if (string.IsNullOrEmpty(user.pw_hash))
+            else if (string.IsNullOrEmpty(user.pwd))
             {
                 error = "You have to enter a password";
             }
@@ -155,7 +155,7 @@ namespace mvc_minitwit.Controllers
                 //The user given in the json body from the request,
                 //isn't added directly to  the context (that would insecure). But its attributes are used such that
                 //userId is generated automatically, and the pw is hashed into pw_hash
-                _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pw_hash)});
+                _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pwd)});
                 await _context.SaveChangesAsync();
             }
             if (!string.IsNullOrEmpty(error))
