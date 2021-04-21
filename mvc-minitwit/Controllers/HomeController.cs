@@ -178,6 +178,7 @@ namespace mvc_minitwit.Controllers
                     return View();
                 }
             }
+            ViewData["tst"] = "tst";
             return View();
         }
 

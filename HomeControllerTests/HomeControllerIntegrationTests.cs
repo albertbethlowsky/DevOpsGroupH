@@ -31,12 +31,12 @@ namespace HomeControllerTests
         private CustomWebApplicationFactory<Startup> factory;
         private readonly ITestOutputHelper output;
         private User dummyUser = new User
-        {
-            username = "dummy321",
-            email = "dummy@dummy",
-            pw_hash = "very_secure",
-            pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
-        };
+            {
+                username = "dummy321",
+                email = "dummy@dummy",
+                pw_hash = "very_secure",
+                pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
+            };
         private readonly IServiceScope _scope;
         private readonly MvcDbContext _context;
         private readonly CookieContainer cookies = new System.Net.CookieContainer();
@@ -56,24 +56,31 @@ namespace HomeControllerTests
         [Fact]
         public async Task test_TimeLine()
         {
-        //     //_client = factory.CreateClient();
-        //     var logger = _scope.ServiceProvider.GetRequiredService<ILogger<HomeController>>();
-        //     HomeController hc = new HomeController(logger, _context);
-            
+            _client = factory.CreateClient();
+            var logger = _scope.ServiceProvider.GetRequiredService<ILogger<HomeController>>();
+            var hc = new HomeController(logger, _context);
 
-        //     // 2 - Act
-		// 	var actionResult = await hc.Timeline(dummyUser.username) as ViewResult; // Call the edit view with no item Id (Add New).
-        //     // Assert
-        //     Console.WriteLine(actionResult.ViewBag.message);
-        //     //Assert.Equal(actionResult.ViewBag.message, "My message.");
+            // 2 - Act
+            output.WriteLine("hallo");
+            //_context.Add(dummyUser);
+            // var res = hc.SignUp(dummyUser) as ViewResult;
+            var res = hc.SignUp(dummyUser);
+            Assert.IsType<System.Web.Http.Results.RedirectToRouteResult>(res);
+            //output.WriteLine(res.ViewData["tst"].ToString());
 
-        //    // Assert.Equal(actionResult.ViewName, "MyView");
-            
-            
-           
+			var actionResult = await hc.Timeline(dummyUser.username) as ViewResult; // Call the edit view with no item Id (Add New).
+
+            // Assert
+            output.WriteLine(actionResult.ViewBag);
+            //Assert.Equal(actionResult.ViewBag.message, "My message.");
+
+            //Assert.Equal(actionResult.ViewName, "MyView");
+
+
+
         }
 
-       
+
 
 
 
