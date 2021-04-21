@@ -78,19 +78,19 @@ namespace HomeControllerTests
             //which is json. Have to parse it to that. Error is gen. from ApiData model
             //Assert.Equal("You have to enter a password", strResp2);
         }
+        //API does not use two password, therefore this test is discontinued
+        // [Fact]
+        // public async Task Register_Error_PWsDontMatch()
+        // {
+        //     _client = factory.CreateClient();
 
-        [Fact]
-        public async Task Register_Error_PWsDontMatch()
-        {
-            _client = factory.CreateClient();
+        //     dummyUser.pwd = "123";
+        //     dummyUser.pwd = "321";
+        //     var resp = await _client.PostAsJsonAsync("/register", dummyUser);
 
-            dummyUser.pwd = "123";
-            dummyUser.pwd = "321";
-            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+        //     Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
 
-            Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
-
-        }
+        // }
 
         [Fact]
         public async Task Register_Error_InvalidEmail()
