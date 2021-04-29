@@ -69,8 +69,6 @@ namespace HomeControllerTests
 
         //    // Assert.Equal(actionResult.ViewName, "MyView");
 
-
-
         }
 
 
