@@ -53,9 +53,9 @@ namespace HomeControllerTests
             _context.Database.EnsureCreated();
         }
 
-        [Fact]
-        public async Task test_TimeLine()
-        {
+        // [Fact]
+        // public async Task test_TimeLine()
+        // {
         //     //_client = factory.CreateClient();
         //     var logger = _scope.ServiceProvider.GetRequiredService<ILogger<HomeController>>();
         //     HomeController hc = new HomeController(logger, _context);
@@ -69,7 +69,7 @@ namespace HomeControllerTests
 
         //    // Assert.Equal(actionResult.ViewName, "MyView");
 
-        }
+        // }
 
 
 
