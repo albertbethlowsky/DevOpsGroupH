@@ -59,7 +59,7 @@ namespace HomeControllerTests
         //     //_client = factory.CreateClient();
         //     var logger = _scope.ServiceProvider.GetRequiredService<ILogger<HomeController>>();
         //     HomeController hc = new HomeController(logger, _context);
-            
+
 
         //     // 2 - Act
 		// 	var actionResult = await hc.Timeline(dummyUser.username) as ViewResult; // Call the edit view with no item Id (Add New).
@@ -68,12 +68,12 @@ namespace HomeControllerTests
         //     //Assert.Equal(actionResult.ViewBag.message, "My message.");
 
         //    // Assert.Equal(actionResult.ViewName, "MyView");
-            
-            
-           
+
+
+
         }
 
-       
+
 
 
 
