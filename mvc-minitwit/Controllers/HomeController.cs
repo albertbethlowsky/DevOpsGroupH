@@ -126,7 +126,7 @@ namespace mvc_minitwit.Controllers
 
             _context.message.Add(message);
             _context.SaveChanges();
-
+            _logger.LogInformation("{whoID}, just posted a new message.", message.author_id.ToString());
             return RedirectToAction("Timeline");
         }
 
@@ -137,7 +137,7 @@ namespace mvc_minitwit.Controllers
             follower.whom_id = values[0];
             _context.Add(follower);
             _context.SaveChanges();
-
+            _logger.LogInformation("{whoID}, now follows {whomID}.", follower.who_id.ToString(), follower.whom_id.ToString());
             return RedirectToAction("Timeline");
         }
 
@@ -148,7 +148,7 @@ namespace mvc_minitwit.Controllers
             follower.whom_id = values[0];
             _context.Remove(follower);
             _context.SaveChanges();
-
+            _logger.LogInformation("{whoID}, is not following {whomID} anymore.", follower.who_id.ToString(), follower.whom_id.ToString());
             return RedirectToAction("Timeline");
         }
 
@@ -170,10 +170,12 @@ namespace mvc_minitwit.Controllers
                     _user.pw_hash = newHash.hashBuilder(_user.pw_hash);
                     _context.user.Add(_user);
                     _context.SaveChanges();
+                    _logger.LogInformation("New user just signed up to the website!");
                     return RedirectToAction("SignIn");
                 }
                 else
                 {
+                    _logger.LogWarning("A user has failed to signup! E-mail already exists in the system.");
                     ViewBag.error = "Email already exist";
                     return View();
                 }
