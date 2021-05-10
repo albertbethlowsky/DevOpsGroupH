@@ -41,7 +41,8 @@ These services are responsible for cloud hosting.
 | Name | Service | Provider | Description |
 |------|---------|----------|-------------|
 | neutrals-minitwit | App Service | Microsoft Azure | Hosting of web applications (.NET application) |
-| minitwit-neutrals | App Service | Microsoft Azure | Hosting of web applications (prometheus, grafana, loki, promtail etc.) |
+| minitwit-neutrals | App Service | Microsoft Azure | Hosting of web applications (prometheus, grafana) |
+| neutralsseq       | App Service | Microsoft Azure | Hosting of web applications (Datalust - Seq) |
 | minitwit-neutrals | SQL Server | Microsoft Azure | Hosting of SQL database |
 | minitwitDb (minitwit-neutrals) | SQL database | Microsoft Azure | SQL database |
 | jokeren9/neutralsminitwit | Docker container | DockerHub | Containerizing of applications |
@@ -61,7 +62,10 @@ Utilizes prometheus data point, which listens to `/metrics`
 
 ### Logging tools
 
-SeriLog
+SeriLog: Layer on top of .NET loggin
+Datalust Seq: Data Visualization and aggregation of Serilog logging data
+https://neutralsseq.azurewebsites.net/
+No credentials needed.
 
 ## Static Tools
 
