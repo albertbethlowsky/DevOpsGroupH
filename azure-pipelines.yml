@@ -109,6 +109,7 @@ stages:
           # - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
           #   displayName: 'Infer# analysis result'
       - job: Build_Publish
+        dependsOn: 'RunInferSharp'
         displayName: Build and Publish
         pool:
           vmImage: ubuntu-latest
