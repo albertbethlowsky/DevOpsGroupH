@@ -17,7 +17,7 @@ stages:
     displayName: Build image
     jobs:
       - job: Build
-        displayName: Test and Build
+        displayName: Test
         pool:
           vmImage: ubuntu-latest
        
@@ -108,17 +108,23 @@ stages:
 
           # - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
           #   displayName: 'Infer# analysis result'
+      - job: Build_Publish
+        displayName: Build and Publish
+        pool:
+          vmImage: ubuntu-latest
+      
+        steps:
 
-          - task: Docker@2
-            displayName: 'Build and push an image to container registry'
-            inputs:
-              command: buildAndPush
-              repository: 'NeutralsMinitwit'
-              dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
-              containerRegistry: 'ACR - with Albert subscription' # name of ACR service from connection
-              buildContext: '.'
-              tags: |
-                $(tag)
+            - task: Docker@2
+              displayName: 'Build and push an image to container registry'
+              inputs:
+                command: buildAndPush
+                repository: 'NeutralsMinitwit'
+                dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
+                containerRegistry: 'ACR - with Albert subscription' # name of ACR service from connection
+                buildContext: '.'
+                tags: |
+                  $(tag)
 
           # - task: Docker@1
           #   displayName: 'Push the Docker image to Dockerhub'
@@ -131,41 +137,38 @@ stages:
           #     imageName: '$(ImageName)'
           #   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
+            - task: GitHubRelease@1
+              inputs:
+                gitHubConnection: 'albertbethlowsky'
+                repositoryName: '$(Build.Repository.Name)'
+                action: 'create'
+                target: '$(Build.SourceVersion)'
+                tagSource: 'gitTag'
+                tagPattern: 'release-v[0-9]*\S*'
+                changeLogCompareToRelease: 'lastFullRelease'
+                changeLogType: 'commitBased'
+                title: '$(Build.BuildNumber)'
+                addChangeLog: true
 
-       
-
-          - task: GitHubRelease@1
-            inputs:
-              gitHubConnection: 'albertbethlowsky'
-              repositoryName: '$(Build.Repository.Name)'
-              action: 'create'
-              target: '$(Build.SourceVersion)'
-              tagSource: 'gitTag'
-              tagPattern: 'release-v[0-9]*\S*'
-              changeLogCompareToRelease: 'lastFullRelease'
-              changeLogType: 'commitBased'
-              title: '$(Build.BuildNumber)'
-              addChangeLog: true
-
-          - task: SonarCloudAnalyze@1
-            displayName: 'Run SonarCloud analysis'
-          - task: SonarCloudPublish@1
-            displayName: 'SonarCloud publish'
-            inputs:
-              pollingTimeoutSec: '300'
-          
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              script: |
-                # Downloading the repo as a zip file
-                Invoke-WebRequest "https://github.com/dalion619/jetbrains-resharper-clt/archive/master.zip" -OutFile ".\jb-clt.zip"
-                
-                # Extract it into the current working dir
-                Expand-Archive ".\jb-clt.zip" -DestinationPath ".\" -Force
-                
-                #$Env:BUILD_SOURCESDIRECTORY\jetbrains-resharper-clt-master\
-                Write-Host "Hello World"
+            - task: SonarCloudAnalyze@1
+              displayName: 'Run SonarCloud analysis'
+            - task: SonarCloudPublish@1
+              displayName: 'SonarCloud publish'
+              inputs:
+                pollingTimeoutSec: '300'
+            
+            - task: PowerShell@2
+              inputs:
+                targetType: 'inline'
+                script: |
+                  # Downloading the repo as a zip file
+                  Invoke-WebRequest "https://github.com/dalion619/jetbrains-resharper-clt/archive/master.zip" -OutFile ".\jb-clt.zip"
+                  
+                  # Extract it into the current working dir
+                  Expand-Archive ".\jb-clt.zip" -DestinationPath ".\" -Force
+                  
+                  #$Env:BUILD_SOURCESDIRECTORY\jetbrains-resharper-clt-master\
+                  Write-Host "Hello World"
 
           # - task: PowerShell@2
           #   inputs:
