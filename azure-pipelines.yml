@@ -48,8 +48,7 @@ stages:
               command: buildAndPush
               repository: 'NeutralsMinitwit'
               dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
-              #containerRegistry: 'ACR'
-              containerRegistry: 'ACR - with Albert subscription'
+              containerRegistry: 'ACR - with Albert subscription' # name of ACR service connection
               buildContext: '.'
               tags: |
                 $(tag)
