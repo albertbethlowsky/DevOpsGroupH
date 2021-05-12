@@ -157,15 +157,13 @@ namespace mvc_minitwit.Controllers
             }
             if (!string.IsNullOrEmpty(error))
             {
-                //var ls = _context.user.ToList().Select(u => u.username);
-                //var str = string.Join(",", ls.ToList());
                 _logger.LogWarning("API user failed to successfully register: {error}.", error);
                 return BadRequest(error);
 
             }
             else
             {
-                
+
                 _logger.LogInformation("New API {userID}, successfully registered.", user.user_id.ToString());
                 return NoContent();
             }
