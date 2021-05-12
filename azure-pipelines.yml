@@ -84,7 +84,10 @@ stages:
             inputs:
               pollingTimeoutSec: '300'
           
-
+          - task: ResharperCli@2
+            inputs:
+              solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln'
+              failBuildLevelSelector: 'Warning'
 
           # - task: PublishBuildArtifacts@1
           #   inputs:
