@@ -165,9 +165,7 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                //var noUsers = _context.user;
-                //var ls = noUsers.ToList().Select(u => u.username);
-                //var str = string.Join(",", ls.ToList());
+                
                 _logger.LogInformation("New API {userID}, successfully registered.", user.user_id.ToString());
                 return NoContent();
             }
