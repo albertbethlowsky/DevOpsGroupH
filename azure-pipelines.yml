@@ -20,8 +20,7 @@ stages:
         displayName: Test and Build
         pool:
           vmImage: ubuntu-latest
-        container:
-          image: mcr.microsoft.com/infersharp:v1.0
+       
         steps:
           - task: SonarCloudPrepare@1
             inputs:
