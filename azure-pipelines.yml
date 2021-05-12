@@ -20,6 +20,8 @@ stages:
         displayName: Test and Build
         pool:
           vmImage: ubuntu-latest
+        container:
+          image: mcr.microsoft.com/infersharp:v1.0
         steps:
           - task: SonarCloudPrepare@1
             inputs:
@@ -42,13 +44,27 @@ stages:
               publishTestResults: true
           ##arguments: "--configuration $(BuildConfiguration)"
 
+          - task: DotNetCoreCLI@2
+            displayName: 'dotnet build'
+            inputs:
+              projects: $(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln
+
+          - script: |
+              curl -o run_infersharp.sh https://raw.githubusercontent.com/microsoft/infersharp/v1.0/run_infersharp.sh
+              chmod +x run_infersharp.sh
+              ./run_infersharp.sh $(Build.SourcesDirectory)/mvc-minitwit/bin/Debug
+            displayName: 'Run Infer# analysis'
+
+          - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
+            displayName: 'Infer# analysis result'
+
           - task: Docker@2
             displayName: 'Build and push an image to container registry'
             inputs:
               command: buildAndPush
               repository: 'NeutralsMinitwit'
               dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
-              containerRegistry: 'ACR - with Albert subscription' # name of ACR service connection
+              containerRegistry: 'ACR - with Albert subscription' # name of ACR service from connection
               buildContext: '.'
               tags: |
                 $(tag)
@@ -63,6 +79,9 @@ stages:
           #     command: 'Push an image'
           #     imageName: '$(ImageName)'
           #   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+
+       
 
           - task: GitHubRelease@1
             inputs:
@@ -108,3 +127,4 @@ stages:
           #     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
           #     ArtifactName: 'drop'
           #     publishLocation: 'Container'
+
