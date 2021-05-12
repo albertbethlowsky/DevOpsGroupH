@@ -97,11 +97,11 @@ stages:
                 #$Env:BUILD_SOURCESDIRECTORY\jetbrains-resharper-clt-master\
                 Write-Host "Hello World"
 
-          - task: PowerShell@2
-            inputs:
-              filePath: '$(Build.SourcesDirectory)/mvc-minitwit/resharper.ps1'
-              arguments: '-SolutionFilePath "..\mvc-minitwit.sln" -ExcludedExtensions "js,css,html"; DupFinder-Analysis'
-              workingDirectory: '/jetbrains-resharper-clt-master/'
+          # - task: PowerShell@2
+          #   inputs:
+          #     filePath: '$(Build.SourcesDirectory)/mvc-minitwit/resharper.ps1'
+          #     arguments: '-SolutionFilePath "..\mvc-minitwit.sln" -ExcludedExtensions "js,css,html"; DupFinder-Analysis'
+          #     workingDirectory: '/jetbrains-resharper-clt-master/'
 
           # - task: PublishBuildArtifacts@1
           #   inputs:
