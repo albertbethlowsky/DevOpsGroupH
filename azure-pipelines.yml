@@ -48,7 +48,7 @@ stages:
           - task: DotNetCoreCLI@2
             displayName: 'dotnet build'
             inputs:
-              projects: $(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln
+              projects: $(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.csproj
           
           # Copy binaries to a staging folder
           - task: CopyFiles@2
