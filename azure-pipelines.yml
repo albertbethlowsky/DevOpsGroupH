@@ -84,10 +84,24 @@ stages:
             inputs:
               pollingTimeoutSec: '300'
           
-          - task: ResharperCli@2
+          - task: PowerShell@2
             inputs:
-              solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln'
-              failBuildLevelSelector: 'Warning'
+              targetType: 'inline'
+              script: |
+                # Downloading the repo as a zip file
+                Invoke-WebRequest "https://github.com/dalion619/jetbrains-resharper-clt/archive/master.zip" -OutFile ".\jb-clt.zip"
+                
+                # Extract it into the current working dir
+                Expand-Archive ".\jb-clt.zip" -DestinationPath ".\" -Force
+                
+                #$Env:BUILD_SOURCESDIRECTORY\jetbrains-resharper-clt-master\
+                Write-Host "Hello World"
+
+          - task: PowerShell@2
+            inputs:
+              filePath: '$(Build.SourcesDirectory)/mvc-minitwit/resharper.ps1'
+              arguments: '-SolutionFilePath "..\mvc-minitwit.sln" -ExcludedExtensions "js,css,html"; DupFinder-Analysis'
+              workingDirectory: '.\jetbrains-resharper-clt-master\'
 
           # - task: PublishBuildArtifacts@1
           #   inputs:
