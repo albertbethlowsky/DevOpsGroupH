@@ -54,8 +54,8 @@ stages:
           - task: CopyFiles@2
             displayName: 'Copy output binaries'
             inputs:
-              SourceFolder: '$(Build.SourcesDirectory)/mvc-minitwit/bin/Debug'
-              Contents: '**/?(*.dll|*.pdb|*.exe)'
+              SourceFolder: '$(Build.SourcesDirectory)/mvc-minitwit/bin/Debug/net5.0'
+              Contents: '**\?(*.dll|*.pdb|*.exe)'
               TargetFolder: '$(Build.ArtifactStagingDirectory)'
           
           # Publish binaries
