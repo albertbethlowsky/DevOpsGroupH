@@ -188,7 +188,6 @@ namespace mvc_minitwit.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                //return Ok("You were logged in");
                 _logger.LogInformation("API user {userID} successfully signed in.", user.user_id.ToString());
                 return NoContent();
             } else {
