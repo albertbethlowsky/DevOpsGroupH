@@ -194,6 +194,7 @@ namespace mvc_minitwit.Controllers
                 _logger.LogWarning("API user failed to successfully sign in.");
                 return BadRequest("Wrong email or password");
             }
+
         }
 
         [HttpPost]
