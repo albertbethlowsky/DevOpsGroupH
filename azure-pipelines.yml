@@ -44,19 +44,68 @@ stages:
               publishTestResults: true
           ##arguments: "--configuration $(BuildConfiguration)"
 
+        
+          # Build
           - task: DotNetCoreCLI@2
             displayName: 'dotnet build'
             inputs:
               projects: $(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln
+          
+          # Copy binaries to a staging folder
+          - task: CopyFiles@2
+            displayName: 'Copy output binaries'
+            inputs:
+              SourceFolder: '$(Build.SourcesDirectory)/mvc-minitwit/bin/Debug'
+              Contents: '**\?(*.dll|*.pdb|*.exe)'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+          
+          # Publish binaries
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish binaries'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'inferinput'
+              publishLocation: 'Container'
+
+        # Run Infer#
+      - job: RunInferSharp
+        dependsOn: 'RunExistingBuildPipeline'
+        pool:
+          vmImage: 'ubuntu-20.04'
+        container:
+          image: mcr.microsoft.com/infersharp:v1.0
+
+          steps:
+          # Download binaries
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download binaries'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'inferinput'
+              downloadPath: '$(System.ArtifactsDirectory)'
 
           - script: |
               curl -o run_infersharp.sh https://raw.githubusercontent.com/microsoft/infersharp/v1.0/run_infersharp.sh
               chmod +x run_infersharp.sh
-              ./run_infersharp.sh $(Build.SourcesDirectory)/mvc-minitwit/bin/Debug
+              ./run_infersharp.sh $(System.ArtifactsDirectory)
             displayName: 'Run Infer# analysis'
-
           - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
             displayName: 'Infer# analysis result'
+
+          # - task: DotNetCoreCLI@2
+          #   displayName: 'dotnet build'
+          #   inputs:
+          #     projects: $(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln
+
+          # - script: |
+          #     curl -o run_infersharp.sh https://raw.githubusercontent.com/microsoft/infersharp/v1.0/run_infersharp.sh
+          #     chmod +x run_infersharp.sh
+          #     ./run_infersharp.sh $(Build.SourcesDirectory)/mvc-minitwit/bin/Debug
+          #   displayName: 'Run Infer# analysis'
+
+          # - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
+          #   displayName: 'Infer# analysis result'
 
           - task: Docker@2
             displayName: 'Build and push an image to container registry'
