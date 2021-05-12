@@ -3,11 +3,8 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=albertbethlowsky_DevOpsGroupH&metric=coverage)](https://sonarcloud.io/dashboard?id=albertbethlowsky_DevOpsGroupH)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=albertbethlowsky_DevOpsGroupH&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=albertbethlowsky_DevOpsGroupH)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=albertbethlowsky_DevOpsGroupH&metric=bugs)](https://sonarcloud.io/dashboard?id=albertbethlowsky_DevOpsGroupH)
+[![BCH compliance](https://bettercodehub.com/edge/badge/alex-bax/DevOpsGroupH?branch=main)](https://bettercodehub.com/)
 
-
-[![Build Status](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)
-
-[![Build Status](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)](https://dev.azure.com/GroupNeutrals/MiniTwit/_build/latest?definitionId=3&branchName=main)
 
 > This project revolves around a forum application called minitwit. The functionalities includes signing up, logging in, posting messages, following other users. The forum has a public timeline where all messages are displayed. Furthermore, if a user is signed in, a personal timeline exists that displays a users own messages aswell as messages of followed users.
 
