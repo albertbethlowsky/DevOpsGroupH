@@ -34,7 +34,7 @@ namespace HomeControllerTests
             username = "dummy321",
             email = "dummy@dummy",
             pwd = "very_secure",
-            //pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
+            
         };
 
         private readonly IServiceScope _scope;
@@ -70,7 +70,6 @@ namespace HomeControllerTests
 
             dummyUser.pwd = "";
             var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
-            //var strResp2 = await resp.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
 
@@ -78,19 +77,7 @@ namespace HomeControllerTests
             //which is json. Have to parse it to that. Error is gen. from ApiData model
             //Assert.Equal("You have to enter a password", strResp2);
         }
-        //API does not use two password, therefore this test is discontinued
-        // [Fact]
-        // public async Task Register_Error_PWsDontMatch()
-        // {
-        //     _client = factory.CreateClient();
 
-        //     dummyUser.pwd = "123";
-        //     dummyUser.pwd = "321";
-        //     var resp = await _client.PostAsJsonAsync("/register", dummyUser);
-
-        //     Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
-
-        // }
 
         [Fact]
         public async Task Register_Error_InvalidEmail()
@@ -200,24 +187,13 @@ namespace HomeControllerTests
             var postMessageResp = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
             postMessageResp.EnsureSuccessStatusCode();
 
-            //Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
             Assert.Equal(HttpStatusCode.NoContent, postMessageResp.StatusCode);
             Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
-            //testMess = "";
-            //var postMessageResp2 = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
-            //postMessageResp.EnsureSuccessStatusCode();
-
-            //Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
-            //Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
         }
 
-        //[Fact]
-        //public async Task CreateMessageByUser_UserNotExist()
-        //{
 
-        //}
 
         [Fact]
         public async Task Message_By_Other_User_Found_On_Public_Timeline()
@@ -277,8 +253,7 @@ namespace HomeControllerTests
                     new ApiDataFollow { unfollow = SeedData.user.username });
             unfollowSeedDataResp.EnsureSuccessStatusCode();
 
-            //var unfollowStr = await unfollowSeedDataResp.Content.ReadAsStringAsync();
-            //Assert.Equal(dummyUser.username + " now doesn't follow " + SeedData.user.username, unfollowStr);
+
             Assert.Equal(HttpStatusCode.NoContent, unfollowSeedDataResp.StatusCode);
 
             var getFollowers2 = await _client.GetAsync("fllws/" + dummyUser.username);
