@@ -75,16 +75,16 @@ stages:
           - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
             displayName: 'Infer# analysis result'
 
-      - job: ReSharper
-        dependsOn: 'RunInferSharp'
-        displayName: 'ReSharper'
-        pool: 
-          vmImage: 'windows-latest'
-        steps:
-            - task: ResharperCli@2
-              inputs:
-                solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln'
-                failBuildLevelSelector: 'Warning'
+      # - job: ReSharper
+      #   dependsOn: 'RunInferSharp'
+      #   displayName: 'ReSharper'
+      #   pool: 
+      #     vmImage: 'windows-latest'
+      #   steps:
+      #       - task: ResharperCli@2
+      #         inputs:
+      #           solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln'
+      #           failBuildLevelSelector: 'Warning'
 
       - job: Build_Publish
         dependsOn: 'RunInferSharp'
