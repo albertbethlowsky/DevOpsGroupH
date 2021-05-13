@@ -79,11 +79,11 @@ stages:
         dependsOn: 'RunInferSharp'
         displayName: 'ReSharper'
         pool: 
-          vmImage: 'windows-latest'
+          vmImage: 'windows-20.4'
         steps:
             - task: ResharperCli@2
               inputs:
-                solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.csproj'
+                solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln'
                 failBuildLevelSelector: 'Warning'
 
       - job: Build_Publish
