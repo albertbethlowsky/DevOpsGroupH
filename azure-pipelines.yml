@@ -79,7 +79,7 @@ stages:
         dependsOn: 'RunInferSharp'
         displayName: 'ReSharper'
         pool: 
-          vmImage: 'windows-20.4'
+          vmImage: 'windows-latest'
         steps:
             - task: ResharperCli@2
               inputs:
