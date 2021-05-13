@@ -14,7 +14,7 @@ variables:
 
 stages:
   - stage: Build
-    displayName: Build image
+    displayName: Build and move binary
     jobs:
       - job: Build
         displayName: Test
@@ -74,6 +74,17 @@ stages:
           
           - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
             displayName: 'Infer# analysis result'
+
+      - job: ReSharper
+        dependsOn: 'RunInferSharp'
+        displayName: 'ReSharper'
+        pool: 
+          vmImage: 'windows-latest'
+        steps:
+            - task: ResharperCli@2
+              inputs:
+                solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.csproj'
+                failBuildLevelSelector: 'Warning'
 
       - job: Build_Publish
         dependsOn: 'RunInferSharp'
