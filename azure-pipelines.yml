@@ -162,7 +162,16 @@ stages:
                 addChangeLog: true
 
             # - checkout: DevOps
-            # - checkout: git://MiniTwit/LatexDevOps 
+            # - checkout: git://MiniTwit/LatexDevOps
+            - task: CopyFiles@2
+              displayName: 'Copy output binaries'
+              inputs:
+                SourceFolder: '$(Build.SourcesDirectory)/report'
+                #Contents: '**/?(*.dll|*.pdb|*.exe)'
+                Contents: |
+                            $(Build.SourcesDirectory)/report/main.tex
+                TargetFolder: '$(Build.ArtifactStagingDirectory)' 
+
             - bash: | 
                 sudo apt-get install texlive     
                 echo Starting pdflatex
@@ -172,6 +181,8 @@ stages:
                   echo "$entry"
                 done
                 echo WORKING DIR $PWD
+                echo sourcesdir $(Build.SourcesDirectory)
+                echo builartifact $(Build.ArtifactStagingDirectory)
                 echo Done pdflatex.
 
          
