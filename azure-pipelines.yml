@@ -156,7 +156,7 @@ stages:
                 addChangeLog: true
 
             #- checkout: DevOps
-            - checkout: git://MiniTwit/LatexDevOps 
+            #- checkout: git://MiniTwit/LatexDevOps 
             # - bash: | 
             #     sudo apt-get install texlive     
             #     echo Starting pdflatex
