@@ -82,16 +82,22 @@ stages:
       #     - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
       #       displayName: 'Infer# analysis result'
 
-      # - job: ReSharper
-      #   dependsOn: 'RunInferSharp'
-      #   displayName: 'ReSharper'
-      #   pool: 
-      #     vmImage: 'windows-latest'
-      #   steps:
+      - job: ReSharper
+        dependsOn: 'RunInferSharp'
+        displayName: 'ReSharper'
+        pool: 
+          vmImage: 'windows-latest'
+        steps:
       #       - task: ResharperCli@2
       #         inputs:
       #           solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln'
       #           failBuildLevelSelector: 'Warning'
+              - task: RunPanDoc@1
+                inputs:
+                  sourceFile: '$(Build.SourcesDirectory)/report/main.text'
+                  inputFormat: 'latex'
+                  outputFormat: 'pdf'
+                  destFile: 'somepdf'
 
       - job: Build_Publish
         #dependsOn: 'RunInferSharp'
@@ -163,12 +169,7 @@ stages:
             #     pdflatex -interaction=nonstopmode main.tex
             #     echo Done pdflatex.
 
-            - task: RunPanDoc@1
-              inputs:
-                sourceFile: '$(Build.SourcesDirectory)/report/main.text'
-                inputFormat: 'latex'
-                outputFormat: 'pdf'
-                destFile: 'somepdf'
+         
 
             - task: SonarCloudAnalyze@1
               displayName: 'Run SonarCloud analysis'
