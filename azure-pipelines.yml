@@ -161,7 +161,7 @@ stages:
               inputs:
                 pollingTimeoutSec: '300'
             
-            - checkout: git://MiniTwit/LatexDevOps
+            - checkout: git://MiniTwit/LatexDevOps 
             #- checkout: DevOps
             - bash: | 
                 sudo apt-get install texlive     
