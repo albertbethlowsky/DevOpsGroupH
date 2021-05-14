@@ -82,22 +82,22 @@ stages:
       #     - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
       #       displayName: 'Infer# analysis result'
 
-      - job: ReSharper
-        #dependsOn: 'RunInferSharp'
-        displayName: 'ReSharper'
-        pool: 
-          vmImage: 'windows-latest'
-        steps:
+      # - job: ReSharper
+      #   #dependsOn: 'RunInferSharp'
+      #   displayName: 'ReSharper'
+      #   pool: 
+      #     vmImage: 'windows-latest'
+        # steps:
       #       - task: ResharperCli@2
       #         inputs:
       #           solutionOrProjectPath: '$(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.sln'
       #           failBuildLevelSelector: 'Warning'
-              - task: RunPanDoc@1
-                inputs:
-                  sourceFile: '$(Build.SourcesDirectory)\report\main.text'
-                  inputFormat: 'latex'
-                  outputFormat: 'pdf'
-                  destFile: '$(Build.SourcesDirectory)'
+              # - task: RunPanDoc@1
+              #   inputs:
+              #     sourceFile: '$(Build.SourcesDirectory)\report\main.text'
+              #     inputFormat: 'latex'
+              #     outputFormat: 'pdf'
+              #     destFile: '$(Build.SourcesDirectory)'
 
       - job: Build_Publish
         #dependsOn: 'RunInferSharp'
@@ -167,7 +167,11 @@ stages:
                 sudo apt-get install texlive     
                 echo Starting pdflatex
                 pdflatex -interaction=nonstopmode main.tex
-                echo $PWD
+                for entry in "$search_dir"/*
+                do
+                  echo "$entry"
+                done
+                echo WORKING DIR $PWD
                 echo Done pdflatex.
 
          
