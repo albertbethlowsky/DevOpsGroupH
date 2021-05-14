@@ -166,7 +166,7 @@ stages:
             - task: CopyFiles@2
               displayName: 'Copy output binaries'
               inputs:
-                SourceFolder: '$(Build.SourcesDirectory)/report'
+                #SourceFolder: '$(Build.SourcesDirectory)/report'
                 #Contents: '**/?(*.dll|*.pdb|*.exe)'
                 Contents: |
                             $(Build.SourcesDirectory)/report/main.tex
