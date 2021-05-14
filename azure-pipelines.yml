@@ -163,23 +163,15 @@ stages:
 
             # - checkout: DevOps
             # - checkout: git://MiniTwit/LatexDevOps
-            - task: CopyFiles@2
-              displayName: 'Copy output binaries'
-              inputs:
-                #SourceFolder: '$(Build.SourcesDirectory)/report'
-                #Contents: '**/?(*.dll|*.pdb|*.exe)'
-                Contents: |
-                            $(Build.SourcesDirectory)/report/main.tex
-                TargetFolder: '$(Build.ArtifactStagingDirectory)' 
+         
 
             - bash: | 
+                git clone https://github.com/alex-bax/DevOps.git
+                
                 sudo apt-get install texlive     
                 echo Starting pdflatex
                 pdflatex -interaction=nonstopmode main.tex
-                for entry in "$search_dir"/*
-                do
-                  echo "$entry"
-                done
+
                 echo WORKING DIR $PWD
                 echo sourcesdir $(Build.SourcesDirectory)
                 echo builartifact $(Build.ArtifactStagingDirectory)
