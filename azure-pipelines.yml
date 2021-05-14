@@ -106,6 +106,8 @@ stages:
           vmImage: ubuntu-latest
       
         steps:
+        - checkout: self
+          persistCredentials: true
             - task: SonarCloudPrepare@1
               inputs:
                 SonarCloud: 'SonarCloud-MiniTwit'
@@ -118,24 +120,24 @@ stages:
                   sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
                   sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
 
-            - task: DotNetCoreCLI@2
-              displayName: 'dotnet test'
-              inputs:
-                command: test
-                projects: '**/*HomeControllerTests/*.csproj'
-                arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
-                publishTestResults: true
+            # - task: DotNetCoreCLI@2
+            #   displayName: 'dotnet test'
+            #   inputs:
+            #     command: test
+            #     projects: '**/*HomeControllerTests/*.csproj'
+            #     arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
+            #     publishTestResults: true
             ##arguments: "--configuration $(BuildConfiguration)"
-            - task: Docker@2
-              displayName: 'Build and push an image to container registry'
-              inputs:
-                command: buildAndPush
-                repository: 'NeutralsMinitwit'
-                dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
-                containerRegistry: 'ACR - with Albert subscription' # name of ACR service from connection
-                buildContext: '.'
-                tags: |
-                  $(tag)
+            # - task: Docker@2
+            #   displayName: 'Build and push an image to container registry'
+            #   inputs:
+            #     command: buildAndPush
+            #     repository: 'NeutralsMinitwit'
+            #     dockerfile: '$(Build.SourcesDirectory)/mvc-minitwit/Dockerfile'
+            #     containerRegistry: 'ACR - with Albert subscription' # name of ACR service from connection
+            #     buildContext: '.'
+            #     tags: |
+            #       $(tag)
 
           # - task: Docker@1
           #   displayName: 'Push the Docker image to Dockerhub'
@@ -166,6 +168,8 @@ stages:
          
 
             - bash: | 
+                git config --global user.email "alex.tennis@live.dk"
+                git config --global user.name "alex-bax"
                 git clone https://github.com/alex-bax/DevOps.git
                 echo $(ls) 
                 sudo apt-get install texlive     
@@ -179,12 +183,12 @@ stages:
 
          
 
-            - task: SonarCloudAnalyze@1
-              displayName: 'Run SonarCloud analysis'
-            - task: SonarCloudPublish@1
-              displayName: 'SonarCloud publish'
-              inputs:
-                pollingTimeoutSec: '300'
+            # - task: SonarCloudAnalyze@1
+            #   displayName: 'Run SonarCloud analysis'
+            # - task: SonarCloudPublish@1
+            #   displayName: 'SonarCloud publish'
+            #   inputs:
+            #     pollingTimeoutSec: '300'
             
           
             
