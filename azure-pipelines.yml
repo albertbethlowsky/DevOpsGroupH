@@ -30,7 +30,6 @@ stages:
           vmImage: ubuntu-latest
        
         steps:
-
           # Build
           - task: DotNetCoreCLI@2
             displayName: 'dotnet build'
@@ -157,12 +156,12 @@ stages:
                 addChangeLog: true
 
             #- checkout: DevOps
-            - checkout: git://MiniTwit/LatexDevOps 
-            - bash: | 
-                sudo apt-get install texlive     
-                echo Starting pdflatex
-                pdflatex -interaction=nonstopmode main.tex
-                echo Done pdflatex.
+            # - checkout: git://MiniTwit/LatexDevOps 
+            # - bash: | 
+            #     sudo apt-get install texlive     
+            #     echo Starting pdflatex
+            #     pdflatex -interaction=nonstopmode main.tex
+            #     echo Done pdflatex.
 
             - task: SonarCloudAnalyze@1
               displayName: 'Run SonarCloud analysis'
