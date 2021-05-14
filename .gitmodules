@@ -1,6 +1,3 @@
-[submodule "report2"]
-	path = report2
-	url = https://git.overleaf.com/6098d16d3ff763af8951c7aa
 [submodule "report"]
 	path = report
 	url = https://git.overleaf.com/6098d16d3ff763af8951c7aa
