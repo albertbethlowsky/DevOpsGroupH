@@ -34,9 +34,8 @@ namespace HomeControllerTests
             username = "dummy321",
             email = "dummy@dummy",
             pwd = "very_secure",
-            
-        };
 
+        };
         private readonly IServiceScope _scope;
         private readonly MvcDbContext _context;
         private readonly CookieContainer cookies = new System.Net.CookieContainer();
