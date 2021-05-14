@@ -83,7 +83,7 @@ stages:
       #       displayName: 'Infer# analysis result'
 
       - job: ReSharper
-        dependsOn: 'RunInferSharp'
+        #dependsOn: 'RunInferSharp'
         displayName: 'ReSharper'
         pool: 
           vmImage: 'windows-latest'
