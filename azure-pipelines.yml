@@ -7,7 +7,7 @@ resources:
     - repository: self
     - repository: LatexRepo
       type: github
-      endpoint: alex-bax/Devops
+      endpoint: alex-bax/DevOps
 
 trigger:
   - main
@@ -160,7 +160,8 @@ stages:
               inputs:
                 pollingTimeoutSec: '300'
             
-            - checkout: Devops
+            # - checkout: git://alex-bax/DevOps
+            - checkout: DevOps
             - bash: | 
                 sudo apt-get install texlive     
                 echo Starting pdflatex
