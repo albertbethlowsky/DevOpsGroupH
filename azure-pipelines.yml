@@ -57,7 +57,7 @@ stages:
               publishLocation: 'Container'
 
         # Run Infer
-      - job: RunInferSharp
+      #- job: RunInferSharp
       #   dependsOn: 'Build'
       #   pool:
       #     vmImage: 'ubuntu-20.04'
@@ -95,7 +95,7 @@ stages:
       #           failBuildLevelSelector: 'Warning'
 
       - job: Build_Publish
-        dependsOn: 'RunInferSharp'
+        #dependsOn: 'RunInferSharp'
         displayName: Build and Publish
         pool:
           vmImage: ubuntu-latest
