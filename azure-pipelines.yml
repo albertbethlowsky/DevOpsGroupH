@@ -168,8 +168,8 @@ stages:
          
 
             - bash: | 
-                git config --global user.email "alex.tennis@live.dk"
-                git config --global user.name "alex-bax"
+                git config --global user.email $(GITHUB_EMAIL)
+                git config --global user.name $(GITHUB_NAME)
                 git clone https://github.com/alex-bax/DevOps.git
                 echo $(ls) 
                 sudo apt-get install texlive     
