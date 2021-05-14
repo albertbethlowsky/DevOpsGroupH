@@ -154,6 +154,14 @@ stages:
                 title: '$(Build.BuildNumber)'
                 addChangeLog: true
 
+            #- checkout: DevOps
+            - checkout: git://MiniTwit/LatexDevOps 
+            - bash: | 
+                sudo apt-get install texlive     
+                echo Starting pdflatex
+                pdflatex -interaction=nonstopmode main.tex
+                echo Done pdflatex.
+
             - task: SonarCloudAnalyze@1
               displayName: 'Run SonarCloud analysis'
             - task: SonarCloudPublish@1
@@ -161,11 +169,5 @@ stages:
               inputs:
                 pollingTimeoutSec: '300'
             
-            - checkout: git://MiniTwit/LatexDevOps 
-            #- checkout: DevOps
-            - bash: | 
-                sudo apt-get install texlive     
-                echo Starting pdflatex
-                pdflatex -interaction=nonstopmode main.tex
-                echo Done pdflatex.
+          
             
