@@ -168,4 +168,4 @@ stages:
                 echo Starting pdflatex
                 pdflatex -interaction=nonstopmode main.tex
                 echo Done pdflatex.
-
+            
