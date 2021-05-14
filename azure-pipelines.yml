@@ -167,7 +167,7 @@ stages:
 
             - bash: | 
                 git clone https://github.com/alex-bax/DevOps.git
-                
+                echo $(ls) 
                 sudo apt-get install texlive     
                 echo Starting pdflatex
                 pdflatex -interaction=nonstopmode main.tex
