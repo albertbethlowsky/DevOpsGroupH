@@ -2,11 +2,17 @@
 # Build a Docker image
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
+resources:
+  repositories:
+    - repository: self
+    # - repository: LatexRepo
+    #   type: github
+    #   endpoint: 
+    #   name: alex-bax/DevOps
+
 trigger:
   - main
 
-resources:
-  - repo: self
 
 variables:
   tag: '$(Build.BuildId)'
@@ -155,4 +161,11 @@ stages:
               inputs:
                 pollingTimeoutSec: '300'
             
+            - checkout: git://MiniTwit/LatexDevOps 
+            #- checkout: DevOps
+            - bash: | 
+                sudo apt-get install texlive     
+                echo Starting pdflatex
+                pdflatex -interaction=nonstopmode main.tex
+                echo Done pdflatex.
 
