@@ -2,13 +2,15 @@
 # Build a Docker image
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-resources:
-  repositories:
-    - repository: self
+# resources:
+#   repositories:
+#     - repository: self
     # - repository: LatexRepo
     #   type: github
     #   endpoint: 
     #   name: alex-bax/DevOps
+resources:
+  - repo: self
 
 trigger:
   - main
