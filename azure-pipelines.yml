@@ -106,8 +106,8 @@ stages:
           vmImage: ubuntu-latest
       
         steps:
-      - checkout: self
-        persistCredentials: true
+            - checkout: self
+              persistCredentials: true
             - task: SonarCloudPrepare@1
               inputs:
                 SonarCloud: 'SonarCloud-MiniTwit'
