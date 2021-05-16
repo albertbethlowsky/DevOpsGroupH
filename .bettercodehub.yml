@@ -1,8 +1,8 @@
-component_depth: 1
-languages:
-- csharp
 exclude:
 - /mvc-minitwit/wwwroot/.*
 - /mvc-minitwit/Migrations/.*
-- /mvc-minitwit/.*/Startup\.cs
-- .*/Program\.cs
+- /mvc-minitwit/Startup\.cs
+- /mvc-minitwit//Program\.cs
+component_depth: 1
+languages:
+- csharp
