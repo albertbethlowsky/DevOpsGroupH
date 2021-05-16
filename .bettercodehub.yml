@@ -4,4 +4,5 @@ languages:
 exclude:
 - /mvc-minitwit/wwwroot/.*
 - /Migrations/.*
-
+.*/Startup\.cs
+.*/Program\.cs
