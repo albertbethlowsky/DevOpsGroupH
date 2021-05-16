@@ -56,31 +56,34 @@ stages:
               publishLocation: 'Container'
 
         # Run Infer
-      #- job: RunInferSharp
-      #   dependsOn: 'Build'
-      #   pool:
-      #     vmImage: 'ubuntu-20.04'
-      #   container:
-      #     image: mcr.microsoft.com/infersharp:v1.0
+      - job: RunInferSharp
+        dependsOn: 'Build'
+        pool:
+          vmImage: 'ubuntu-20.04'
+        container:
+          image: mcr.microsoft.com/infersharp:v1.0
 
-      #   steps:
-      #     # Download binaries
-      #     - task: DownloadBuildArtifacts@0
-      #       displayName: 'Download binaries'
-      #       inputs:
-      #         buildType: 'current'
-      #         downloadType: 'single'
-      #         artifactName: 'inferinput'
-      #         downloadPath: '$(System.ArtifactsDirectory)'
+        steps:
+          # Download binaries
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download binaries'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'inferinput'
+              downloadPath: '$(System.ArtifactsDirectory)'
 
-      #     - script: |
-      #         curl -o run_infersharp.sh https://raw.githubusercontent.com/microsoft/infersharp/v1.0/run_infersharp.sh
-      #         chmod +x run_infersharp.sh
-      #         ./run_infersharp.sh $(System.ArtifactsDirectory)
-      #       displayName: 'Run Infer# analysis'
+          - script: |
+              curl -o run_infersharp.sh https://raw.githubusercontent.com/microsoft/infersharp/v1.0/run_infersharp.sh
+              chmod +x run_infersharp.sh
+              ./run_infersharp.sh $(System.ArtifactsDirectory)
+            displayName: 'Run Infer# analysis'
           
-      #     - script: cat $(Build.SourcesDirectory)/infer-out/report.txt
-      #       displayName: 'Infer# analysis result'
+          - script: |
+              cat $(Build.SourcesDirectory)/infer-out/report.txt
+              echo PRINT report:
+              while read -r line; do echo "$line"; done < $(Build.SourcesDirectory)/infer-out/report.txt
+            displayName: 'Infer# analysis result'
 
       # - job: ReSharper
       #   #dependsOn: 'RunInferSharp'
@@ -182,14 +185,12 @@ stages:
                 echo builartifact $(Build.ArtifactStagingDirectory)
                 echo Done pdflatex.
 
-         
-
-            # - task: SonarCloudAnalyze@1
-            #   displayName: 'Run SonarCloud analysis'
-            # - task: SonarCloudPublish@1
-            #   displayName: 'SonarCloud publish'
-            #   inputs:
-            #     pollingTimeoutSec: '300'
+            - task: SonarCloudAnalyze@1
+              displayName: 'Run SonarCloud analysis'
+            - task: SonarCloudPublish@1
+              displayName: 'SonarCloud publish'
+              inputs:
+                pollingTimeoutSec: '300'
             
           
             
