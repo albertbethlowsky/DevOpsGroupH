@@ -1,2 +1,7 @@
+component_depth: 1
+languages:
+- csharp
 exclude:
 - /mvc-minitwit/wwwroot/.*
+- /Migrations/.*
+
