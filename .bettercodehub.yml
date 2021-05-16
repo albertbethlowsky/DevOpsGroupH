@@ -3,6 +3,6 @@ languages:
 - csharp
 exclude:
 - /mvc-minitwit/wwwroot/.*
-- /Migrations/.*
-.*/Startup\.cs
-.*/Program\.cs
+- /mvc-minitwit/Migrations/.*
+- /mvc-minitwit/.*/Startup\.cs
+- .*/Program\.cs
