@@ -43,7 +43,13 @@ stages:
                 arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
                 publishTestResults: true
             #arguments: "--configuration $(BuildConfiguration)"
-            
+            - task: SonarCloudAnalyze@1
+              displayName: 'Run SonarCloud analysis'
+            - task: SonarCloudPublish@1
+              displayName: 'SonarCloud publish'
+              inputs:
+                pollingTimeoutSec: '300'
+
             - task: Docker@2
               displayName: 'Build and push an image to container registry'
               inputs:
@@ -67,12 +73,7 @@ stages:
                 title: '$(Build.BuildNumber)'
                 addChangeLog: true
 
-            - task: SonarCloudAnalyze@1
-              displayName: 'Run SonarCloud analysis'
-            - task: SonarCloudPublish@1
-              displayName: 'SonarCloud publish'
-              inputs:
-                pollingTimeoutSec: '300'
+           
             
           
             
