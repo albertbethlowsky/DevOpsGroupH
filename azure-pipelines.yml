@@ -2,13 +2,6 @@
 # Build a Docker image
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-# resources:
-#   repositories:
-#     - repository: self
-    # - repository: LatexRepo
-    #   type: github
-    #   endpoint: 
-    #   name: alex-bax/DevOps
 resources:
   - repo: self
 
@@ -27,11 +20,9 @@ stages:
       jobs:
       - job: Build_Publish
         #dependsOn: 'RunInferSharp'
-        displayName: SonarCloud Prepare and Test
+        displayName: Build, Test and Analyse
       
         steps:
-            - checkout: self
-              persistCredentials: true
             - task: SonarCloudPrepare@1
               inputs:
                 SonarCloud: 'SonarCloud-MiniTwit'
@@ -76,26 +67,6 @@ stages:
                 title: '$(Build.BuildNumber)'
                 addChangeLog: true
 
-            # - checkout: DevOps
-            # - checkout: git://MiniTwit/LatexDevOps
-            
-            # - script: | 
-                
-            #     git config --global user.email "alex.tennis@live.dk"
-            #     git config --global user.name "alex-bax"
-            #     git clone https://github.com/alex-bax/DevOps.git
-            #     echo $(ls) 
-            #     sudo apt-get install texlive     
-            #     echo Starting pdflatex
-            #     pdflatex -interaction=nonstopmode main.tex
-
-            #     echo WORKING DIR $PWD
-            #     echo sourcesdir $(Build.SourcesDirectory)
-            #     echo builartifact $(Build.ArtifactStagingDirectory)
-            #     echo Done pdflatex.
-      # - job: SonarCloud_Finish
-      #   displayName: SonarCloud analysis and publish
-      #   steps:
             - task: SonarCloudAnalyze@1
               displayName: 'Run SonarCloud analysis'
             - task: SonarCloudPublish@1
