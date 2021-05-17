@@ -13,7 +13,7 @@ variables:
   ImageName: 'neutralsminitwit:$(Build.BuildId)'
 
 stages:
-    - stage: Build_Test_Analyse 
+    - stage: Test_Analyse_Build 
       displayName: Test
       pool:
         vmImage: ubuntu-latest
