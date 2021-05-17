@@ -113,7 +113,10 @@ namespace mvc_minitwit.Controllers
         public async Task<ActionResult<IEnumerable<dynamic>>> CreateMessageByUser(string username,[FromBody] CreateMessage model)
         {
             UpdateLatest();
-            if(GetUserId(username) == -1) return BadRequest("error");
+            if(GetUserId(username) == -1) {
+            _logger.LogWarning("Error: {user}, does not exist in the database", username);
+            return BadRequest("Error!");
+            }
             Message message = new Message();
             message.author_id = _context.user.Single(x => x.username == username).user_id;
             message.text = model.content;
@@ -154,6 +157,11 @@ namespace mvc_minitwit.Controllers
                 //userId is generated automatically, and the pw is hashed into pw_hash
                 _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pwd)});
                 await _context.SaveChangesAsync();
+
+                if(GetUserId(user.username) == -1) {
+                    _logger.LogError("Unable to save {user} to database", user.username);
+                    error = "failed to store user in database";
+                }
             }
             if (!string.IsNullOrEmpty(error))
             {
@@ -164,7 +172,7 @@ namespace mvc_minitwit.Controllers
             else
             {
 
-                _logger.LogInformation("New API {userID}, successfully registered.", user.user_id.ToString());
+                _logger.LogInformation("New API {userID}, successfully registered.", GetUserId(user.username).ToString());
                 return NoContent();
             }
         }
