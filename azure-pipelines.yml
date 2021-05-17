@@ -28,12 +28,12 @@ stages:
         pool:
           vmImage: ubuntu-latest
        
-        steps:
-          # Build
-          - task: DotNetCoreCLI@2
-            displayName: 'dotnet build'
-            inputs:
-              projects: $(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.csproj
+        # steps:
+        #   # Build
+        #   - task: DotNetCoreCLI@2
+        #     displayName: 'dotnet build'
+        #     inputs:
+        #       projects: $(Build.SourcesDirectory)/mvc-minitwit/mvc-minitwit.csproj
           
           # Copy binaries to a staging folder
       #     - task: CopyFiles@2
@@ -122,14 +122,14 @@ stages:
                   sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
                   sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
 
-            # - task: DotNetCoreCLI@2
-            #   displayName: 'dotnet test'
-            #   inputs:
-            #     command: test
-            #     projects: '**/*HomeControllerTests/*.csproj'
-            #     arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
-            #     publishTestResults: true
-            ##arguments: "--configuration $(BuildConfiguration)"
+            - task: DotNetCoreCLI@2
+              displayName: 'dotnet test'
+              inputs:
+                command: test
+                projects: '**/*HomeControllerTests/*.csproj'
+                arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
+                publishTestResults: true
+            #arguments: "--configuration $(BuildConfiguration)"
             - task: Docker@2
               displayName: 'Build and push an image to container registry'
               inputs:
@@ -140,17 +140,6 @@ stages:
                 buildContext: '.'
                 tags: |
                   $(tag)
-
-          # - task: Docker@1
-          #   displayName: 'Push the Docker image to Dockerhub'
-          #   inputs:
-          #     azureSubscriptionEndpoint: ACR
-          #     azureContainerRegistry: neutralsminitwit.azurecr.io
-          #     #containerregistrytype: 'Container Registry'
-          #     #dockerRegistryEndpoint: 'ACR'
-          #     command: 'Push an image'
-          #     imageName: '$(ImageName)'
-          #   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
             - task: GitHubRelease@1
               inputs:
