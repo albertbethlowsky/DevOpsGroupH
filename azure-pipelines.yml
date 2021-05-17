@@ -96,9 +96,9 @@ stages:
             #     echo sourcesdir $(Build.SourcesDirectory)
             #     echo builartifact $(Build.ArtifactStagingDirectory)
             #     echo Done pdflatex.
-      - job: SonarCloud_Finish
-        displayName: SonarCloud analysis and publish
-        steps:
+      # - job: SonarCloud_Finish
+      #   displayName: SonarCloud analysis and publish
+      #   steps:
           - task: SonarCloudAnalyze@1
             displayName: 'Run SonarCloud analysis'
           - task: SonarCloudPublish@1
