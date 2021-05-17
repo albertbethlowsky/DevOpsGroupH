@@ -76,9 +76,6 @@ stages:
             changeLogType: 'commitBased'
             title: '$(Build.BuildNumber)'
             addChangeLog: true
-              
-
-           
             
           
             
