@@ -48,8 +48,8 @@ namespace HomeControllerTests
             _client = factory.CreateDefaultClient();
             _scope = (factory.Services.GetRequiredService<IServiceScopeFactory>()).CreateScope();
             _context = _scope.ServiceProvider.GetRequiredService<MvcDbContext>();
-            // database is now shared across tests
-            _context.Database.EnsureCreated();
+
+            _context.Database.EnsureCreated(); // database is now shared across tests
         }
 
         //to see more print: dotnet test --logger:"console;verbosity=detailed"
@@ -63,18 +63,19 @@ namespace HomeControllerTests
 
             dummyUser.pwd = null;
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+            var strRes = await resp.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
+            Assert.True(strRes.ToString().Contains("The pwd field is required"));
 
 
             dummyUser.pwd = "";
             var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
+            strRes = await resp2.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
+            Assert.True(strRes.ToString().Contains("The pwd field is required"));
 
-            //doesn't work since get this back: https://tools.ietf.org/html/rfc7231#section-6.5.1
-            //which is json. Have to parse it to that. Error is gen. from ApiData model
-            //Assert.Equal("You have to enter a password", strResp2);
         }
 
         [Fact]
@@ -84,19 +85,9 @@ namespace HomeControllerTests
 
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
 
-        [Fact]
-        public async Task Register_Error_EmptyPW() {
-            _client = factory.CreateClient();
-            dummyUser.pwd = "";
-
-            var response = await _client.PostAsJsonAsync("/register", dummyUser);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-
-            dummyUser.pwd = null;
-            var response2 = await _client.PostAsJsonAsync("/register", dummyUser);
-            Assert.Equal(HttpStatusCode.BadRequest, response2.StatusCode);
+            var strRes = await response.Content.ReadAsStringAsync();
+            Assert.True(strRes.ToString().Contains("The username field is required."));
         }
 
 
@@ -315,11 +306,12 @@ namespace HomeControllerTests
 
         [Fact]
         public async Task GetLatest_Success() {
-            var response = await _client.PostAsJsonAsync("/register", dummyUser);
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            var response = await _client.GetAsync("/latest");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             var strResponse = await response.Content.ReadAsStringAsync();
-            Assert.Equal("", strResponse);
+            Assert.True(strResponse.Contains("latest"));
 
         }
 
