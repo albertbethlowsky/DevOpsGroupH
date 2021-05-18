@@ -1,0 +1,30 @@
+Incident: Users not stored into database correctly
+
+Approach:
+After being notified by red team that an error has preseneted itself within the system,
+blue team accessed our log aggregation tool to try and identify the issue.
+
+Initially nothing seemed out of the ordinary, we therefore split the blue team into two, to try and narrow down the issue:
+Blue team 1 focused on our manual user side of operations where as Blue team 2 looked into the API side.
+Both teams followed the same checklist to compare action taken and result:
+	1. Create user
+	2. SignIn (only manual team)
+	3. Post message
+	4. Follow user & Unfollow user
+	5. Access user timeline (only manual team)
+BT1 did not encounter any abnormal behavior from the system and the logs correctly identified the expected information logs with no warnings or errors occuring.
+BT2 however failed to post messages and follow/unfollow users which lead to suspicions that the problem was API related.
+Logs for create message lead to Error 400 Bad request with text "Error", not prompting specific details to act on.
+Logs for follow/unfollow however yielded the information that the user we tried to use as the follower, did not exist in the system.
+Reperforming steps 3 and 4 for a known user in the system did not return the same errors, prompting the investigation of the user actually having been created in the first place.
+
+Cause:
+After looking through the code for the API, Blue team discovered that even though correct user information
+was applied through the API, the newly created user was never saved to the database itself without prompting any warning.
+
+Aftermath:
+Based on the approach we were able to identify the issue caused by red team,
+however the use of logs only lead us to the correct conclusion indirectly.
+The group decided to implement additional meassures within the login infrastructure to be able to
+more easily assertain similar issues in the future. Issues with identification of userIDs in the database
+have therefore been made more explicit in addition to prompting log warnings and errors if new users are not saved to the database successfully.

@@ -10,61 +10,65 @@ using mvc_minitwit.Data;
 using System;
 using System.Linq;
 
-public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
-{
-    private SqliteConnection Connection;
+namespace HomeControllerTests {
 
-
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
     {
-        Connection = new SqliteConnection("DataSource=:memory:");
-        Connection.Open();
+        private SqliteConnection Connection;
 
-        builder.UseEnvironment("Development");
 
-        builder.ConfigureTestServices(services =>
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            // Unregister existing database service (SQL Server).
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType ==
-                    typeof(DbContextOptions<MvcDbContext>));
+            Connection = new SqliteConnection("DataSource=:memory:");
+            Connection.Open();
 
-            if (descriptor != null) services.Remove(descriptor);
+            builder.UseEnvironment("Development");
 
-            // Register new database service (SQLite In-Memory)
-            services.AddDbContext<MvcDbContext>(options => options.UseSqlite(Connection));
-
-            using (var scope = services.BuildServiceProvider().CreateScope())
+            builder.ConfigureTestServices(services =>
             {
-                var scopedServices = scope.ServiceProvider;
-                var appDb = scopedServices.GetRequiredService<MvcDbContext>();
+                // Unregister existing database service (SQL Server).
+                var descriptor = services.SingleOrDefault(
+                    d => d.ServiceType ==
+                        typeof(DbContextOptions<MvcDbContext>));
 
-                //var db = new DbContextOptionsBuilder<MvcDbContext>();
+                if (descriptor != null) services.Remove(descriptor);
 
-                var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
+                // Register new database service (SQLite In-Memory)
+                services.AddDbContext<MvcDbContext>(options => options.UseSqlite(Connection));
 
-                // Ensure the database is created.
-                appDb.Database.EnsureCreated();
-
-                try
+                using (var scope = services.BuildServiceProvider().CreateScope())
                 {
-                    // Seed the database with some specific test data.
-                    new SeedData().PopulateTestData(appDb);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "An error occurred seeding the " +
-                                        "database with test messages. Error: {ex.Message}");
-                }
-            }
-        });
+                    var scopedServices = scope.ServiceProvider;
+                    var appDb = scopedServices.GetRequiredService<MvcDbContext>();
 
+                    //var db = new DbContextOptionsBuilder<MvcDbContext>();
+
+                    var logger = scopedServices.GetRequiredService<ILogger<CustomWebApplicationFactory<TStartup>>>();
+
+                    // Ensure the database is created.
+                    appDb.Database.EnsureCreated();
+
+                    try
+                    {
+                        // Seed the database with some specific test data.
+                        new SeedData().PopulateTestData(appDb);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "An error occurred seeding the " +
+                                            "database with test messages. Error: {ex.Message}");
+                    }
+                }
+            });
+
+        }
+
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            Connection.Close();
+        }
     }
 
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        Connection.Close();
-    }
 }

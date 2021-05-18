@@ -3,11 +3,8 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=albertbethlowsky_DevOpsGroupH&metric=coverage)](https://sonarcloud.io/dashboard?id=albertbethlowsky_DevOpsGroupH)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=albertbethlowsky_DevOpsGroupH&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=albertbethlowsky_DevOpsGroupH)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=albertbethlowsky_DevOpsGroupH&metric=bugs)](https://sonarcloud.io/dashboard?id=albertbethlowsky_DevOpsGroupH)
-
-
-[![Build Status](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)
-
-[![Build Status](https://dev.azure.com/GroupNeutrals/MiniTwit/_apis/build/status/albertbethlowsky.DevOpsGroupH?branchName=main)](https://dev.azure.com/GroupNeutrals/MiniTwit/_build/latest?definitionId=3&branchName=main)
+[![BCH compliance](https://bettercodehub.com/edge/badge/albertbethlowsky/DevOpsGroupH?branch=main)](https://bettercodehub.com/)
+[![Maintainability](https://api.codeclimate.com/v1/badges/56d1f5c74afcb819805c/maintainability)](https://codeclimate.com/github/albertbethlowsky/DevOpsGroupH/maintainability)
 
 > This project revolves around a forum application called minitwit. The functionalities includes signing up, logging in, posting messages, following other users. The forum has a public timeline where all messages are displayed. Furthermore, if a user is signed in, a personal timeline exists that displays a users own messages aswell as messages of followed users.
 
@@ -24,7 +21,7 @@ To run tests of the application locally, run the following command in the HomeCo
 ### Production Environment (utilizing sql server on azure)
 
 The `azure-pipelines.yml` runs the tests, builds the dockerfile and pushes it to dockerhub, where azure listens.
-The application is hosted on the following web-service domain: http://neutrals-minitwit.azurewebsites.net/
+The application is hosted on the following web-service domain: https://neutrals-minitwit.azurewebsites.net/
 
 The docker-compose file in `mvc-minitwit` contains our monitoring and logging applications, which is being hosted on another webservice and are therefore not part of the azure-pipeline. When the `docker-compose.yml` is being build, it is pushed to dockerhub, where azure is listening.
 The monitoring and logging applications are hosted on the following web-service domain: https://minitwit-neutrals.azurewebsites.net/
@@ -41,7 +38,8 @@ These services are responsible for cloud hosting.
 | Name | Service | Provider | Description |
 |------|---------|----------|-------------|
 | neutrals-minitwit | App Service | Microsoft Azure | Hosting of web applications (.NET application) |
-| minitwit-neutrals | App Service | Microsoft Azure | Hosting of web applications (prometheus, grafana, loki, promtail etc.) |
+| minitwit-neutrals | App Service | Microsoft Azure | Hosting of web applications (prometheus, grafana) |
+| neutralsseq       | App Service | Microsoft Azure | Hosting of web applications (Datalust - Seq) |
 | minitwit-neutrals | SQL Server | Microsoft Azure | Hosting of SQL database |
 | minitwitDb (minitwit-neutrals) | SQL database | Microsoft Azure | SQL database |
 | jokeren9/neutralsminitwit | Docker container | DockerHub | Containerizing of applications |
@@ -61,7 +59,10 @@ Utilizes prometheus data point, which listens to `/metrics`
 
 ### Logging tools
 
-SeriLog
+SeriLog: Layer on top of .NET loggin
+Datalust Seq: Data Visualization and aggregation of Serilog logging data
+https://neutralsseq.azurewebsites.net/
+No credentials needed.
 
 ## Static Tools
 

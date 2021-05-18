@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 namespace mvc_minitwit.HelperClasses
 {
         public class LoginHelper {
-
             public LoginHelper(){}
 
             public Boolean checkLogin()
@@ -28,8 +27,6 @@ namespace mvc_minitwit.HelperClasses
                 } else {
                     return false;
                 }
-
-
             }
 
             public string getUsername()
@@ -47,11 +44,11 @@ namespace mvc_minitwit.HelperClasses
                     HttpContextAccessor accessor = new HttpContextAccessor();
                     var userid = Int32.Parse(accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserID")?.Value);
 
-                return userid;
-                } catch {  
-                return -1;              
+                    return userid;
+                } catch {
+                    return -1;
                 }
-                
+
             }
         }
 }

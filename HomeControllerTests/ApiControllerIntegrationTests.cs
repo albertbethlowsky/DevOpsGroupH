@@ -29,14 +29,13 @@ namespace HomeControllerTests
         private HttpClient _client;
         private CustomWebApplicationFactory<Startup> factory;
         private readonly ITestOutputHelper output;
-        private User dummyUser = new User
+        private ApiUser dummyUser = new ApiUser
         {
             username = "dummy321",
             email = "dummy@dummy",
-            pw_hash = "very_secure",
-            pw_hash2 = "very_secure" //pw_hash val will be hashed in the API
-        };
+            pwd = "very_secure",
 
+        };
         private readonly IServiceScope _scope;
         private readonly MvcDbContext _context;
         private readonly CookieContainer cookies = new System.Net.CookieContainer();
@@ -62,15 +61,14 @@ namespace HomeControllerTests
         {
             _client = factory.CreateClient();
 
-            dummyUser.pw_hash = null;
+            dummyUser.pwd = null;
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
 
             Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
 
 
-            dummyUser.pw_hash = "";
+            dummyUser.pwd = "";
             var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
-            //var strResp2 = await resp.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
 
@@ -80,17 +78,27 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task Register_Error_PWsDontMatch()
-        {
+        public async Task Register_Error_EmptyUserName() {
             _client = factory.CreateClient();
+            dummyUser.username = "";
 
-            dummyUser.pw_hash = "123";
-            dummyUser.pw_hash2 = "321";
-            var resp = await _client.PostAsJsonAsync("/register", dummyUser);
-
-            Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
-
+            var response = await _client.PostAsJsonAsync("/register", dummyUser);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
+
+        [Fact]
+        public async Task Register_Error_EmptyPW() {
+            _client = factory.CreateClient();
+            dummyUser.pwd = "";
+
+            var response = await _client.PostAsJsonAsync("/register", dummyUser);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            dummyUser.pwd = null;
+            var response2 = await _client.PostAsJsonAsync("/register", dummyUser);
+            Assert.Equal(HttpStatusCode.BadRequest, response2.StatusCode);
+        }
+
 
         [Fact]
         public async Task Register_Error_InvalidEmail()
@@ -145,7 +153,7 @@ namespace HomeControllerTests
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
             resp.EnsureSuccessStatusCode();
 
-            var loginResp = await _client.PostAsync("/api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            var loginResp = await _client.PostAsync("/api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
             loginResp.EnsureSuccessStatusCode();
             IEnumerable<string> values;
             if (loginResp.Headers.TryGetValues("Set-Cookie", out values))       //TODO: consider removing the if. Just do assert
@@ -177,12 +185,12 @@ namespace HomeControllerTests
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
             resp.EnsureSuccessStatusCode();
 
-            dummyUser.pw_hash = "incorrect_pw";     //invalid password from seed data user
-            var invalidPWResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            dummyUser.pwd = "incorrect_pw";     //invalid password from seed data user
+            var invalidPWResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
             Assert.Equal(HttpStatusCode.BadRequest, invalidPWResp.StatusCode);
 
             dummyUser.email = "not" + dummyUser.email;      //invalid email
-            var invalidEmailResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            var invalidEmailResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
             Assert.Equal(HttpStatusCode.BadRequest, invalidEmailResp.StatusCode);
 
         }
@@ -193,38 +201,24 @@ namespace HomeControllerTests
             dummyUser.username = "Message_Recording_Success_TestUser";
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
             resp.EnsureSuccessStatusCode();
-            var loginResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            var loginResp = await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
             loginResp.EnsureSuccessStatusCode();
 
             var testMess = "content for test message";
             var postMessageResp = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
             postMessageResp.EnsureSuccessStatusCode();
 
-            //Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
             Assert.Equal(HttpStatusCode.NoContent, postMessageResp.StatusCode);
             Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
-            //testMess = "";
-            //var postMessageResp2 = await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess });
-            //postMessageResp.EnsureSuccessStatusCode();
-
-            //Assert.Equal("Message posted", await postMessageResp.Content.ReadAsStringAsync());
-            //Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
-
         }
-
-        //[Fact]
-        //public async Task CreateMessageByUser_UserNotExist()
-        //{
-
-        //}
 
         [Fact]
         public async Task Message_By_Other_User_Found_On_Public_Timeline()
         {
             dummyUser.username = "Message_By_Other_User_Found_On_Timeline_TestUser";
             await _client.PostAsJsonAsync("/register", dummyUser);
-            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
 
             var testMess1 = "1st user message";
             await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess1 });
@@ -232,7 +226,7 @@ namespace HomeControllerTests
 
             dummyUser.username = "2Message_By_Other_User_Found_On_Timeline_TestUser";
             await _client.PostAsJsonAsync("/register", dummyUser);
-            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
 
             var testMess2 = "2nd user message";
             await _client.PostAsJsonAsync("/msgs/" + dummyUser.username, new CreateMessage { content = testMess2 });
@@ -257,7 +251,7 @@ namespace HomeControllerTests
         {
             dummyUser.username = "Follow_User_Shows_Their_Messages";
             await _client.PostAsJsonAsync("/register", dummyUser);
-            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
 
             await _client.PostAsJsonAsync("msgs/" + dummyUser.username, new CreateMessage { content = "Follow test" });
 
@@ -277,8 +271,7 @@ namespace HomeControllerTests
                     new ApiDataFollow { unfollow = SeedData.user.username });
             unfollowSeedDataResp.EnsureSuccessStatusCode();
 
-            //var unfollowStr = await unfollowSeedDataResp.Content.ReadAsStringAsync();
-            //Assert.Equal(dummyUser.username + " now doesn't follow " + SeedData.user.username, unfollowStr);
+
             Assert.Equal(HttpStatusCode.NoContent, unfollowSeedDataResp.StatusCode);
 
             var getFollowers2 = await _client.GetAsync("fllws/" + dummyUser.username);
@@ -296,7 +289,7 @@ namespace HomeControllerTests
         {
             dummyUser.username = "Follow_User_Twice_Fails_And_Unfollow_Already_NonFollowed_Fails";
             await _client.PostAsJsonAsync("/register", dummyUser);
-            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pw_hash, null);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
 
             var unfollow = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                     new ApiDataFollow { unfollow = SeedData.user.username });
@@ -307,7 +300,37 @@ namespace HomeControllerTests
             var followSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                 new ApiDataFollow { follow = SeedData.user.username });
             Assert.Equal(HttpStatusCode.BadRequest, followSeedDataResp.StatusCode);
+        }
+
+        [Fact]
+        public async Task Follow_User_NotExisting_Fails()
+        {
+            var response = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
+                    new ApiDataFollow { unfollow = SeedData.user.username });
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var strResponse = await response.Content.ReadAsStringAsync();
+            Assert.Equal("error", strResponse);
+        }
+
+        [Fact]
+        public async Task GetLatest_Success() {
+            var response = await _client.PostAsJsonAsync("/register", dummyUser);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            var strResponse = await response.Content.ReadAsStringAsync();
+            Assert.Equal("", strResponse);
 
         }
+
+        [Fact]
+        public async Task SignOut_Success() {
+            dummyUser.username = "SignOut_Success";
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
+            var response = await _client.PostAsync("api/SignOut", null);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
     }
 }
