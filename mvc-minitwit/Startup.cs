@@ -35,12 +35,15 @@ namespace mvc_minitwit
         {
             services.AddControllersWithViews();
 
-            if(Environment.IsDevelopment()) {
-            services.AddDbContext<MvcDbContext>(options =>
-                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))); //database context
-            } else {
-            services.AddDbContext<MvcDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("MvcDbContext"))); //production database context
+            if (Environment.IsDevelopment())
+            {
+                services.AddDbContext<MvcDbContext>(options =>
+                     options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))); //database context
+            }
+            else
+            {
+                services.AddDbContext<MvcDbContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("MvcDbContext"))); //production database context
             }
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();
@@ -73,11 +76,12 @@ namespace mvc_minitwit
             // Custom Metrics to count requests for each endpoint and the method
             var counter = Metrics.CreateCounter("minitwitAPI", "Does great monitoring on API endpoints", new CounterConfiguration
             {
-            LabelNames = new[] { "method", "endpoint" }
+                LabelNames = new[] { "method", "endpoint" }
             });
 
             app.Use((context, next) =>
             {
+                context.Response.Headers.Add("X-Xss-Protection", "1");
                 counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
                 return next();
             });
