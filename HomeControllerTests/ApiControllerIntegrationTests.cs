@@ -48,8 +48,8 @@ namespace HomeControllerTests
             _client = factory.CreateDefaultClient();
             _scope = (factory.Services.GetRequiredService<IServiceScopeFactory>()).CreateScope();
             _context = _scope.ServiceProvider.GetRequiredService<MvcDbContext>();
-            // database is now shared across tests
-            _context.Database.EnsureCreated();
+
+            _context.Database.EnsureCreated(); // database is now shared across tests
         }
 
         //to see more print: dotnet test --logger:"console;verbosity=detailed"
@@ -63,18 +63,31 @@ namespace HomeControllerTests
 
             dummyUser.pwd = null;
             var resp = await _client.PostAsJsonAsync("/register", dummyUser);
+            var strRes = await resp.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, resp.StatusCode);
+            Assert.True(strRes.ToString().Contains("The pwd field is required"));
 
 
             dummyUser.pwd = "";
             var resp2 = await _client.PostAsJsonAsync("/register", dummyUser);
+            strRes = await resp2.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, resp2.StatusCode);
+            Assert.True(strRes.ToString().Contains("The pwd field is required"));
 
-            //doesn't work since get this back: https://tools.ietf.org/html/rfc7231#section-6.5.1
-            //which is json. Have to parse it to that. Error is gen. from ApiData model
-            //Assert.Equal("You have to enter a password", strResp2);
+        }
+
+        [Fact]
+        public async Task Register_Error_EmptyUserName() {
+            _client = factory.CreateClient();
+            dummyUser.username = "";
+
+            var response = await _client.PostAsJsonAsync("/register", dummyUser);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var strRes = await response.Content.ReadAsStringAsync();
+            Assert.True(strRes.ToString().Contains("The username field is required."));
         }
 
 
@@ -189,10 +202,7 @@ namespace HomeControllerTests
             Assert.Equal(HttpStatusCode.NoContent, postMessageResp.StatusCode);
             Assert.Equal(testMess, _context.message.Where(m => m.text == testMess).Single().text);
 
-
         }
-
-
 
         [Fact]
         public async Task Message_By_Other_User_Found_On_Public_Timeline()
@@ -281,7 +291,38 @@ namespace HomeControllerTests
             var followSeedDataResp = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                 new ApiDataFollow { follow = SeedData.user.username });
             Assert.Equal(HttpStatusCode.BadRequest, followSeedDataResp.StatusCode);
+        }
+
+        [Fact]
+        public async Task Follow_User_NotExisting_Fails()
+        {
+            var response = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
+                    new ApiDataFollow { unfollow = SeedData.user.username });
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var strResponse = await response.Content.ReadAsStringAsync();
+            Assert.Equal("error", strResponse);
+        }
+
+        [Fact]
+        public async Task GetLatest_Success() {
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            var response = await _client.GetAsync("/latest");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var strResponse = await response.Content.ReadAsStringAsync();
+            Assert.True(strResponse.Contains("latest"));
 
         }
+
+        [Fact]
+        public async Task SignOut_Success() {
+            dummyUser.username = "SignOut_Success";
+            await _client.PostAsJsonAsync("/register", dummyUser);
+            await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
+            var response = await _client.PostAsync("api/SignOut", null);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
     }
 }

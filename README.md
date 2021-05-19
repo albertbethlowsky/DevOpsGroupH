@@ -21,7 +21,7 @@ To run tests of the application locally, run the following command in the HomeCo
 ### Production Environment (utilizing sql server on azure)
 
 The `azure-pipelines.yml` runs the tests, builds the dockerfile and pushes it to dockerhub, where azure listens.
-The application is hosted on the following web-service domain: http://neutrals-minitwit.azurewebsites.net/
+The application is hosted on the following web-service domain: https://neutrals-minitwit.azurewebsites.net/
 
 The docker-compose file in `mvc-minitwit` contains our monitoring and logging applications, which is being hosted on another webservice and are therefore not part of the azure-pipeline. When the `docker-compose.yml` is being build, it is pushed to dockerhub, where azure is listening.
 The monitoring and logging applications are hosted on the following web-service domain: https://minitwit-neutrals.azurewebsites.net/
