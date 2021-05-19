@@ -36,4 +36,21 @@
  - **Insecure pacages or libraries**: A system pacage/dependency contains an intetional or unintentional security vulnerability. Thereby compromising the integrity of the system. 
 ## Risk analysis
 
-### Likelyhood & impact
+### Likelihood & impact
+
+![img](https://i.imgur.com/I8qOcfG.png)
+
+The white numbers are our risks mapped into our matrix.
+
+| No. | Risk                          | Risk likelihood | Risk impact |
+|-----|-------------------------------|-----------------|-------------|
+| 1   | SQL injection                 | low             | high        |
+| 2   | Brute force attack            | medium          | low         |
+| 3   | Xss attack                    | low             | low         |
+| 4   | DoS attack                    | high            | medium      |
+| 5   | Hack Github                   | low             | extreme     |
+| 6   | Hack Azure Account            | low             | extreme     |
+| 7   | Insecure packages & libraries | medium          | high        |
+
+### Discussion
+
