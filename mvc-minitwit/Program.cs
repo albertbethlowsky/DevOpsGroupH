@@ -16,7 +16,7 @@ namespace mvc_minitwit
     {
         public static void Main(string[] args)
         {
-            
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .MinimumLevel.Information()
@@ -55,7 +55,7 @@ namespace mvc_minitwit
             {
                 webBuilder.UseStartup<Startup>();
             });
-            
-            
+
+
     }
 }

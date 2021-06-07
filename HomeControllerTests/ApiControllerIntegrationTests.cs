@@ -117,13 +117,13 @@ namespace HomeControllerTests
         {
             await _client.PostAsJsonAsync("/register", dummyUser);
 
+
             //register same user again:
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResponse = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.Equal("The username is already taken", strResponse);
-
         }
 
         [Fact]
