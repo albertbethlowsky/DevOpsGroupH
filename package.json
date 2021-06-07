@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "dependency-cruiser": "^10.0.1"
+  }
+}
