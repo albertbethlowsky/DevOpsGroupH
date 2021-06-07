@@ -82,9 +82,9 @@ namespace mvc_minitwit
             app.Use((context, next) =>
             {
                 counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
-                context.Response.Headers.Add("X-Frame-Options", "DENY");
-                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
+            //    context.Response.Headers.Add("X-Frame-Options", "DENY");
+            //    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            //    context.Response.Headers.Add("X-Xss-Protection", "1; mode=block");
                 return next();
             });
 
