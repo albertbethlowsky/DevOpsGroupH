@@ -38,20 +38,13 @@ stages:
             - task: UseDotNet@2
               displayName: 'dotnet test'
               inputs:
+                command: test
                 version: '5.0.x'
                 packageType: runtime
-                command: 'test'
-                projects: '$(Build.SourcesDirectory)/HomeControllerTests/*.csproj'
+                projects: '**/*HomeControllerTests/*.csproj'
                 arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
                 publishTestResults: true
-                testRunTitle: 'dotnet test v2'
-           # - task: DotNetCoreCLI@2
-            #  displayName: 'dotnet test'
-             # inputs:
-             #   command: test
-             #   projects: '**/*HomeControllerTests/*.csproj'
-             #   arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
-             #   publishTestResults: true
+
             #arguments: "--configuration $(BuildConfiguration)"
             - task: SonarCloudAnalyze@1
               displayName: 'Run SonarCloud analysis'
