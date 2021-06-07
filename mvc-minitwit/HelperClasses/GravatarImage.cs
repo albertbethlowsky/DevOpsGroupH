@@ -17,14 +17,14 @@ namespace mvc_minitwit.HelperClasses
         public class GravatarImage{
 
             public GravatarImage(){}
-        
-        public string emailToGravatar(string email) 
+
+        public string emailToGravatar(string email)
         {
             email = email.Trim().ToLower();
             var url = new StringBuilder("http://www.gravatar.com/avatar/", 48);
             url.Append(hashBuilder(email));
             url.Append("?d=identicon&s=48");
-        
+
             return url.ToString();
         }
 
@@ -39,6 +39,6 @@ namespace mvc_minitwit.HelperClasses
             }
 
             return hash.ToString();
-        } 
+        }
     }
 }
