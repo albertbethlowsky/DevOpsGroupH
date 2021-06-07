@@ -34,6 +34,7 @@ stages:
                   sonar.exclusions=**/obj/**,**/*.dll
                   sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
                   sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+            #trying specifying version:
             - task: UseDotNet@2
               displayName: 'dotnet test'
               inputs:
