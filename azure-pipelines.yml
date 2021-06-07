@@ -34,8 +34,11 @@ stages:
                   sonar.exclusions=**/obj/**,**/*.dll
                   sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
                   sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
-            - task: DotNetCoreCLI@2
+            - task: UseDotNet@2
+              displayName: 'dotnet test'
               inputs:
+                version: '5.0.x'
+                packageType: runtime
                 command: 'test'
                 projects: '$(Build.SourcesDirectory)/HomeControllerTests/*.csproj'
                 arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
