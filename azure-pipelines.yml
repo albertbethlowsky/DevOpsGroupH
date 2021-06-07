@@ -34,12 +34,12 @@ stages:
                   sonar.exclusions=**/obj/**,**/*.dll
                   sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
                   sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
-                  
+
             - task: UseDotNet@2
-              displayName: 'install dotnet 5.0.2'
+              displayName: 'install dotnet 5.0.202'
               inputs:
                 packageType: sdk
-                version: '5.0.2'
+                version: '5.0.202'
                 projects: '**/*HomeControllerTests/*.csproj'
                 installationPath: $(Agent.ToolsDirectory)/dotnet
 
