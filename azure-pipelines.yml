@@ -40,7 +40,6 @@ stages:
               inputs:
                 packageType: sdk
                 version: '5.0.202'
-                projects: '**/*HomeControllerTests/*.csproj'
                 installationPath: $(Agent.ToolsDirectory)/dotnet
 
             #trying specifying version:
@@ -52,10 +51,17 @@ stages:
                 arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
                 publishTestResults: true
 
-                
+            - task: UseDotNet@2
+              displayName: 'install dotnet 2.0.0'
+              inputs:
+                packageType: sdk
+                version: '2.0.0'
+                installationPath: $(Agent.ToolsDirectory)/dotnet
             #arguments: "--configuration $(BuildConfiguration)"
+            
             - task: SonarCloudAnalyze@1
               displayName: 'Run SonarCloud analysis'
+
             - task: SonarCloudPublish@1
               displayName: 'SonarCloud publish'
               inputs:
