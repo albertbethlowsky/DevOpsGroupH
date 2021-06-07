@@ -34,14 +34,20 @@ stages:
                   sonar.exclusions=**/obj/**,**/*.dll
                   sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
                   sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
-
             - task: DotNetCoreCLI@2
-              displayName: 'dotnet test'
               inputs:
-                command: test
+                command: 'test'
                 projects: '**/*HomeControllerTests/*.csproj'
                 arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
                 publishTestResults: true
+                testRunTitle: 'dotnet test v2'
+           # - task: DotNetCoreCLI@2
+            #  displayName: 'dotnet test'
+             # inputs:
+             #   command: test
+             #   projects: '**/*HomeControllerTests/*.csproj'
+             #   arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
+             #   publishTestResults: true
             #arguments: "--configuration $(BuildConfiguration)"
             - task: SonarCloudAnalyze@1
               displayName: 'Run SonarCloud analysis'
