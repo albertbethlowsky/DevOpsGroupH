@@ -57,7 +57,7 @@ namespace HomeControllerTests
 
 
         [Fact]
-        public async Task Register_Error_HaveToEnterPW()
+        public async Task Register_Error_HaveToEnterPW() //potential error in here?
         {
             _client = factory.CreateClient();
 
@@ -79,7 +79,7 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task Register_Error_EmptyUserName() {
+        public async Task Register_Error_EmptyUserName() { //potential here?
             _client = factory.CreateClient();
             dummyUser.username = "";
 
@@ -293,7 +293,7 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task Follow_User_NotExisting_Fails()
+        public async Task Follow_User_NotExisting_Fails() //potential
         {
             var response = await _client.PostAsJsonAsync("fllws/" + dummyUser.username,
                     new ApiDataFollow { unfollow = SeedData.user.username });
@@ -304,7 +304,8 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task GetLatest_Success() {
+        public async Task GetLatest_Success() //potential
+        {
             await _client.PostAsJsonAsync("/register", dummyUser);
             var response = await _client.GetAsync("/latest");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -315,7 +316,8 @@ namespace HomeControllerTests
         }
 
         [Fact]
-        public async Task SignOut_Success() {
+        public async Task SignOut_Success() //potential
+        {
             dummyUser.username = "SignOut_Success";
             await _client.PostAsJsonAsync("/register", dummyUser);
             await _client.PostAsync("api/SignIn?email=" + dummyUser.email + "&password=" + dummyUser.pwd, null);
