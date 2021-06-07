@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mvc-minitwit", "mvc-minitwit.csproj", "{6737CBE9-01A8-4FB6-85C2-34D8F7F53CF9}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EF66914A-E6D5-44E3-B4F9-D61FD62557CB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeControllerTests", "..\HomeControllerTests\HomeControllerTests.csproj", "{0490517A-FAAA-463C-802A-03C5A7BB1987}"
 EndProject
 Global
