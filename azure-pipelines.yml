@@ -37,7 +37,7 @@ stages:
             - task: DotNetCoreCLI@2
               inputs:
                 command: 'test'
-                projects: '**/*HomeControllerTests/*.csproj'
+                projects: '$(Build.SourcesDirectory)/HomeControllerTests/*.csproj'
                 arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
                 publishTestResults: true
                 testRunTitle: 'dotnet test v2'
