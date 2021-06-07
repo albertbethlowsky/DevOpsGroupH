@@ -113,10 +113,10 @@ namespace mvc_minitwit.Controllers
         public async Task<ActionResult<IEnumerable<dynamic>>> CreateMessageByUser(string username,[FromBody] CreateMessage model)
         {
             UpdateLatest();
-            if(GetUserId(username) == -1) {
-           // _logger.LogWarning("Error: {user}, does not exist in the database", username);
-            return BadRequest("Error!");
-            }
+            // if(GetUserId(username) == -1) {
+            //  _logger.LogWarning("Error: {user}, does not exist in the database", username);
+            // return BadRequest("Error!");
+            // }
             Message message = new Message();
             message.author_id = _context.user.Single(x => x.username == username).user_id;
             message.text = model.content;
@@ -134,18 +134,19 @@ namespace mvc_minitwit.Controllers
         {
             string error = "";
 
-            if (string.IsNullOrEmpty(user.username))
-            {
-                error = "You have to enter a username";
-            }
-            else if (string.IsNullOrEmpty(user.email) || !user.email.Contains("@"))
+            // if (string.IsNullOrEmpty(user.username))
+            // {
+            //     error = "You have to enter a username";
+            // }
+            // else 
+            if (string.IsNullOrEmpty(user.email) || !user.email.Contains("@"))
             {
                 error = "You have to enter a valid email address";
             }
-            else if (string.IsNullOrEmpty(user.pwd))
-            {
-                error = "You have to enter a password";
-            }
+            // else if (string.IsNullOrEmpty(user.pwd))
+            // {
+            //     error = "You have to enter a password";
+            // }
             else if (GetUserId(user.username) != -1)
             {
                 error = "The username is already taken";
@@ -158,10 +159,10 @@ namespace mvc_minitwit.Controllers
                 _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pwd)});
                 await _context.SaveChangesAsync();
 
-                if(GetUserId(user.username) == -1) {
-                    //_logger.LogError("Unable to save {user} to database", user.username);
-                    error = "failed to store user in database";
-                }
+                // if(GetUserId(user.username) == -1) {
+                //     _logger.LogError("Unable to save {user} to database", user.username);
+                //     error = "failed to store user in database";
+                // }
             }
             if (!string.IsNullOrEmpty(error))
             {
@@ -286,7 +287,7 @@ namespace mvc_minitwit.Controllers
                 //_logger.LogInformation("Fetched follower list for {whoID}", userid.ToString());
                 return Ok(jsonreturn);
             }
-            return Ok("other");
+            //return Ok("other");
         }
 
     }
