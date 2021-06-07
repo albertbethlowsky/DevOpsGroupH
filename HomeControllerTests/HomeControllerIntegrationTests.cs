@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Web.Mvc;
 
-namespace HomeControllerTests
+namespace HomeControllerTests //potential 
 {
     public class HomeControllerIntegrationTests : IClassFixture<CustomWebApplicationFactory<Startup>>
     {

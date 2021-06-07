@@ -16,7 +16,6 @@ namespace HomeControllerTests {
     {
         private SqliteConnection Connection;
 
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             Connection = new SqliteConnection("DataSource=:memory:");
