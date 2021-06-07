@@ -114,7 +114,7 @@ namespace mvc_minitwit.Controllers
         {
             UpdateLatest();
             if(GetUserId(username) == -1) {
-            _logger.LogWarning("Error: {user}, does not exist in the database", username);
+           // _logger.LogWarning("Error: {user}, does not exist in the database", username);
             return BadRequest("Error!");
             }
             Message message = new Message();
@@ -125,7 +125,7 @@ namespace mvc_minitwit.Controllers
 
             _context.message.Add(message);
             await _context.SaveChangesAsync();
-           _logger.LogInformation("API user {userID}, posted a new message", message.author_id.ToString());
+          // _logger.LogInformation("API user {userID}, posted a new message", message.author_id.ToString());
            return NoContent();
         }
 
@@ -152,27 +152,27 @@ namespace mvc_minitwit.Controllers
             }
             else
             {
-                //The user given in the json body from the request,
+                //The user given in the json body from the request,  
                 //isn't added directly to  the context (that would insecure). But its attributes are used such that
                 //userId is generated automatically, and the pw is hashed into pw_hash
                 _context.user.Add(new User { username = user.username, email = user.email, pw_hash = new GravatarImage().hashBuilder(user.pwd)});
                 await _context.SaveChangesAsync();
 
                 if(GetUserId(user.username) == -1) {
-                    _logger.LogError("Unable to save {user} to database", user.username);
+                    //_logger.LogError("Unable to save {user} to database", user.username);
                     error = "failed to store user in database";
                 }
             }
             if (!string.IsNullOrEmpty(error))
             {
-                _logger.LogWarning("API user failed to successfully register: {error}.", error);
+                //_logger.LogWarning("API user failed to successfully register: {error}.", error);
                 return BadRequest(error);
 
             }
             else
             {
 
-                _logger.LogInformation("New API {userID}, successfully registered.", GetUserId(user.username).ToString());
+                //_logger.LogInformation("New API {userID}, successfully registered.", GetUserId(user.username).ToString());
                 return NoContent();
             }
         }
@@ -196,10 +196,10 @@ namespace mvc_minitwit.Controllers
 
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                _logger.LogInformation("API user {userID} successfully signed in.", user.user_id.ToString());
+                //_logger.LogInformation("API user {userID} successfully signed in.", user.user_id.ToString());
                 return NoContent();
             } else {
-                _logger.LogWarning("API user failed to successfully sign in.");
+                //_logger.LogWarning("API user failed to successfully sign in.");
                 return BadRequest("Wrong email or password");
             }
 
@@ -235,7 +235,7 @@ namespace mvc_minitwit.Controllers
 
                 if (followersOfUserId.Where(f => f.whom_id == userToFollowId).Any())
                 {
-                    _logger.LogInformation("{whoID}, already follows {whomID}.", userid.ToString(), userToFollowId.ToString());
+                    //_logger.LogInformation("{whoID}, already follows {whomID}.", userid.ToString(), userToFollowId.ToString());
                     return BadRequest(username + " already follows " + userToFollow);
                 }
 
@@ -244,7 +244,7 @@ namespace mvc_minitwit.Controllers
                 follower.whom_id = userToFollowId;
                 _context.Add(follower);
                 _context.SaveChanges();
-                _logger.LogInformation("{whoID}, now follows {whomID}.", userid.ToString(), userToFollowId.ToString());
+                //_logger.LogInformation("{whoID}, now follows {whomID}.", userid.ToString(), userToFollowId.ToString());
                 return NoContent();
 
             } else if(verb == "POST" && json.Result.unfollow != null) {
@@ -256,7 +256,7 @@ namespace mvc_minitwit.Controllers
 
                 if (!followersOfUserId.Where(f => f.whom_id == userToUnfollowId).Any())
                 {
-                    _logger.LogInformation("{whoID}, is not currently following {whomID}.", userid.ToString(), userToUnfollowId.ToString());
+                    //_logger.LogInformation("{whoID}, is not currently following {whomID}.", userid.ToString(), userToUnfollowId.ToString());
                     return BadRequest(username + " isn't following " + userToUnfollow + " to begin with");
                 }
 
@@ -265,7 +265,7 @@ namespace mvc_minitwit.Controllers
                 follower.whom_id = userToUnfollowId;
                 _context.Remove(follower);
                 _context.SaveChanges();
-                _logger.LogInformation("{whoID}, is not following {whomID} anymore.", userid.ToString(), userToUnfollowId.ToString());
+                //_logger.LogInformation("{whoID}, is not following {whomID} anymore.", userid.ToString(), userToUnfollowId.ToString());
                 return NoContent();
 
             } else if(verb == "GET"){ //needs refactoring to use ORM instead of query
@@ -283,7 +283,7 @@ namespace mvc_minitwit.Controllers
                 }
                 ApiDataFollows returnfollows = new ApiDataFollows {follows = Follows};
                 var jsonreturn = JsonSerializer.Serialize(returnfollows);
-                _logger.LogInformation("Fetched follower list for {whoID}", userid.ToString());
+                //_logger.LogInformation("Fetched follower list for {whoID}", userid.ToString());
                 return Ok(jsonreturn);
             }
             return Ok("other");
