@@ -117,7 +117,6 @@ namespace HomeControllerTests
         {
             await _client.PostAsJsonAsync("/register", dummyUser);
 
-
             //register same user again:
             var response = await _client.PostAsJsonAsync("/register", dummyUser);
             var strResponse = await response.Content.ReadAsStringAsync();
