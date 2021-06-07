@@ -287,7 +287,7 @@ namespace mvc_minitwit.Controllers
                 //_logger.LogInformation("Fetched follower list for {whoID}", userid.ToString());
                 return Ok(jsonreturn);
             }
-            //return Ok("other");
+            return Ok("other");
         }
 
     }
