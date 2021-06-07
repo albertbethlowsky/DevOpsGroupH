@@ -91,9 +91,6 @@ namespace mvc_minitwit.Controllers
                                 select
                                 new TimelineData {message_id = m.message_id, author_id = m.author_id, email = u.email, username = u.username, text = m.text, pub_date = m.pub_date, isFollowed = false})
                                                 .Where(u => u.username == id).OrderByDescending(t => t.message_id).Take(50).ToList();
-
-
-
                 if(lh.checkLogin())
                 {
                     var checkfollow = (from f in _context.follower
@@ -188,7 +185,7 @@ namespace mvc_minitwit.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost] 
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignIn(string email, string pw_hash)
         {
@@ -218,7 +215,6 @@ namespace mvc_minitwit.Controllers
 
                         _logger.LogInformation("{userID}, just logged into the website!", user.user_id.ToString());
                         return RedirectToAction("Timeline");
-
                     }
                 }
                 else
