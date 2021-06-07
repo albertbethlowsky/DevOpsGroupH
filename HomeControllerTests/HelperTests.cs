@@ -14,7 +14,7 @@ namespace HomeControllerTests
             var addOneDay = (new System.TimeSpan(1,0,0,0)).TotalSeconds;    // add 1 day to init date: 1970-01-01 @ 00:00
             var dateStr = tc.formatIntToDate((int) addOneDay);
 
-           //Assert.Equal(initDate, dateStr);
+           Assert.Equal(initDate, dateStr);
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace HomeControllerTests
             var addOneDay = (new System.TimeSpan(0,0,99,0)).TotalSeconds;    // add 1 day to init date: 1970-01-01 @ 00:00
             var dateStr = tc.formatIntToDate((int) addOneDay);
 
-            //Assert.False(initDate.Equals(dateStr));
+            Assert.False(initDate.Equals(dateStr));
         }
 
     }
