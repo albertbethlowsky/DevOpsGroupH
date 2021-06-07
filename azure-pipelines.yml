@@ -39,7 +39,7 @@ stages:
               displayName: 'dotnet test'
               inputs:
                 command: test
-                version: '5.0.202'
+                version: '5.0.2'
                 packageType: runtime
                 projects: '**/*HomeControllerTests/*.csproj'
                 arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger trx'
